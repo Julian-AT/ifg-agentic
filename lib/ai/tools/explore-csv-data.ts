@@ -54,11 +54,11 @@ export const exploreCsvData = () =>
           if (sampleValues.length > 0) {
             // Check if all values are numbers
             const allNumbers = sampleValues.every(
-              (val) => !isNaN(Number(val)) && val !== ""
+              (val) => !Number.isNaN(Number(val)) && val !== ""
             );
             // Check if all values look like dates
             const allDates = sampleValues.every(
-              (val) => !isNaN(Date.parse(val))
+              (val) => !Number.isNaN(Date.parse(val))
             );
 
             if (allNumbers) {
@@ -95,7 +95,7 @@ export const exploreCsvData = () =>
         return result;
       } catch (error) {
         console.error("Error exploring CSV:", error);
-        throw new Error(`Failed to explore CSV data: ${error.message}`);
+        throw new Error(`Failed to explore CSV data: ${error}`);
       }
     },
   });

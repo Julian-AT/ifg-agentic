@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { ChatHeader } from "@/components/chat-header";
 import type { Vote } from "@/lib/db/schema";
-import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
+import { cn, fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
 import { Artifact } from "./artifact";
 import { MultimodalInput } from "./multimodal-input";
 import { Messages } from "./messages";
@@ -23,6 +23,8 @@ import { ChatSDKError } from "@/lib/errors";
 import type { Attachment, ChatMessage } from "@/lib/types";
 import { useDataStream } from "./data-stream-provider";
 import { DatasetSearchSkeleton } from "./dataset-message";
+import GradientBackground from "./gradient-background";
+import { SuggestedActions } from "./suggested-actions";
 
 export function Chat({
   id,
@@ -129,15 +131,20 @@ export function Chat({
 
   return (
     <>
-      <div className="flex flex-col min-w-0 h-dvh bg-background">
-        <ChatHeader
-          chatId={id}
-          selectedModelId={initialChatModel}
-          selectedVisibilityType={initialVisibilityType}
-          isReadonly={isReadonly}
-          session={session}
-        />
-
+      <GradientBackground active={true} />
+      <ChatHeader
+        chatId={id}
+        selectedModelId={initialChatModel}
+        selectedVisibilityType={initialVisibilityType}
+        isReadonly={isReadonly}
+        session={session}
+      />
+      <div
+        className={cn(
+          "flex flex-col min-w-0 h-full bg-transparent z-20",
+          messages.length === 0 && "items-center justify-center"
+        )}
+      >
         <Messages
           chatId={id}
           status={status}
@@ -149,7 +156,12 @@ export function Chat({
           isArtifactVisible={isArtifactVisible}
         />
 
-        <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
+        <form
+          className={cn(
+            "flex flex-col mx-auto bg-transparent pb-4 md:pb-6 gap-2 w-full md:max-w-3xl fixed bottom-0 left-0 right-0 px-6 md:px-0",
+            messages.length === 0 && "md:max-w-4xl relative"
+          )}
+        >
           {!isReadonly && (
             <MultimodalInput
               chatId={id}
@@ -166,6 +178,20 @@ export function Chat({
             />
           )}
         </form>
+
+        {messages.length === 0 && (
+          <>
+            <SuggestedActions
+              chatId={id}
+              sendMessage={sendMessage}
+              selectedVisibilityType={visibilityType}
+            />
+            <div className="absolute bottom-5 left-0 right-0 text-center text-sm text-foreground/65">
+              Es können Fehler oder Missinformationen auftreten. Überprüfe
+              Ausgaben auf ihre Richtigkeit.
+            </div>
+          </>
+        )}
       </div>
 
       <Artifact

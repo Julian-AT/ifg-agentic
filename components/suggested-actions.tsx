@@ -20,34 +20,35 @@ function PureSuggestedActions({
 }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: "Finde Datensätze über",
-      label: "österreichische Bevölkerungsstatistiken",
+      title: "Bevölkerungsentwicklung",
+      label: "Demografische Trends und Statistiken",
       action:
-        "Finde Datensätze über österreichische Bevölkerungsstatistiken von data.gv.at",
+        "Zeige mir aktuelle Daten zur Bevölkerungsentwicklung und demografischen Trends in Österreich",
     },
     {
-      title: "Zeige mir Daten zu",
-      label: "Wiener öffentlichen Verkehrsmitteln",
+      title: "Verkehr & Mobilität",
+      label: "Öffentliche Verkehrsdaten",
       action:
-        "Zeige mir Daten zu Wiener öffentlichen Verkehrsmitteln von data.gv.at",
+        "Suche nach Datensätzen zu öffentlichen Verkehrsmitteln, Fahrgastzahlen und Verkehrsaufkommen",
     },
     {
-      title: "Welche Datensätze gibt es",
-      label: "für österreichischen Energieverbrauch?",
+      title: "Energie & Umwelt",
+      label: "Nachhaltigkeit und Klimadaten",
       action:
-        "Welche Datensätze gibt es für österreichischen Energieverbrauch auf data.gv.at?",
+        "Finde Informationen zu Energieverbrauch, erneuerbaren Energien und Umweltindikatoren",
     },
     {
-      title: "Finde Umweltdaten",
-      label: "für Österreich",
-      action: "Finde Umweltdaten für Österreich auf data.gv.at",
+      title: "Wirtschaft & Arbeit",
+      label: "Arbeitsmarkt und Wirtschaftsdaten",
+      action:
+        "Analysiere Arbeitsmarktdaten, Wirtschaftsindikatoren und Beschäftigungstrends",
     },
   ];
 
   return (
     <div
       data-testid="suggested-actions"
-      className="grid sm:grid-cols-2 gap-2 w-full"
+      className="grid sm:grid-cols-2 gap-2 w-full max-w-4xl mx-auto px-6 md:px-0"
     >
       {suggestedActions.map((suggestedAction, index) => (
         <motion.div
@@ -68,7 +69,7 @@ function PureSuggestedActions({
                 parts: [{ type: "text", text: suggestedAction.action }],
               });
             }}
-            className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-auto justify-start items-start"
+            className="text-left bg-card/60 border border-border hover:bg-card/70 cursor-pointer rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-auto justify-start items-start"
           >
             <span className="font-medium">{suggestedAction.title}</span>
             <span className="text-muted-foreground">

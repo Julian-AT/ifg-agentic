@@ -210,7 +210,7 @@ function PureMultimodalInput({
   }, [status, scrollToBottom]);
 
   return (
-    <div className="relative w-full flex flex-col gap-4">
+    <div className="relative w-full flex flex-col gap-4 ">
       <AnimatePresence>
         {!isAtBottom && (
           <motion.div
@@ -235,16 +235,6 @@ function PureMultimodalInput({
           </motion.div>
         )}
       </AnimatePresence>
-
-      {messages.length === 0 &&
-        attachments.length === 0 &&
-        uploadQueue.length === 0 && (
-          <SuggestedActions
-            sendMessage={sendMessage}
-            chatId={chatId}
-            selectedVisibilityType={selectedVisibilityType}
-          />
-        )}
 
       <input
         type="file"
@@ -285,8 +275,10 @@ function PureMultimodalInput({
         value={input}
         onChange={handleInput}
         className={cx(
-          "min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-2xl text-base! bg-muted pb-10 dark:border-zinc-700",
-          className
+          "min-h-[30px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-2xl text-base! bg-muted pb-10 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 border border-border",
+          className,
+          messages.length === 0 &&
+            "min-h-[150px] w-full rounded-3xl px-5 py-3 bg-background/70"
         )}
         rows={2}
         autoFocus
@@ -374,7 +366,7 @@ function PureStopButton({
   return (
     <Button
       data-testid="stop-button"
-      className="rounded-full p-1.5 h-fit border dark:border-zinc-600"
+      className="rounded-full p-1.5 h-fit border "
       onClick={(event) => {
         event.preventDefault();
         stop();
@@ -400,7 +392,7 @@ function PureSendButton({
   return (
     <Button
       data-testid="send-button"
-      className="rounded-full p-1.5 h-fit border dark:border-zinc-600"
+      className="rounded-full p-1.5 h-fit border bg-primary-foreground text-secondary"
       onClick={(event) => {
         event.preventDefault();
         submitForm();

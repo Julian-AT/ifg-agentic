@@ -52,11 +52,61 @@ export const listDatasets = ({ session, dataStream }: DatasetToolsProps) =>
     },
   });
 
+// Helper function to generate alternative search terms
+const generateAlternativeTerms = (originalQuery: string): string[] => {
+  const alternatives: string[] = [];
+
+  // Remove common words and simplify
+  const simplified = originalQuery
+    .toLowerCase()
+    .replace(
+      /\b(der|die|das|ein|eine|von|zu|in|mit|für|auf|über|nach|bei|durch|unter|zwischen|während|seit|bis|gegen|ohne|um|vor|hinter|neben|innerhalb|außerhalb|oberhalb|unterhalb|entlang|jenseits|diesseits|anstatt|statt|trotz|wegen|aufgrund|bezüglich|hinsichtlich|bezogen|bezugnehmend)\b/g,
+      ""
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (simplified !== originalQuery.toLowerCase()) {
+    alternatives.push(simplified);
+  }
+
+  // Extract key words (single terms)
+  const words = simplified.split(" ").filter((word) => word.length > 3);
+  alternatives.push(...words);
+
+  // Add broad category terms based on keywords
+  const categoryMappings: Record<string, string[]> = {
+    energie: ["energie", "strom", "energie"],
+    bevölkerung: ["bevölkerung", "demografie", "einwohner", "population"],
+    verkehr: ["verkehr", "transport", "mobilität"],
+    umwelt: ["umwelt", "klima", "natur"],
+    wirtschaft: ["wirtschaft", "unternehmen", "handel"],
+    bildung: ["bildung", "schule", "universität"],
+    gesundheit: ["gesundheit", "medizin", "krankenhaus"],
+    kultur: ["kultur", "kunst", "museum"],
+    tourismus: ["tourismus", "reise", "hotel"],
+    wetter: ["wetter", "klima", "temperatur"],
+    statistik: ["statistik", "daten", "zahlen"],
+  };
+
+  // Check if any keywords match our categories
+  for (const [category, terms] of Object.entries(categoryMappings)) {
+    if (
+      originalQuery.toLowerCase().includes(category) ||
+      terms.some((term) => originalQuery.toLowerCase().includes(term))
+    ) {
+      alternatives.push(...terms);
+    }
+  }
+
+  return [...new Set(alternatives)].slice(0, 5); // Remove duplicates and limit
+};
+
 // Search among all datasets
 export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
   tool({
     description:
-      "Search and filter datasets in the Austrian open data portal. This is the most powerful search tool - use it to find datasets by keywords, categories, organizations, or any other criteria. Returns full dataset metadata.",
+      "Search and filter datasets in the Austrian open data portal. This is the most powerful search tool - use it to find datasets by keywords, categories, organizations, or any other criteria. Returns full dataset metadata. Automatically retries with simpler terms if no results found.",
     inputSchema: z.object({
       q: z
         .string()
@@ -106,12 +156,59 @@ export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
         .describe(
           "Keywords accociated with the serach term. This is only used for displaying keywords related to the search to the user. Fill this with about 3-5 short phrases/keywords that are related to the search term."
         ),
+      _isRetry: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe("Internal flag to track retry attempts"),
     }),
-    execute: async ({ q, fq, sort, rows, start, include_drafts, keywords }) => {
+    execute: async ({
+      q,
+      fq,
+      sort,
+      rows,
+      start,
+      include_drafts,
+      keywords,
+      _isRetry,
+    }) => {
+      const searchTerms: string[] = [];
+      let searchAttempts = 0;
+      const maxAttempts = 3;
+
+      // Generate search alternatives
+      if (q) {
+        searchTerms.push(q);
+        searchTerms.push(...generateAlternativeTerms(q));
+      }
+
+      // If no query provided, use empty search to get all datasets
+      if (!q) {
+        searchTerms.push("");
+      }
+
+      // Function to perform a single search
+      const performSearch = async (searchTerm: string) => {
+        const params = new URLSearchParams();
+        if (searchTerm) params.append("q", searchTerm);
+        if (fq !== undefined) params.append("fq", fq);
+        if (sort !== undefined) params.append("sort", sort);
+        if (rows !== undefined) params.append("rows", rows.toString());
+        if (start !== undefined) params.append("start", start.toString());
+        if (include_drafts !== undefined)
+          params.append("include_drafts", include_drafts.toString());
+
+        const response = await fetch(
+          `${BASE_URL}/action/package_search?${params}`
+        );
+
+        return await response.json();
+      };
+
       dataStream.write({
         type: "data-datasetSearch",
         data: {
-          q: q ?? "Passenden Dantensätzen",
+          q: q ?? "Passenden Datensätzen",
           keywords: keywords ?? [],
         },
       });
@@ -123,31 +220,76 @@ export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
         rows,
         start,
         include_drafts,
+        searchTerms: searchTerms.slice(0, 3),
       });
 
-      const params = new URLSearchParams();
-      if (q !== undefined) params.append("q", q);
-      if (fq !== undefined) params.append("fq", fq);
-      if (sort !== undefined) params.append("sort", sort);
-      if (rows !== undefined) params.append("rows", rows.toString());
-      if (start !== undefined) params.append("start", start.toString());
-      if (include_drafts !== undefined)
-        params.append("include_drafts", include_drafts.toString());
+      // Try each search term until we get results or exhaust attempts
+      for (const searchTerm of searchTerms) {
+        if (searchAttempts >= maxAttempts) break;
 
-      const response = await fetch(
-        `${BASE_URL}/action/package_search?${params}`
-      );
+        console.log(`🔍 Search attempt ${searchAttempts + 1}: "${searchTerm}"`);
 
-      const data = await response.json();
+        const data = await performSearch(searchTerm);
+        searchAttempts++;
 
-      console.log(data);
+        // Check if we got results
+        if (data.success && data.result && data.result.count > 0) {
+          console.log(
+            `✅ Found ${data.result.count} results with term: "${searchTerm}"`
+          );
+
+          dataStream.write({
+            type: "data-datasetSearchResult",
+            data,
+          });
+
+          return {
+            ...data,
+            searchInfo: {
+              originalQuery: q,
+              successfulQuery: searchTerm,
+              attempts: searchAttempts,
+              alternativesGenerated: searchTerms.length - 1,
+            },
+          };
+        }
+
+        console.log(`❌ No results for term: "${searchTerm}"`);
+
+        // Small delay between attempts
+        if (
+          searchAttempts < maxAttempts &&
+          searchAttempts < searchTerms.length
+        ) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+      }
+
+      // If we get here, no search terms returned results
+      console.log(`🚫 No results found after ${searchAttempts} attempts`);
+
+      const emptyResult = {
+        success: true,
+        result: {
+          count: 0,
+          results: [],
+          facets: {},
+        },
+        searchInfo: {
+          originalQuery: q,
+          successfulQuery: null,
+          attempts: searchAttempts,
+          alternativesGenerated: searchTerms.length - 1,
+          searchTermsTried: searchTerms.slice(0, searchAttempts),
+        },
+      };
 
       dataStream.write({
         type: "data-datasetSearchResult",
-        data,
+        data: emptyResult,
       });
 
-      return data;
+      return emptyResult;
     },
   });
 

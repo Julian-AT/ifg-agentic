@@ -33,13 +33,16 @@ export function DatasetSearchMessage({
   output,
 }: DatasetSearchMessageProps) {
   return (
-    <div key={toolCallId} className="text-muted-foreground">
-      <div className="flex flex-row gap-2 items-center truncate">
+    <div
+      key={toolCallId}
+      className="overflow-hidden sm:max-w-md md:max-w-full min-w-full w-full max-w-fit"
+    >
+      <div className="flex flex-row gap-2 items-center">
         <span className="text-muted-foreground">
           <SparklesIcon size={14} />
         </span>
-        <span className="text-muted-foreground">Suche nach </span>
-        <span className="font-medium flex-1 truncate">{input.q}</span>
+        <span className="text-muted-foreground">Suche nachtest </span>
+        <span className="font-medium flex-1 max-w-max truncate">{input.q}</span>
         <span className="text-muted-foreground"> · </span>
         <span className="text-muted-foreground">
           {output.result.results.length} Treffer
@@ -47,12 +50,12 @@ export function DatasetSearchMessage({
       </div>
       {input.keywords && input.keywords.length > 0 && (
         <div className="pb-5 pt-2 flex flex-col gap-2">
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-row gap-2 flex-wrap">
             {input.keywords?.map((keyword: string) => (
               <Badge
                 key={keyword}
                 variant="secondary"
-                className="flex flex-row gap-2 text-sm items-center"
+                className="flex flex-row gap-2 text-sm items-center bg-card/60 border border-border"
               >
                 <SearchIcon size={14} />
                 <span>{keyword}</span>
@@ -62,29 +65,35 @@ export function DatasetSearchMessage({
         </div>
       )}
       <div className="flex flex-col gap-2">
-        <div className="p-2 rounded-lg border gap-2 flex flex-col bg-card">
-          {output.result?.results?.map((result: DatasetSearchResult) => (
-            <Link
-              key={result.id}
-              className="flex flex-row gap-1"
-              href={`https://www.data.gv.at/katalog/dataset/${result.id}`}
-              target="_blank"
-            >
-              <img
-                src={"https://www.data.gv.at/favicon.ico"}
-                alt={"logo"}
-                className="w-6 h-6 rounded-full bg-secondary border p-1 mr-1"
-              />
-              <span className="text-secondary-foreground font-medium max-w-1/2 truncate">
-                {result.title}
-              </span>
-              <span className="text-muted-foreground">
-                {result.publisher_link
-                  ? new URL(result.publisher_link).hostname
-                  : "data.gv.at"}
-              </span>
-            </Link>
-          ))}
+        <div className="p-2 rounded-lg border gap-2 flex flex-col bg-card/60 border-border min-w-full">
+          {output?.result?.results && output.result.results.length > 0 ? (
+            output.result.results.map((result: DatasetSearchResult) => (
+              <Link
+                key={result.id}
+                className="flex flex-row gap-1"
+                href={`https://www.data.gv.at/katalog/dataset/${result.id}`}
+                target="_blank"
+              >
+                <img
+                  src={"https://www.data.gv.at/favicon.ico"}
+                  alt={"logo"}
+                  className="w-6 h-6 rounded-full bg-secondary border p-1 mr-1"
+                />
+                <span className="text-secondary-foreground font-medium max-w-1/2 truncate">
+                  {result.title}
+                </span>
+                <span className="text-muted-foreground">
+                  {result.publisher_link
+                    ? new URL(result.publisher_link).hostname
+                    : "data.gv.at"}
+                </span>
+              </Link>
+            ))
+          ) : (
+            <div className="text-muted-foreground w-full text-center">
+              Keine Treffer gefunden
+            </div>
+          )}
         </div>
       </div>
     </div>

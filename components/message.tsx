@@ -3,11 +3,10 @@ import cx from "classnames";
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useState } from "react";
 import type { Vote } from "@/lib/db/schema";
-import { PencilEditIcon, SparklesIcon } from "./icons";
+import { PencilEditIcon } from "./icons";
 import { Markdown } from "./markdown";
 import { MessageActions } from "./message-actions";
 import { PreviewAttachment } from "./preview-attachment";
-import { Weather } from "./weather";
 import equal from "fast-deep-equal";
 import { cn, sanitizeText } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -17,14 +16,147 @@ import { MessageReasoning } from "./message-reasoning";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { ChatMessage } from "@/lib/types";
 import { useDataStream } from "./data-stream-provider";
-import Link from "next/link";
-import { Badge } from "./ui/badge";
 import { DocumentToolCall, DocumentToolResult } from "./document";
 import { DocumentPreview } from "./document-preview";
-import {
-  DatasetSearchSkeleton,
-  DatasetSearchMessage,
-} from "@/components/dataset-message";
+import Image from "next/image";
+import { FileText, Download } from "lucide-react";
+import { ResourceDetailsSkeleton } from "./dataset-skeletons";
+import { ResourceDetailsWidget } from "./resource-details-widget";
+import { ToolAccordion } from "./tool-accordion";
+import { MergedDatasetSearch } from "./merged-dataset-search";
+import { MergedDatasetDetails } from "./merged-dataset-details";
+import { AnimatedShinyText } from "./magicui/animated-shiny-text";
+
+// Helper function to find matching output part for an input part
+const findMatchingOutputPart = (
+  inputPart: any,
+  allParts: any[],
+  inputIndex: number
+): any | null => {
+  // Look for the next part with same tool type and toolCallId but output-available state
+  for (let i = inputIndex + 1; i < allParts.length; i++) {
+    const part = allParts[i];
+    if (
+      part.type === inputPart.type &&
+      part.toolCallId === inputPart.toolCallId &&
+      part.state === "output-available"
+    ) {
+      return part;
+    }
+  }
+  return null;
+};
+
+// Helper function to check if this part is an output that should be skipped (already handled by input)
+const shouldSkipOutputPart = (
+  currentPart: any,
+  allParts: any[],
+  currentIndex: number
+): boolean => {
+  if (currentPart.state !== "output-available") return false;
+
+  // Look for previous input part with same tool type and toolCallId
+  for (let i = currentIndex - 1; i >= 0; i--) {
+    const part = allParts[i];
+    if (
+      part.type === currentPart.type &&
+      part.toolCallId === currentPart.toolCallId &&
+      part.state === "input-available"
+    ) {
+      return true; // Skip this output, it was already handled by the input
+    }
+  }
+  return false;
+};
+
+// Helper function to find consecutive searchDatasets calls and group them
+const findConsecutiveSearchDatasets = (
+  allParts: any[],
+  startIndex: number
+): { searchParts: any[]; endIndex: number } => {
+  const searchParts: any[] = [];
+  let currentIndex = startIndex;
+
+  // Start with the current part if it's a searchDatasets
+  if (allParts[currentIndex]?.type === "tool-searchDatasets") {
+    searchParts.push(allParts[currentIndex]);
+
+    // Look for consecutive searchDatasets parts
+    for (let i = currentIndex + 1; i < allParts.length; i++) {
+      const part = allParts[i];
+
+      // Stop if we hit a non-searchDatasets tool or a text part
+      if (part.type !== "tool-searchDatasets") {
+        break;
+      }
+
+      searchParts.push(part);
+      currentIndex = i;
+    }
+  }
+
+  return { searchParts, endIndex: currentIndex };
+};
+
+// Helper function to group search parts into complete searches (input + output pairs)
+const groupSearchParts = (searchParts: any[]): any[] => {
+  const groupedSearches: any[] = [];
+
+  for (const part of searchParts) {
+    if (
+      ("state" in part && part.state === "input-available") ||
+      part.state === "output-available"
+    ) {
+      // Find matching output
+      const matchingOutput = searchParts.find(
+        (p) =>
+          p.type === part.type &&
+          p.toolCallId === part.toolCallId &&
+          "state" in p &&
+          p.state === "output-available"
+      );
+
+      groupedSearches.push({
+        toolCallId: part.toolCallId,
+        input: part.input,
+        output: matchingOutput?.output,
+      });
+    }
+  }
+
+  return groupedSearches;
+};
+
+// Helper function to group dataset details parts
+const groupDatasetDetailsParts = (datasetParts: any[]): any[] => {
+  const groupedDatasets: any[] = [];
+
+  for (const part of datasetParts) {
+    if (
+      ("state" in part && part.state === "input-available") ||
+      part.state === "output-available"
+    ) {
+      // Find matching output
+      const matchingOutput = datasetParts.find(
+        (p) =>
+          p.type === part.type &&
+          p.toolCallId === part.toolCallId &&
+          "state" in p &&
+          p.state === "output-available"
+      );
+
+      if (matchingOutput?.output?.data?.result) {
+        groupedDatasets.push({
+          toolCallId: part.toolCallId,
+          datasetId: part.input?.id || "unknown",
+          result: matchingOutput.output.data.result,
+        });
+      }
+    }
+  }
+
+  return groupedDatasets;
+};
 
 const PurePreviewMessage = ({
   chatId,
@@ -72,15 +204,21 @@ const PurePreviewMessage = ({
           )}
         >
           {message.role === "assistant" && (
-            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
+            <div className="size-9 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
               <div className="translate-y-px">
-                <SparklesIcon size={14} />
+                <Image
+                  src="/assets/logo_datagvat.png"
+                  alt="Logo"
+                  className="w-9 h-9 p-1.5 bg-card/60	rounded-full"
+                  width={32}
+                  height={32}
+                />
               </div>
             </div>
           )}
 
           <div
-            className={cn("flex flex-col gap-4 w-full", {
+            className={cn("flex flex-col gap-4 max-w-2xl", {
               "min-h-96": message.role === "assistant" && requiresScrollPadding,
             })}
           >
@@ -102,9 +240,44 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-            {message.parts?.map((part, index) => {
+            {message.parts?.map((part, index, allParts) => {
               const { type } = part;
               const key = `message-${message.id}-part-${index}`;
+
+              if (shouldSkipOutputPart(part, message.parts || [], index)) {
+                return null;
+              }
+
+              if (type === "tool-searchDatasets") {
+                const firstSearchIndex = allParts.findIndex(
+                  (p) => p.type === "tool-searchDatasets"
+                );
+
+                if (index === firstSearchIndex) {
+                  const allSearchParts = allParts.filter(
+                    (p) => p.type === "tool-searchDatasets"
+                  );
+
+                  const groupedSearches = groupSearchParts(allSearchParts);
+
+                  const hasAnyOutput = groupedSearches.some(
+                    (search) => search.output
+                  );
+
+                  return (
+                    <MergedDatasetSearch
+                      key={`merged-all-searches-${groupedSearches
+                        .map((s) => s.toolCallId)
+                        .join("-")}`}
+                      searches={groupedSearches}
+                      isLoading={!hasAnyOutput}
+                    />
+                  );
+                } else {
+                  // Skip all other searchDatasets parts since they're handled above
+                  return null;
+                }
+              }
 
               if (type === "reasoning" && part.text?.trim().length > 0) {
                 return (
@@ -141,7 +314,7 @@ const PurePreviewMessage = ({
                       <div
                         data-testid="message-content"
                         className={cn("flex flex-col gap-4", {
-                          "bg-primary text-primary-foreground px-3 py-2 rounded-xl":
+                          "bg-card/60 border border-border text-secondary-foreground px-3 py-2 rounded-xl":
                             message.role === "user",
                         })}
                       >
@@ -173,14 +346,69 @@ const PurePreviewMessage = ({
 
                 if (state === "input-available") {
                   const { input } = part;
+                  const outputPart = findMatchingOutputPart(
+                    part,
+                    message.parts || [],
+                    index
+                  );
+
+                  if (outputPart && "error" in outputPart.output) {
+                    return (
+                      <div
+                        key={toolCallId}
+                        className="text-red-500 p-2 border rounded"
+                      >
+                        Error: {String(outputPart.output.error)}
+                      </div>
+                    );
+                  }
+
+                  if (!outputPart) {
+                    return (
+                      <motion.div
+                        key={toolCallId}
+                        className="flex flex-col gap-3"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                      >
+                        <AnimatedShinyText className="flex flex-row gap-2 items-center">
+                          <FileText className="w-4 h-4" />
+                          Erstelle Dokument...
+                        </AnimatedShinyText>
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.2, duration: 0.3 }}
+                        >
+                          <DocumentPreview
+                            isReadonly={isReadonly}
+                            args={input}
+                          />
+                        </motion.div>
+                      </motion.div>
+                    );
+                  }
+
                   return (
-                    <div key={toolCallId}>
-                      <DocumentPreview isReadonly={isReadonly} args={input} />
-                    </div>
+                    <ToolAccordion
+                      key={toolCallId}
+                      icon={<FileText className="w-4 h-4" />}
+                      loadingText="Erstelle Dokument..."
+                      completedText="Dokument erstellt"
+                      isLoading={false}
+                      toolCallId={toolCallId}
+                    >
+                      <DocumentPreview
+                        isReadonly={isReadonly}
+                        result={outputPart.output}
+                      />
+                    </ToolAccordion>
                   );
                 }
 
                 if (state === "output-available") {
+                  // This case is for standalone output parts (without matching input)
                   const { output } = part;
 
                   if ("error" in output) {
@@ -195,12 +423,19 @@ const PurePreviewMessage = ({
                   }
 
                   return (
-                    <div key={toolCallId}>
+                    <ToolAccordion
+                      key={toolCallId}
+                      icon={<FileText className="w-4 h-4" />}
+                      loadingText="Erstelle Dokument..."
+                      completedText="Dokument erstellt"
+                      isLoading={false}
+                      toolCallId={toolCallId}
+                    >
                       <DocumentPreview
                         isReadonly={isReadonly}
                         result={output}
                       />
-                    </div>
+                    </ToolAccordion>
                   );
                 }
               }
@@ -210,19 +445,71 @@ const PurePreviewMessage = ({
 
                 if (state === "input-available") {
                   const { input } = part;
+                  const outputPart = findMatchingOutputPart(
+                    part,
+                    message.parts || [],
+                    index
+                  );
+
+                  if (outputPart && "error" in outputPart.output) {
+                    return (
+                      <div
+                        key={toolCallId}
+                        className="text-red-500 p-2 border rounded"
+                      >
+                        Error: {String(outputPart.output.error)}
+                      </div>
+                    );
+                  }
+
+                  if (!outputPart) {
+                    return (
+                      <motion.div
+                        key={toolCallId}
+                        className="flex flex-col gap-3"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                      >
+                        <AnimatedShinyText className="flex flex-row gap-2 items-center">
+                          <FileText className="w-4 h-4" />
+                          Aktualisiere Dokument...
+                        </AnimatedShinyText>
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.2, duration: 0.3 }}
+                        >
+                          <DocumentToolCall
+                            type="update"
+                            args={input}
+                            isReadonly={isReadonly}
+                          />
+                        </motion.div>
+                      </motion.div>
+                    );
+                  }
 
                   return (
-                    <div key={toolCallId}>
-                      <DocumentToolCall
+                    <ToolAccordion
+                      key={toolCallId}
+                      icon={<FileText className="w-4 h-4" />}
+                      loadingText="Aktualisiere Dokument..."
+                      completedText="Dokument aktualisiert"
+                      isLoading={false}
+                      toolCallId={toolCallId}
+                    >
+                      <DocumentToolResult
                         type="update"
-                        args={input}
+                        result={outputPart.output}
                         isReadonly={isReadonly}
                       />
-                    </div>
+                    </ToolAccordion>
                   );
                 }
 
                 if (state === "output-available") {
+                  // This case is for standalone output parts (without matching input)
                   const { output } = part;
 
                   if ("error" in output) {
@@ -237,13 +524,20 @@ const PurePreviewMessage = ({
                   }
 
                   return (
-                    <div key={toolCallId}>
+                    <ToolAccordion
+                      key={toolCallId}
+                      icon={<FileText className="w-4 h-4" />}
+                      loadingText="Aktualisiere Dokument..."
+                      completedText="Dokument aktualisiert"
+                      isLoading={false}
+                      toolCallId={toolCallId}
+                    >
                       <DocumentToolResult
                         type="update"
                         result={output}
                         isReadonly={isReadonly}
                       />
-                    </div>
+                    </ToolAccordion>
                   );
                 }
               }
@@ -253,18 +547,71 @@ const PurePreviewMessage = ({
 
                 if (state === "input-available") {
                   const { input } = part;
+                  const outputPart = findMatchingOutputPart(
+                    part,
+                    message.parts || [],
+                    index
+                  );
+
+                  if (outputPart && "error" in outputPart.output) {
+                    return (
+                      <div
+                        key={toolCallId}
+                        className="text-red-500 p-2 border rounded"
+                      >
+                        Error: {String(outputPart.output.error)}
+                      </div>
+                    );
+                  }
+
+                  if (!outputPart) {
+                    return (
+                      <motion.div
+                        key={toolCallId}
+                        className="flex flex-col gap-3"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                      >
+                        <AnimatedShinyText className="flex flex-row gap-2 items-center">
+                          <Download className="w-4 h-4" />
+                          Lade Vorschläge...
+                        </AnimatedShinyText>
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.2, duration: 0.3 }}
+                        >
+                          <DocumentToolCall
+                            type="request-suggestions"
+                            args={input}
+                            isReadonly={isReadonly}
+                          />
+                        </motion.div>
+                      </motion.div>
+                    );
+                  }
+
                   return (
-                    <div key={toolCallId}>
-                      <DocumentToolCall
+                    <ToolAccordion
+                      key={toolCallId}
+                      icon={<Download className="w-4 h-4" />}
+                      loadingText="Lade Vorschläge..."
+                      completedText="Vorschläge geladen"
+                      isLoading={false}
+                      toolCallId={toolCallId}
+                    >
+                      <DocumentToolResult
                         type="request-suggestions"
-                        args={input}
+                        result={outputPart.output}
                         isReadonly={isReadonly}
                       />
-                    </div>
+                    </ToolAccordion>
                   );
                 }
 
                 if (state === "output-available") {
+                  // This case is for standalone output parts (without matching input)
                   const { output } = part;
 
                   if ("error" in output) {
@@ -279,198 +626,119 @@ const PurePreviewMessage = ({
                   }
 
                   return (
-                    <div key={toolCallId}>
+                    <ToolAccordion
+                      key={toolCallId}
+                      icon={<Download className="w-4 h-4" />}
+                      loadingText="Lade Vorschläge..."
+                      completedText="Vorschläge geladen"
+                      isLoading={false}
+                      toolCallId={toolCallId}
+                    >
                       <DocumentToolResult
                         type="request-suggestions"
                         result={output}
                         isReadonly={isReadonly}
                       />
-                    </div>
+                    </ToolAccordion>
                   );
                 }
               }
 
-              if (type === "tool-searchDatasets") {
-                const { toolCallId, state, input } = part;
+              // Note: tool-searchDatasets is handled above in the merged search logic
 
-                if (state === "input-available") {
-                  return <DatasetSearchSkeleton toolCallId={toolCallId} />;
-                }
+              // Handle ALL getDatasetDetails calls as one merged widget
+              if (type === "tool-getDatasetDetails") {
+                // Check if this is the first getDatasetDetails part in the message
+                const firstDatasetIndex = allParts.findIndex(
+                  (p) => p.type === "tool-getDatasetDetails"
+                );
 
-                if (state === "output-available") {
-                  const { output } = part;
+                if (index === firstDatasetIndex) {
+                  // This is the first getDatasetDetails part - collect ALL getDatasetDetails in this message
+                  const allDatasetParts = allParts.filter(
+                    (p) => p.type === "tool-getDatasetDetails"
+                  );
+                  const groupedDatasets =
+                    groupDatasetDetailsParts(allDatasetParts);
+                  const hasAnyOutput = groupedDatasets.length > 0;
 
                   return (
-                    <DatasetSearchMessage
-                      toolCallId={toolCallId}
-                      input={{
-                        ...input,
-                        q: input.q || "data.gv.at",
-                      }}
-                      output={output}
+                    <MergedDatasetDetails
+                      key={`merged-datasets-${groupedDatasets
+                        .map((d) => d.toolCallId)
+                        .join("-")}`}
+                      datasets={groupedDatasets}
+                      isLoading={!hasAnyOutput}
                     />
                   );
-                }
-              }
-
-              if (type === "tool-getDatasetDetails") {
-                const { toolCallId, state, input } = part;
-
-                if (state === "input-available") {
-                  return (
-                    <div key={toolCallId} className="skeleton">
-                      <Weather />
-                    </div>
-                  );
-                }
-
-                if (state === "output-available") {
-                  const { output } = part;
-                  const result = output.data.result;
-
-                  if (!result) {
-                    return (
-                      <div
-                        key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
-                      >
-                        Error: {output.content}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <Link
-                      key={toolCallId}
-                      href={`https://www.data.gv.at/katalog/dataset/${result.id}`}
-                      target="_blank"
-                    >
-                      <div className="flex flex-col gap-3 bg-card p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                        {/* Header */}
-                        <div className="flex flex-row gap-2 items-start">
-                          <img
-                            src={"https://www.data.gv.at/favicon.ico"}
-                            alt={"data.gv.at logo"}
-                            className="w-8 h-8 aspect-square rounded-sm bg-secondary border p-1 mt-0.5"
-                          />
-                          <div className="flex flex-col flex-1 min-w-0">
-                            <div className="text-xs text-muted-foreground">
-                              {result.publisher || "data.gv.at"}
-                            </div>
-                            <h3 className="font-medium leading-tight text-sm">
-                              {result.title}
-                            </h3>
-                          </div>
-                        </div>
-
-                        {/* Description */}
-                        {result.notes && (
-                          <div className="text-xs text-muted-foreground line-clamp-1">
-                            {result.notes}
-                          </div>
-                        )}
-
-                        {/* Tags */}
-                        {result.tags && result.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {result.tags
-                              .slice(0, 4)
-                              .map(
-                                (tag: { display_name: string; id: string }) => (
-                                  <span
-                                    key={`${result.id}-${tag.id}`}
-                                    className="text-xs bg-secondary px-2 py-0.5 rounded text-muted-foreground"
-                                  >
-                                    {tag.display_name}
-                                  </span>
-                                )
-                              )}
-                            {result.tags.length > 4 && (
-                              <span className="text-xs bg-secondary px-2 py-0.5 rounded text-muted-foreground">
-                                +{result.tags.length - 4}
-                              </span>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Metadata Cards */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                          {result.num_resources && (
-                            <div className="bg-background/50 rounded p-2 border border-border/50">
-                              <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-                                Ressourcen
-                              </div>
-                              <div className="text-sm font-semibold">
-                                {result.num_resources}
-                              </div>
-                            </div>
-                          )}
-
-                          {result.metadata_created && (
-                            <div className="bg-background/50 rounded p-2 border border-border/50">
-                              <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-                                Erstellt
-                              </div>
-                              <div className="text-xs font-medium">
-                                {new Date(
-                                  result.metadata_created
-                                ).toLocaleDateString("de-AT", {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "numeric",
-                                })}
-                              </div>
-                            </div>
-                          )}
-
-                          {result.metadata_modified && (
-                            <div className="bg-background/50 rounded p-2 border border-border/50">
-                              <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-                                Aktualisiert
-                              </div>
-                              <div className="text-xs font-medium">
-                                {new Date(
-                                  result.metadata_modified
-                                ).toLocaleDateString("de-AT", {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "numeric",
-                                })}
-                              </div>
-                            </div>
-                          )}
-
-                          {result.license_title && (
-                            <div className="bg-background/50 rounded p-2 border border-border/50">
-                              <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-                                Lizenz
-                              </div>
-                              <div
-                                className="text-xs font-medium truncate"
-                                title={result.license_title}
-                              >
-                                {result.license_title}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </Link>
-                  );
+                } else {
+                  // Skip all other getDatasetDetails parts since they're handled above
+                  return null;
                 }
               }
               if (type === "tool-getResourceDetails") {
                 const { toolCallId, state, input } = part;
 
                 if (state === "input-available") {
+                  const outputPart = findMatchingOutputPart(
+                    part,
+                    message.parts || [],
+                    index
+                  );
+
+                  if (outputPart && "error" in outputPart.output) {
+                    return (
+                      <div
+                        key={toolCallId}
+                        className="text-red-500 p-2 border rounded"
+                      >
+                        Error: {String(outputPart.output.error)}
+                      </div>
+                    );
+                  }
+
+                  if (!outputPart) {
+                    return (
+                      <motion.div
+                        key={toolCallId}
+                        className="flex flex-col gap-3"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                      >
+                        <AnimatedShinyText className="flex flex-row gap-2 items-center">
+                          <FileText className="w-4 h-4" />
+                          Lade Ressourcen-Details...
+                        </AnimatedShinyText>
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.2, duration: 0.3 }}
+                        >
+                          <ResourceDetailsSkeleton />
+                        </motion.div>
+                      </motion.div>
+                    );
+                  }
+
                   return (
-                    <div key={toolCallId} className="skeleton">
-                      <Weather />
-                    </div>
+                    <ToolAccordion
+                      key={toolCallId}
+                      icon={<FileText className="w-4 h-4" />}
+                      loadingText="Lade Ressourcen-Details..."
+                      completedText="Ressourcen-Details geladen"
+                      isLoading={false}
+                      toolCallId={toolCallId}
+                    >
+                      <ResourceDetailsWidget
+                        result={outputPart.output.result}
+                      />
+                    </ToolAccordion>
                   );
                 }
 
                 if (state === "output-available") {
+                  // This case is for standalone output parts (without matching input)
                   const { output } = part;
 
                   if ("error" in output) {
@@ -487,157 +755,16 @@ const PurePreviewMessage = ({
                   const result = output.result;
 
                   return (
-                    <div
+                    <ToolAccordion
                       key={toolCallId}
-                      className="flex flex-col gap-4 bg-card p-4 rounded-lg border"
+                      icon={<FileText className="w-4 h-4" />}
+                      loadingText="Lade Ressourcen-Details..."
+                      completedText="Ressourcen-Details geladen"
+                      isLoading={false}
+                      toolCallId={toolCallId}
                     >
-                      {/* Header */}
-                      <div className="flex flex-row gap-3 items-start">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shrink-0">
-                          {result.format || "FILE"}
-                        </div>
-                        <div className="flex flex-col flex-1 min-w-0">
-                          <h3 className="font-semibold leading-tight text-lg">
-                            {result.name}
-                          </h3>
-                          {result.url && (
-                            <p className="text-sm text-muted-foreground line-clamp-2 max-w-1/2 truncate">
-                              {result.url}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Main Resource Details */}
-                      <div className="flex flex-wrap gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                            Format:
-                          </span>
-                          <span className="font-medium">
-                            {result.format || "Unbekannt"}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                            Status:
-                          </span>
-                          <span
-                            className={`font-medium ${
-                              result.state === "active"
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            {result.state === "active" ? "Aktiv" : result.state}
-                          </span>
-                        </div>
-
-                        {result.size && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              Größe:
-                            </span>
-                            <span className="font-medium">
-                              {(result.size / 1024 / 1024).toFixed(2)} MB
-                            </span>
-                          </div>
-                        )}
-
-                        {result.language && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              Sprache:
-                            </span>
-                            <span className="font-medium">
-                              {result.language}
-                            </span>
-                          </div>
-                        )}
-
-                        {result.created && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              Erstellt:
-                            </span>
-                            <span className="font-medium">
-                              {new Date(result.created).toLocaleDateString()}
-                            </span>
-                          </div>
-                        )}
-
-                        {result.last_modified && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              Geändert:
-                            </span>
-                            <span className="font-medium">
-                              {new Date(
-                                result.last_modified
-                              ).toLocaleDateString()}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Technical Details */}
-                      {(result.mimetype ||
-                        result.characterSet ||
-                        result.datastore_active) && (
-                        <div className="border-t pt-3">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
-                            Technische Details
-                          </span>
-                          <div className="flex flex-wrap gap-2">
-                            {result.mimetype && (
-                              <Badge variant="outline" className="text-xs">
-                                MIME: {result.mimetype}
-                              </Badge>
-                            )}
-                            {result.characterSet && (
-                              <Badge variant="outline" className="text-xs">
-                                Charset: {result.characterSet}
-                              </Badge>
-                            )}
-                            {result.datastore_active && (
-                              <Badge
-                                variant="outline"
-                                className="text-xs text-green-600"
-                              >
-                                Datastore aktiv
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Download Link */}
-                      {result.url && (
-                        <div className="border-t pt-3">
-                          <Link
-                            href={result.url}
-                            target="_blank"
-                            className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                              />
-                            </svg>
-                            Ressource herunterladen
-                          </Link>
-                        </div>
-                      )}
-                    </div>
+                      <ResourceDetailsWidget result={result} />
+                    </ToolAccordion>
                   );
                 }
               }
@@ -688,17 +815,22 @@ export const ThinkingMessage = () => {
         className={cx(
           "flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl",
           {
-            "group-data-[role=user]/message:bg-muted": true,
+            "group-data-[role=user]/message:bg-card/60": true,
           }
         )}
       >
         <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
-          <SparklesIcon size={14} />
+          <Image
+            src="/assets/logo_datagvat.png"
+            alt="Logo"
+            width={32}
+            height={32}
+          />
         </div>
 
         <div className="flex flex-col gap-2 w-full">
           <div className="flex flex-col gap-4 text-muted-foreground">
-            Hmm...
+            Ich denke nach...
           </div>
         </div>
       </div>

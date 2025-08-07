@@ -1,5 +1,4 @@
 @import 'tailwindcss';
-
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -11,8 +10,8 @@
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.596 0.145 163.225);
+  --primary-foreground: oklch(0.979 0.021 166.113);
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.967 0.001 286.375);
@@ -30,14 +29,19 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.871 0.006 286.286);
-  --sidebar-primary: oklch(0.37 0.013 285.805);
-  --sidebar-primary-foreground: oklch(0.871 0.006 286.286);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.871 0.006 286.286);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.37 0.013 285.805);
+  --sidebar-primary: oklch(0.21 0.006 285.885);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.871 0.006 286.286);
+  --color-1: oklch(66.2% 0.225 25.9);
+  --color-2: oklch(60.4% 0.26 302);
+  --color-3: oklch(69.6% 0.165 251);
+  --color-4: oklch(80.2% 0.134 225);
+  --color-5: oklch(90.7% 0.231 133);
 }
 .dark {
   --background: oklch(0.21 0.006 285.885);
@@ -46,32 +50,37 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.21 0.006 285.885);
+  --primary: oklch(0.596 0.145 163.225);
+  --primary-foreground: oklch(0.979 0.021 166.113);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
+  --muted: oklch(0.244 0.006 285.97); /* Custom */
   --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
+  --accent: oklch(0.244 0.006 285.97); /* Custom */
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.637 0.237 25.331);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.274 0.006 286.033);
-  --input: oklch(0.274 0.006 286.033);
+  --border: oklch(0.29 0.009 285.83); /* Custom */
+  --input: oklch(0.29 0.009 285.83); /* Custom */
   --ring: oklch(0.442 0.017 285.786);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.871 0.006 286.286);
-  --sidebar-primary: oklch(0.37 0.013 285.805);
-  --sidebar-primary-foreground: oklch(0.871 0.006 286.286);
+  --sidebar: oklch(0.244 0.006 285.97); /* Custom */
+  --sidebar-foreground: oklch(0.967 0.001 286.375);
+  --sidebar-primary: oklch(0.596 0.145 163.225);
+  --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.871 0.006 286.286);
+  --sidebar-accent-foreground: oklch(0.967 0.001 286.375);
   --sidebar-border: oklch(0.274 0.006 286.033);
   --sidebar-ring: oklch(0.442 0.017 285.786);
+  --color-1: oklch(66.2% 0.225 25.9);
+  --color-2: oklch(60.4% 0.26 302);
+  --color-3: oklch(69.6% 0.165 251);
+  --color-4: oklch(80.2% 0.134 225);
+  --color-5: oklch(90.7% 0.231 133);
 }
 
 @theme inline {
@@ -118,7 +127,30 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
-}
+  --animate-shiny-text: shiny-text 8s infinite;
+  @keyframes shiny-text {
+  0%, 90%, 100% {
+    background-position: calc(-100% - var(--shiny-width)) 0;
+    }
+  30%, 60% {
+    background-position: calc(100% + var(--shiny-width)) 0;
+    }
+  }
+  --animate-rainbow: rainbow var(--speed, 2s) infinite linear;
+  --color-color-5: var(--color-5);
+  --color-color-4: var(--color-4);
+  --color-color-3: var(--color-3);
+  --color-color-2: var(--color-2);
+  --color-color-1: var(--color-1)
+;
+  @keyframes rainbow {
+  0% {
+    background-position: 0%;
+    }
+  100% {
+    background-position: 200%;
+    }
+  }}
 
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
@@ -129,20 +161,16 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-zinc-200, currentColor);
-  }
-}
-
-@layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+  }
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-zinc-200, currentColor);
   }
 }

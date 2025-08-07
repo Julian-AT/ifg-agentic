@@ -181,12 +181,12 @@ export async function POST(request: Request) {
           stopWhen: stepCountIs(100),
           experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
-            createDocument: createDocument({ session, dataStream }),
-            updateDocument: updateDocument({ session, dataStream }),
-            requestSuggestions: requestSuggestions({
-              session,
-              dataStream,
-            }),
+            // createDocument: createDocument({ session, dataStream }),
+            // updateDocument: updateDocument({ session, dataStream }),
+            // requestSuggestions: requestSuggestions({
+            //   session,
+            //   dataStream,
+            // }),
             exploreCsvData: exploreCsvData(),
             checkDataAvailability: checkDataAvailability(),
             listDatasets: listDatasets({ session, dataStream }),

@@ -244,7 +244,16 @@ export const codeArtifact = new Artifact<"code", Metadata>({
             }
           }
 
-          await currentPyodideInstance.runPythonAsync(processedContent);
+          try {
+            await currentPyodideInstance.runPythonAsync(processedContent);
+          } catch (error: any) {
+            setMetadata((metadata) => ({
+              ...metadata,
+              outputs: [
+                ...metadata.outputs.filter((output) => output.id !== runId),
+              ],
+            }));
+          }
 
           setMetadata((metadata) => ({
             ...metadata,

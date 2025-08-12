@@ -21,12 +21,13 @@ import { ArtifactMessages } from "./artifact-messages";
 import { useSidebar } from "./ui/sidebar";
 import { useArtifact } from "@/hooks/use-artifact";
 import { codeArtifact } from "@/artifacts/code/client";
+import { dataRequestArtifact } from "@/artifacts/data-request/client";
 import equal from "fast-deep-equal";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { VisibilityType } from "./visibility-selector";
 import type { Attachment, ChatMessage } from "@/lib/types";
 
-export const artifactDefinitions = [codeArtifact];
+export const artifactDefinitions = [codeArtifact, dataRequestArtifact];
 export type ArtifactKind = (typeof artifactDefinitions)[number]["kind"];
 
 export interface UIArtifact {

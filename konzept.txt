@@ -1,0 +1,355 @@
+fragdenstaat.gv.at – eine digitale Workflow-Lösung für
+transparente und effiziente IFG-, IWG- & DZG-Anfragen
+1. Einleitung 2
+1.1 Hintergrund: Paradigmenwechsel in der Informationsfreiheit – IFG, IWG und DZG als neue
+Grundlagen für den Datenzugang 2
+Bedeutung für verschiedene rechtliche Rahmenwerke 3
+1.2 Ziel des Konzepts: Effiziente und transparente Abwicklung von Informations- oder DatenAnfragen durch eine digitale Workflow-Lösung 4
+1.3 Relevanz für für die Digitalisierung der Verwaltung 4
+2. Status Quo und Problemstellung 5
+2.1 Fehlende zentrale Anlaufstelle für Informations-Anfragen 5
+2.2 Herausforderungen durch Mehrfachanfragen und ineffiziente Bearbeitung 5
+2.3 Fristenmanagement und Nachverfolgbarkeit 5
+2.4 Medienbrüche zwischen E-Mail-Anfragen und Verwaltungssystemen (z.B. ELAK) 5
+2.5 Mangelnde Übersichtlichkeit für Verwaltung und Bürger 6
+3. Zielsetzung und Nutzen von fragdenstaat.gv.at 7
+3.1 Single Point of Data: Zentralisierte Plattform für Informations- und Daten-Anfragen 7
+3.2 Reduktion von Mehrfachanfragen und effiziente Zuweisung 7
+3.3 Transparenz und Nachvollziehbarkeit für alle Beteiligten 7
+3.4 Automatisiertes Fristenmanagement und Benachrichtigungen 7
+3.5 Nahtlose Integration in bestehende Verwaltungssysteme 7
+4. Vergleich mit Best Practices 8
+4.1 Beispiel: fragdenstaat.at und dessen Erfolge 8
+4.2 Internationale Vergleichsmodelle (z.B. FOI-Portale in UK, DE, US) 8
+4.3 Erfolgsfaktoren einer digitalen Workflow-Lösung für Informationsbegehren 8
+5. Technische Umsetzung und Architektur 9
+5.1 Webbasierte Plattform mit Such- und Anfragemechanismus 9
+5.2 Nutzerführung durch strukturierte Anfrageprozesse 9
+5.3 Automatisierte Weiterleitung an die zuständigen Stellen 9
+5.4 Dashboard und Verwaltungssystem für Behörden 9
+5.5 Schnittstellen zu ELAK und anderen Backendsystemen 9
+6. Vorteile für die Verwaltung 10
+6.1 Beitrag zur IT-Konsolidierung und Synergieeffekte 10
+6.2 Effizienzsteigerung und Reduktion manueller Bearbeitungskosten 10
+6.3 Erhöhte Zufriedenheit von Bürgern und Verwaltung 10
+6.4 Umsetzung der Digitalisierungsstrategie gemäß Regierungsprogramm 10
+7. Umsetzungsschritte und Zeitplan 11
+7.1 Pilotphase und MVP-Entwicklung 11
+7.2 Integration in bestehende Verwaltungsinfrastruktur 11
+7.3 Test- und Optimierungsphase 11
+7.4 Rollout und Evaluierung 11
+8. Fazit und Handlungsempfehlungen 12
+8.1 Zusammenfassung der Vorteile 12
+8.2 Empfehlung zur Umsetzung und politische Relevanz 12
+8.3 Nächste Schritte und Entscheidungsbedarf 12
+1. Einleitung
+1.1 Hintergrund: Paradigmenwechsel in der Informationsfreiheit
+– IFG, IWG und DZG als neue Grundlagen für den Datenzugang
+Das Informationsfreiheitsgesetz (IFG) tritt im September 2025 in Kraft und stellt einen
+paradigmatischen Wandel in der Verwaltungstransparenz dar. Es ersetzt das bisherige
+Amtsgeheimnis (bzw. die bisherige Auskunftspflicht) und verpflichtet öffentliche Stellen zur
+proaktiven Veröffentlichung sowie zur Beantwortung von Bürgeranfragen zu amtlichen
+Informationen. Während dies einen bedeutenden Fortschritt für die demokratische Teilhabe
+und Transparenz darstellt, bringt es auch Herausforderungen für die Verwaltung mit sich.
+Insbesondere fehlt derzeit noch ein standardisierter Workflow für die Bearbeitung von
+Anfragen, was zu ineffizienten Prozessen, hoher Arbeitsbelastung und mangelnder
+Nachvollziehbarkeit führen kann.
+Vor dem Hintergrund dieses Paradigmenwechsels muss auch die Kohärenz mit bestehenden
+und kommenden gesetzlichen Regelungen zur Informationsweiterverwendung und
+Datennutzung berücksichtigt werden. Neben dem IFG spielen insbesondere das bestehende
+Informationsweiterverwendungsgesetz (IWG) und das geplante Datenzugangsgesetz
+(DZG) eine zentrale Rolle für die Verfügbarkeit und Nutzbarkeit öffentlicher Daten. Eine
+konsistente Umsetzung dieser Gesetze kann die Transparenz der Verwaltung erhöhen, den
+Zugang zu staatlichen Informationen erleichtern und einen Mehrwert für die datengetriebene
+Gesellschaft schaffen.
+Zudem stehen viele Bürger vor der Schwierigkeit, dass sie nicht über die technischen Mittel
+oder das notwendige Wissen verfügen, um Anfragen korrekt zu stellen oder nachzuverfolgen.
+Ohne eine klare Nutzerführung und technische Hilfestellungen besteht die Gefahr, dass
+Anfragen fehlerhaft oder unvollständig eingereicht werden, was wiederum Verzögerungen und
+Frustrationen auf beiden Seiten nach sich zieht.
+Bedeutung für verschiedene rechtliche Rahmenwerke
+1. Informationsfreiheitsgesetz (IFG): Zugang zu amtlichen Informationen für
+Bürgerinnen und Bürger
+○ Das IFG regelt das allgemeine Recht der Bürgerinnen und Bürger auf
+Zugang zu Informationen von allgemeinem Interesse, unabhängig von
+ihrer weiteren Nutzung.
+○ Öffentliche Stellen sind verpflichtet, Informationen auf data.gv.at
+bereitzustellen, sofern keine Schutzinteressen (z. B. Datenschutz, Betriebsund Geschäftsgeheimnisse) entgegenstehen.
+○ Der Zugang zu Informationen kann schriftlich, mündlich oder telefonisch, in
+jeder technisch möglichen und vorgesehenen Form, beantragt werden.
+○ Langt bei einem Organ ein Antrag ein, zu dessen Behandlung es nicht
+zuständig ist, hat es den Antrag ohne unnötigen Aufschub an die zuständige
+Stelle weiterzuleiten oder den Antragsteller an diese zu weisen
+○ Die praktische Umsetzung erfordert eine digitale Infrastruktur, die es
+ermöglicht, Anfragen effizient zu bearbeiten bzw. weiterzuleiten, Fristen
+einzuhalten und bereits veröffentlichte Informationen leicht auffindbar zu
+machen.
+2. Informationsweiterverwendungsgesetz (IWG): Open Data und kommerzielle
+Nutzung von Verwaltungsdaten
+○ Das IWG stellt die Umsetzung der Open Data Richtlinie (EU) 2019/1024 dar.
+Dieses regelt die Weiterverwendung von bereits vorhandenen Daten des
+öffentlichen Sektors für die kommerzielle und nichtkommerzielle Nutzung.
+○ Anders als das IFG, das primär den Zugang regelt, geht es beim IWG darum,
+wie öffentliche Daten weiterverwendet werden können, um Innovation und
+wirtschaftliche Wertschöpfung zu fördern. Das IWG legt
+Mindestvoraussetzungen für die Bereitstellung offener Daten vor (Metadaten,
+Maschinenlesbarkeit, Formate, Gebührenobergrenzen, Lizenzierung, NichtDiskriminierung, etc.)
+○ Gemäß IWG können Anträge auf Weiterverwendung von Informationen
+im Besitz öffentlicher Stellen gestellt werden. Diese sind binnen einer
+festgelegten Frist zu bearbeiten, woraufhin die Informationen bzw. Daten
+entweder zur Gänze oder teilweise zur Weiterverwendung bereitzustellen.
+Eine allfällige Ablehnung ist unter Hinweis auf die Rechtsschutzmöglichkeiten
+entsprechend zu begründen und in Einklang mit dem IFG zu bewerten.
+○ Eine enge Verknüpfung mit dem IFG ist erforderlich, um eine „Once-Only“-
+Bereitstellung zu ermöglichen: Daten sollten nicht nur individuell abgefragt,
+sondern systematisch für Open Data-Zwecke verfügbar gemacht werden.
+3. Datenzugangsgesetz (DZG): Zugang zu geschützten Verwaltungsdaten für
+bestimmte Zwecke, Voraussetzungen für Datenräume
+○ Mit dem DZG wird die Data Governance Act Verordnung (EU) 2022/868
+umgesetzt. Mittels DZG werden Strukturen geschaffen für die verbesserte
+Nutzbarkeit von bestimmten Daten des öffentlichen Sektors, die nicht als
+offene Daten zur Verfügung gestellt werden können.
+○ Ziel ist es, die Nutzbarkeit von geschützten Daten für bestimmte Zwecke zu
+ermöglichen, dh. Daten, die einen Personenbezug aufweisen, dem Schutz
+geistigen Eigentums Dritter unterliegen oder aufgrund von
+Geschäftsgeheimnissen oder dem Statistikgeheimnis geschützt sind.
+○ Mit dem DZG wird eine Zentrale Informationsstelle etabliert. Die Zentrale
+Informationsstelle verfügt über eine Bestandsliste, die einen Überblick über
+alle verfügbaren Datenressourcen gibt.
+○ Die Zentrale Informationsstelle ist befugt, Anfragen oder Anträge in Bezug
+auf die Weiterverwendung von Daten entgegenzunehmen und übermittelt
+diese an die zuständigen öffentlichen Stellen. Dadurch wird insbesondere für
+Forschende und Innovatoren ein Service geschaffen zur erleichterten
+Auffindbarkeit, Antragstellung und Nutzbarkeit von Daten.
+○ Mittels DZG werden Grundlagen für die Entwicklung der Datenökonomie und
+der Etablierung von Datenräumen geschaffen, etwa über die Schaffung von
+Rahmenbedingungen für Datenvermittlungsdienste bzw. Intermediäre.
+Durch eine enge Verzahnung dieser drei gesetzlichen Rahmenwerke kann eine effiziente,
+transparente und zukunftsfähige Dateninfrastruktur geschaffen werden, die nicht nur
+Bürgerinnen und Bürgern, sondern auch Unternehmen, Wissenschaft und Zivilgesellschaft
+zugutekommt. Ein umfassender digitaler Workflow für alle Arten von Informationsanfragen ist
+essenziell, um Redundanzen zu vermeiden und eine einheitliche Nutzerführung zu
+gewährleisten.
+1.2 Ziel des Konzepts: Effiziente und transparente Abwicklung
+von Informations- oder Daten-Anfragen durch eine digitale
+Workflow-Lösung
+Das Konzept "fragdenstaat.gv.at" sieht eine zentrale Plattform vor, die als integraler
+Bestandteil von data.gv.at fungiert, da dort das österreichische Portal für offene Daten, das
+IFG-Register und die zentrale Informationsstelle laut DZG angesiedelt sind. Data.gv.at soll als
+One-Stop-Shop für alle Informations- oder Daten-Anfragen dienen. Ziel ist es:
+● Bürger strukturiert durch den Antragsprozess zu leiten und sie direkt an die
+zuständigen Stellen zu verweisen.
+● Praktische Erfordernisse in puncto Anfragen, die aus mehreren Rechtsakten
+entstammen (IFG, IWG, DZG), gebündelt an einer Stelle umsetzen.
+● Mehrfachanfragen zu reduzieren und eine transparente Nachverfolgbarkeit zu
+gewährleisten.
+● Ein Fristenmanagement zu etablieren, das die gesetzlich vorgeschriebene
+Bearbeitungszeit von vier Wochen automatisch überwacht und Eskalationen
+verhindert.
+● Verwaltungsprozesse zu optimieren, indem Anfragen digital verarbeitet und nahtlos in
+bestehende Systeme wie ELAK integriert werden.
+● Medienbrüche zu eliminieren und eine effiziente digitale Kommunikation zwischen
+Bürgern und Verwaltung zu ermöglichen.
+1.3 Relevanz für für die Digitalisierung der Verwaltung
+Die Digitalisierung der öffentlichen Verwaltung ist ein zentrales Anliegen des
+Regierungsprogramms, in dem der Begriff "Digitalisierung" 56-mal Erwähnung findet.
+"fragdenstaat.gv.at" fügt sich nahtlos in die Strategie zur IT-Konsolidierung und digitalen
+Serviceverbesserung ein, indem es:
+● Ein effizientes, bürgerfreundliches System schafft, das die Umsetzung der
+Informationsfreiheit maßgeblich unterstützt.
+● Synergien nutzt und durch Automatisierung Kosten spart.
+● Ein Best-Practice-Beispiel für eine digitale Verwaltungslösung schafft, das
+Modellcharakter für weitere E-Government-Services haben kann.
+● politisch Verantwortlichen die Möglichkeit bietet, sich als treibende Kraft einer
+modernen, digitalen Verwaltung zu positionieren.
+Durch die Implementierung von "fragdenstaat.gv.at" können politische Verantwortliche nicht
+nur die gesetzlich geforderte Umsetzung der Informationsfreiheit und weiterer gesetzlicher
+Erfordernisse unterstützen, sondern auch die öffentliche Verwaltung zukunftsorientiert und
+effizient aufstellen.
+2. Status Quo und Problemstellung
+2.1 Fehlende zentrale Anlaufstelle für Informations-Anfragen
+Derzeit gibt es keine zentrale Plattform, über die Bürger Anfragen nach dem IFG, IWG oder
+DZG stellen können. Laut DZG ist zwar die Einrichtung einer zentralen Informationsstelle bei
+data.gv.at vorgesehen, es fehlt jedoch ein kohärenter Umgang mit Daten- und
+Informationsanfragen. Ohne eine einheitliche Anlaufstelle ist es für Bürger oft unklar, an
+welche Behörde sie sich wenden müssen. Dies führt zu ineffizienten Anfragen, unnötigen
+Rückfragen und Verzögerungen bei der Bearbeitung.
+2.2 Herausforderungen durch Mehrfachanfragen und ineffiziente
+Bearbeitung
+Ohne eine zentrale Plattform würde es häufig vorkommen, dass Bürger dieselbe Anfrage an
+mehrere Stellen schicken, da unklar ist, welche Behörde die gewünschte Information
+bereitstellen kann. Dadurch entstehen:
+● Doppel- oder Mehrfachbearbeitungen derselben Anfrage in verschiedenen
+Verwaltungsstellen.
+● Ineffiziente Nutzung von Ressourcen, da Behörden die Anfragen nicht koordiniert
+bearbeiten können.
+● Inkonsistente Antworten auf dieselbe Anfrage, je nach bearbeitender Stelle.
+2.3 Fristenmanagement und Nachverfolgbarkeit
+Sowohl das IFG als auch das IWG geben eine Bearbeitungsfrist von vier Wochen vor. Ohne
+eine digitale Workflow-Lösung gibt es jedoch keine einheitliche Möglichkeit zur
+Fristenüberwachung. Dies führt zu:
+● Verpassten oder verspäteten Antworten, da keine automatisierten Erinnerungen
+existieren.
+● Mangelnder Transparenz für Bürger über den aktuellen Status ihrer Anfrage.
+● Erhöhter Verwaltungsaufwand durch manuelles Monitoring und Eskalationen.
+2.4 Medienbrüche zwischen E-Mail-Anfragen und
+Verwaltungssystemen (z.B. ELAK)
+Derzeit müssten IFG- und IWG-Anfragen meist per E-Mail an unterschiedliche Behörden
+gesendet werden. Sobald eine Behörde eine Anfrage erhält, muss sie diese in ein anderes
+System, beispielsweise ELAK, übertragen, um sie dort weiterzubearbeiten. Dies führt zu:
+● Hohem manuellen Aufwand durch doppelte Dateneingabe.
+● Erhöhtem Fehlerrisiko und möglichen Informationsverlusten.
+● Verzögerungen durch inkonsistente Prozesse zwischen E-Mail-Kommunikation und
+verwaltungsinternen Bearbeitungssystemen.
+2.5 Mangelnde Übersichtlichkeit für Verwaltung und Bürger
+Sowohl für Bürger als auch für die Verwaltung ist es ohne eine zentrale Plattform schwierig,
+den Überblick über Anfragen und deren Status zu behalten:
+● Bürger wissen nicht, ob es bereits ähnliche Anfragen gibt, an die sie sich anschließen
+könnten.
+● Behörden haben keine zentrale Übersicht über alle eingegangenen Anfragen und
+deren Bearbeitungsstand.
+● Es fehlt ein Dashboard oder eine zentrale Datenbank für die Verwaltung, um
+Ressourcen effizient zuzuteilen und Bearbeitungsprozesse zu steuern.
+Diese Probleme zeigen deutlich, dass eine zentrale, digitale Workflow-Lösung erforderlich ist,
+um sowohl die Effizienz der Verwaltung als auch die Nutzerfreundlichkeit für Bürger zu
+verbessern.
+3. Zielsetzung und Nutzen von fragdenstaat.gv.at
+3.1 Single Point of Data: Zentralisierte Plattform für Informationsund Daten-Anfragen
+"fragdenstaat.gv.at" soll als zentrale Anlaufstelle für alle Informations- und Daten-Anfragen
+dienen und in data.gv.at integriert werden. Diese Plattform stellt eine einheitliche Schnittstelle
+zwischen Bürgern und Verwaltung dar und ermöglicht eine strukturierte und effiziente
+Bearbeitung der Anfragen.
+3.2 Reduktion von Mehrfachanfragen und effiziente Zuweisung
+Durch eine zentrale Plattform werden redundante Anfragen vermieden, indem Bürger gezielt
+zu bereits vorhandenen Anfragen gelenkt oder ihre Anfragen direkt an die zuständige Behörde
+weitergeleitet werden. Dies spart Verwaltungsaufwand und beschleunigt die Bearbeitung.
+3.3 Transparenz und Nachvollziehbarkeit für alle Beteiligten
+Alle Anfragen und Antworten werden – soweit rechtlich zulässig – öffentlich dokumentiert,
+sodass Bürger und Verwaltung jederzeit auf bereits vorhandene Informationen zugreifen
+können. Dies stärkt das Vertrauen in die Verwaltung und fördert eine offene
+Informationskultur.
+3.4 Automatisiertes Fristenmanagement und
+Benachrichtigungen
+Das System stellt sicher, dass Fristen für Anfragen automatisch überwacht werden. Bürger
+erhalten Benachrichtigungen über den Bearbeitungsstatus, und die Verwaltung wird
+rechtzeitig an ausstehende Anfragen erinnert, um Verzögerungen zu vermeiden.
+3.5 Nahtlose Integration in bestehende Verwaltungssysteme
+"fragdenstaat.gv.at" soll mit bestehenden Systemen wie ELAK kompatibel sein, um
+Medienbrüche zu vermeiden und eine reibungslose Bearbeitung von Anfragen innerhalb der
+Verwaltung sicherzustellen.
+4. Vergleich mit Best Practices
+4.1 Beispiel: fragdenstaat.at und dessen Erfolge
+Die Plattform fragdenstaat.at hat sich in Österreich als erfolgreiches Instrument der
+Zivilgesellschaft zur Unterstützung des bis dato geltenden Auskunftpflichtgesetzes etabliert.
+Sie ermöglicht es Bürgern, Anfragen nach dem Auskunftspflichtgesetz zu stellen, und
+dokumentiert den gesamten Prozess öffentlich. Dies hat dazu beigetragen, die Transparenz
+staatlichen Handelns zu verbessern, Mehrfachanfragen zu reduzieren und eine bessere
+Nachvollziehbarkeit für Bürger und Verwaltung zu schaffen.
+4.2 Internationale Vergleichsmodelle (z.B. FOI-Portale in UK,
+DE, US)
+Weltweit ermöglichen gesetzliche Grundlagen zur Informationsfreiheit - Freedom of
+Information (FOI) - Bürgern, Informationen von den Regierungen anzufordern und
+einzusehen, um Transparenz und Rechenschaftspflicht zu fördern. In praktischer Hinsicht
+werden die gesetzlichen Informationsfreiheits-Anforderungen über zentrale digitale Portale
+umgesetzt. FOI (Freedom of Information Act)-Anfrage-Portale in Großbritannien, Frankreich,
+Finnland, Deutschland und den USA zeigen, dass zentrale digitale Plattformen den Zugang
+zu amtlichen Informationen erheblich erleichtern. Sie bieten:
+● Standardisierte Prozesse für Anfragen,
+● Öffentliche Dokumentation der Antworten zur Vermeidung von Doppelanfragen,
+● Schnittstellen zu Verwaltungssystemen zur effizienteren Bearbeitung.
+Diese Modelle dienen als Blaupause für eine österreichische Lösung.
+4.3 Erfolgsfaktoren einer digitalen Workflow-Lösung für
+Informationsbegehren
+Die wichtigsten Erfolgsfaktoren umfassen:
+● Ein benutzerfreundliches Interface für Bürger,
+● Klare und standardisierte Workflows zur Bearbeitung von Anfragen,
+● Automatisierte Fristüberwachung,
+● Integration in data.gv.at und bestehende Verwaltungssysteme,
+● Transparenz durch öffentliche Dokumentation von Anfragen.
+5. Technische Umsetzung und Architektur
+5.1 Webbasierte Plattform mit Such- und Anfragemechanismus
+Die Plattform soll webbasiert sein und eine intuitive Suchfunktion enthalten, um Bürgern die
+Recherche nach bereits veröffentlichten Informationen auf data.gv.at zu erleichtern. Falls
+keine passende Information gefunden wird, kann direkt eine Anfrage gestellt werden.
+5.2 Nutzerführung durch strukturierte Anfrageprozesse
+Ein geführter Prozess stellt sicher, dass Anfragen möglichst vollständig und präzise formuliert
+werden. Dies erleichtert die Bearbeitung durch die Verwaltung und reduziert Rückfragen.
+5.3 Automatisierte Weiterleitung an die zuständigen Stellen
+Das System erkennt automatisch die zuständige Behörde und leitet Anfragen entsprechend
+weiter, um Mehrfachbearbeitungen zu vermeiden.
+5.4 Dashboard und Verwaltungssystem für Behörden
+Ein zentrales Dashboard ermöglicht Behörden die Übersicht über eingegangene Anfragen,
+deren Status und Fristen. Es erleichtert die interne Zuweisung und Bearbeitung.
+5.5 Schnittstellen zu ELAK und anderen Backendsystemen
+Durch die Anbindung an bestehende Systeme wie ELAK wird ein medienbruchfreier
+Bearbeitungsprozess sichergestellt. Dies reduziert den Verwaltungsaufwand erheblich.
+6. Vorteile für die Verwaltung
+6.1 Beitrag zur IT-Konsolidierung und Synergieeffekte
+Die Plattform stärkt die IT-Konsolidierung im Bund, indem sie redundante Prozesse vermeidet
+und einheitliche Workflows etabliert.
+6.2 Effizienzsteigerung und Reduktion manueller
+Bearbeitungskosten
+Automatisierte Prozesse und eine zentrale Steuerung führen zu einer deutlichen Reduktion
+des Verwaltungsaufwands und der Bearbeitungskosten.
+6.3 Erhöhte Zufriedenheit von Bürgern und Verwaltung
+Bürger profitieren von einer transparenten und einfach zugänglichen Plattform, während die
+Verwaltung durch klare Prozesse und eine bessere Übersicht entlastet wird.
+6.4 Umsetzung der Digitalisierungsstrategie gemäß
+Regierungsprogramm
+Das Projekt unterstützt die im Regierungsprogramm formulierte Digitalisierungsstrategie,
+indem es eine moderne, bürgerfreundliche Lösung für die Informationsfreiheit und andere
+Rechtsakte wie dem Informationsweiterverwendungsgesetz oder dem Datenzugangsgesetz
+bereitstellt.
+7. Umsetzungsschritte und Zeitplan
+7.1 Pilotphase und MVP-Entwicklung
+In der ersten Phase wird ein Minimum Viable Product (MVP) entwickelt, das grundlegende
+Funktionen der Plattform enthält, darunter:
+● Eine intuitive Suchfunktion,
+● Ein strukturiertes Anfrageformular,
+● Erste automatisierte Weiterleitungsmechanismen an zuständige Behörden.
+Die Pilotphase wird mit einer ausgewählten Gruppe von Behörden und Bürgern durchgeführt,
+um Feedback für Verbesserungen zu sammeln.
+7.2 Integration in bestehende Verwaltungsinfrastruktur
+Nach erfolgreichem Pilotbetrieb erfolgt die technische Integration in bestehende
+Verwaltungsinfrastrukturen wie:
+● data.gv.at als zentraler Zugangspunkt für Anfragen,
+● ELAK für die direkte Bearbeitung durch Behörden,
+● Weitere relevante Systeme zur Dokumentation und Fristenverwaltung.
+7.3 Test- und Optimierungsphase
+In dieser Phase wird die Plattform unter realen Bedingungen getestet. Dazu gehören:
+● Usability-Tests mit Bürgern und Verwaltungsmitarbeitern,
+● Optimierung von Workflows und Schnittstellen,
+● Fehlerbehebungen und Performance-Verbesserungen.
+7.4 Rollout und Evaluierung
+Nach erfolgreichen Tests erfolgt der schrittweise Rollout in der gesamten Verwaltung. Eine
+kontinuierliche Evaluierung stellt sicher, dass die Plattform den Anforderungen entspricht und
+laufend weiterentwickelt wird.
+8. Fazit und Handlungsempfehlungen
+8.1 Zusammenfassung der Vorteile
+Die Einführung von "fragdenstaat.gv.at" bietet zahlreiche Vorteile:
+● Einheitlicher Anlaufpunkt für Bürger durch die Integration in data.gv.at (“single point of
+data”),
+● Reduzierung von Mehrfachanfragen,
+● Effizientere Bearbeitung durch digitale Workflows,
+● Automatisierte Fristenüberwachung,
+● Bessere Nachvollziehbarkeit und Transparenz.
+8.2 Empfehlung zur Umsetzung und politische Relevanz
+Angesichts der steigenden Erwartungen an Transparenz und digitale Verwaltungsservices ist
+die Umsetzung von "fragdenstaat.gv.at" im Rahmen von data.gv.at essenziell. Der Trend zu
+Open Government Data und Initiativen wie die Europäische Datenstrategie zeigt, dass Bürger
+und Organisationen zunehmend Zugang zu Informationen von allgemeinem Interesse fordern.
+Best Practices aus anderen Ländern zeigen, dass transparente Verwaltungsprozesse das
+Vertrauen in staatliche Institutionen stärken und die Effizienz steigern. Die Plattform stärkt das
+Vertrauen der Bürger in den Staat, verbessert die Servicequalität und unterstützt die
+Digitalisierungsstrategie der Regierung.
+8.3 Nächste Schritte und Entscheidungsbedarf
+Um das Projekt erfolgreich umzusetzen, sind folgende Maßnahmen notwendig:
+● Bereitstellung von Ressourcen für die Entwicklung,
+● Klärung der rechtlichen Rahmenbedingungen,
+● Klärung von Zuständigkeiten und Verankerung der Zuständigkeit für Open Data und
+das IWG in der Digitalisierungssektion des Bundeskanzleramts (ebenso federführend
+für die Koordinierung der Datenstrategie). Schaffung einer koordinierenden Stelle für
+Data Policy, die in Abstimmung mit dem Verfassungsdienst des BKA bezüglich der
+Umsetzung der praktischen Erfordernisse des IFG agiert.
+● Einrichtung eines Projektteams zur Steuerung der Implementierung,
+● Kommunikation mit Bürgern und Stakeholdern zur Akzeptanzförderung.

@@ -31,6 +31,14 @@ import type { updateDocument } from "./ai/tools/update-document";
 import type { requestSuggestions } from "./ai/tools/request-suggestions";
 import type { exploreCsvData } from "./ai/tools/explore-csv-data";
 import type { checkDataAvailability } from "./ai/tools/check-data-availability";
+import type { getDataRequestGuidance } from "./ai/tools/create-data-request";
+import type {
+  generateDataRequestSuggestions,
+  findRelevantAgencies,
+  enhanceDataRequest,
+  validateDataRequest,
+  submitDataRequest,
+} from "./ai/tools/data-request-tools";
 
 export type DataPart = { type: "append-message"; message: string };
 
@@ -88,6 +96,24 @@ type checkDataAvailabilityTool = InferUITool<
   ReturnType<typeof checkDataAvailability>
 >;
 
+// Data request tool types
+type getDataRequestGuidanceTool = InferUITool<
+  ReturnType<typeof getDataRequestGuidance>
+>;
+type generateDataRequestSuggestionsTool = InferUITool<
+  ReturnType<typeof generateDataRequestSuggestions>
+>;
+type findRelevantAgenciesTool = InferUITool<
+  ReturnType<typeof findRelevantAgencies>
+>;
+type enhanceDataRequestTool = InferUITool<
+  ReturnType<typeof enhanceDataRequest>
+>;
+type validateDataRequestTool = InferUITool<
+  ReturnType<typeof validateDataRequest>
+>;
+type submitDataRequestTool = InferUITool<ReturnType<typeof submitDataRequest>>;
+
 export type ChatTools = {
   listDatasets: listDatasetsTool;
   searchDatasets: searchDatasetsTool;
@@ -112,6 +138,13 @@ export type ChatTools = {
   requestSuggestions: requestSuggestionsTool;
   exploreCsvData: exploreCsvDataTool;
   checkDataAvailability: checkDataAvailabilityTool;
+  // Data request tools
+  getDataRequestGuidance: getDataRequestGuidanceTool;
+  generateDataRequestSuggestions: generateDataRequestSuggestionsTool;
+  findRelevantAgencies: findRelevantAgenciesTool;
+  enhanceDataRequest: enhanceDataRequestTool;
+  validateDataRequest: validateDataRequestTool;
+  submitDataRequest: submitDataRequestTool;
 };
 
 export type CustomUIDataTypes = {
@@ -129,6 +162,57 @@ export type CustomUIDataTypes = {
     keywords: string[];
   };
   datasetSearchResult: {};
+  // Data request stream types
+  formProgress: {
+    step: number;
+    formData: any;
+  };
+  requestSubmitted: {
+    request: any;
+  };
+  requestTypeSelected: {
+    requestType: string;
+  };
+  formSuggestions: {
+    suggestions: any[];
+    reasoning: string;
+    requestType: string;
+  };
+  agencySuggestions: {
+    agencies: any[];
+    reasoning: string;
+    confidence: number;
+    requestType: string;
+  };
+  requestEnhancement: {
+    enhancement: any;
+    requestType: string;
+  };
+  validationResult: {
+    validation: any;
+    requestType: string;
+  };
+  artifactCreated: {
+    kind: string;
+    documentId: string;
+    title: string;
+    content: string;
+    isVisible: boolean;
+    status: string;
+    metadata: any;
+  };
+  requestGuidance: {
+    guidance: string;
+    features: string[];
+    nextSteps: string[];
+  };
+  guidance: {
+    type: string;
+    relevantLaw: string;
+    guidance: any;
+    question: string;
+    context: string;
+  };
 };
 
 export type ChatMessage = UIMessage<

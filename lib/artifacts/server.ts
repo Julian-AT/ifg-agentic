@@ -1,4 +1,5 @@
 import { codeDocumentHandler } from "@/artifacts/code/server";
+import { dataRequestDocumentHandler } from "@/artifacts/data-request/server";
 import type { ArtifactKind } from "@/components/artifact";
 import type { Document } from "../db/schema";
 import { saveDocument } from "../db/queries";
@@ -102,6 +103,7 @@ export function createDocumentHandler<T extends ArtifactKind>(config: {
  */
 export const documentHandlersByArtifactKind: Array<DocumentHandler> = [
   codeDocumentHandler,
+  dataRequestDocumentHandler,
 ];
 
-export const artifactKinds = ["code"] as const;
+export const artifactKinds = ["code", "data-request"] as const;

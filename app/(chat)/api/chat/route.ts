@@ -46,6 +46,14 @@ import { updateDocument } from "@/lib/ai/tools/update-document";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { exploreCsvData } from "@/lib/ai/tools/explore-csv-data";
 import { checkDataAvailability } from "@/lib/ai/tools/check-data-availability";
+import {
+  generateDataRequestSuggestions,
+  findRelevantAgencies,
+  enhanceDataRequest,
+  validateDataRequest,
+  submitDataRequest,
+} from "@/lib/ai/tools/data-request-tools";
+import { getDataRequestGuidance } from "@/lib/ai/tools/create-data-request";
 import { isProductionEnvironment } from "@/lib/constants";
 import { myProvider } from "@/lib/ai/providers";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
@@ -220,6 +228,20 @@ export async function POST(request: Request) {
             getActivityDetails: getActivityDetails({ session, dataStream }),
             getActivityData: getActivityData({ session, dataStream }),
             getActivityDiff: getActivityDiff({ session, dataStream }),
+            // Data Request Tools (AI-powered)
+            generateDataRequestSuggestions: generateDataRequestSuggestions({
+              session,
+              dataStream,
+            }),
+            findRelevantAgencies: findRelevantAgencies({ session, dataStream }),
+            enhanceDataRequest: enhanceDataRequest({ session, dataStream }),
+            validateDataRequest: validateDataRequest({ session, dataStream }),
+            submitDataRequest: submitDataRequest({ session, dataStream }),
+            // Data Request Guidance Tool
+            getDataRequestGuidance: getDataRequestGuidance({
+              session,
+              dataStream,
+            }),
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,

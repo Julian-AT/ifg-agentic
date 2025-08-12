@@ -95,6 +95,8 @@ export function DocumentPreview({
       }
     : null;
 
+  console.log(document);
+
   if (!document) return <LoadingSkeleton artifactKind={artifact.kind} />;
 
   return (
@@ -249,6 +251,12 @@ const DocumentContent = ({ document }: { document: Document }) => {
         <div className="flex flex-1 relative w-full bg-card/60">
           <div className="absolute inset-0">
             <CodeEditor {...commonProps} onSaveContent={() => {}} />
+          </div>
+        </div>
+      ) : document.kind === "data-request" ? (
+        <div className="flex flex-1 relative w-full bg-card/60">
+          <div className="absolute inset-0">
+            <Editor {...commonProps} onSaveContent={() => {}} />
           </div>
         </div>
       ) : null}

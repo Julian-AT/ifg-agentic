@@ -18,6 +18,7 @@ import type { ChatMessage } from "@/lib/types";
 import { useDataStream } from "./data-stream-provider";
 import { DocumentToolCall, DocumentToolResult } from "./document";
 import { DocumentPreview } from "./document-preview";
+
 import Image from "next/image";
 import { FileText, Download } from "lucide-react";
 import { ResourceDetailsSkeleton } from "./dataset-skeletons";

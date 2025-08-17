@@ -1,8 +1,14 @@
-import { pgTable, foreignKey, uuid, timestamp, text, boolean, varchar, json, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, uuid, varchar, foreignKey, timestamp, text, boolean, json, primaryKey } from "drizzle-orm/pg-core"
   import { sql } from "drizzle-orm"
 
 
 
+
+export const user = pgTable("User", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	email: varchar({ length: 64 }).notNull(),
+	password: varchar({ length: 64 }),
+});
 
 export const suggestion = pgTable("Suggestion", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
@@ -30,17 +36,28 @@ export const suggestion = pgTable("Suggestion", {
 	}
 });
 
-export const user = pgTable("User", {
+export const message = pgTable("Message", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
-	email: varchar({ length: 64 }).notNull(),
-	password: varchar({ length: 64 }),
+	chatId: uuid().notNull(),
+	role: varchar().notNull(),
+	content: json().notNull(),
+	createdAt: timestamp({ mode: 'string' }).notNull(),
+},
+(table) => {
+	return {
+		messageChatIdChatIdFk: foreignKey({
+			columns: [table.chatId],
+			foreignColumns: [chat.id],
+			name: "Message_chatId_Chat_id_fk"
+		}),
+	}
 });
 
 export const chat = pgTable("Chat", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	createdAt: timestamp({ mode: 'string' }).notNull(),
-	title: text().notNull(),
 	userId: uuid().notNull(),
+	title: text().notNull(),
 	visibility: varchar().default('private').notNull(),
 },
 (table) => {
@@ -71,23 +88,6 @@ export const messageV2 = pgTable("Message_v2", {
 	}
 });
 
-export const message = pgTable("Message", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	chatId: uuid().notNull(),
-	role: varchar().notNull(),
-	content: json().notNull(),
-	createdAt: timestamp({ mode: 'string' }).notNull(),
-},
-(table) => {
-	return {
-		messageChatIdChatIdFk: foreignKey({
-			columns: [table.chatId],
-			foreignColumns: [chat.id],
-			name: "Message_chatId_Chat_id_fk"
-		}),
-	}
-});
-
 export const stream = pgTable("Stream", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	chatId: uuid().notNull(),
@@ -100,27 +100,6 @@ export const stream = pgTable("Stream", {
 			foreignColumns: [chat.id],
 			name: "Stream_chatId_Chat_id_fk"
 		}),
-	}
-});
-
-export const voteV2 = pgTable("Vote_v2", {
-	chatId: uuid().notNull(),
-	messageId: uuid().notNull(),
-	isUpvoted: boolean().notNull(),
-},
-(table) => {
-	return {
-		voteV2ChatIdChatIdFk: foreignKey({
-			columns: [table.chatId],
-			foreignColumns: [chat.id],
-			name: "Vote_v2_chatId_Chat_id_fk"
-		}),
-		voteV2MessageIdMessageV2IdFk: foreignKey({
-			columns: [table.messageId],
-			foreignColumns: [messageV2.id],
-			name: "Vote_v2_messageId_Message_v2_id_fk"
-		}),
-		voteV2ChatIdMessageIdPk: primaryKey({ columns: [table.chatId, table.messageId], name: "Vote_v2_chatId_messageId_pk"}),
 	}
 });
 
@@ -145,13 +124,34 @@ export const vote = pgTable("Vote", {
 	}
 });
 
+export const voteV2 = pgTable("Vote_v2", {
+	chatId: uuid().notNull(),
+	messageId: uuid().notNull(),
+	isUpvoted: boolean().notNull(),
+},
+(table) => {
+	return {
+		voteV2ChatIdChatIdFk: foreignKey({
+			columns: [table.chatId],
+			foreignColumns: [chat.id],
+			name: "Vote_v2_chatId_Chat_id_fk"
+		}),
+		voteV2MessageIdMessageV2IdFk: foreignKey({
+			columns: [table.messageId],
+			foreignColumns: [messageV2.id],
+			name: "Vote_v2_messageId_Message_v2_id_fk"
+		}),
+		voteV2ChatIdMessageIdPk: primaryKey({ columns: [table.chatId, table.messageId], name: "Vote_v2_chatId_messageId_pk"}),
+	}
+});
+
 export const document = pgTable("Document", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp({ mode: 'string' }).notNull(),
 	title: text().notNull(),
 	content: text(),
-	text: varchar().default('text').notNull(),
 	userId: uuid().notNull(),
+	text: varchar().default('code').notNull(),
 },
 (table) => {
 	return {

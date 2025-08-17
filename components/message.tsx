@@ -345,6 +345,8 @@ const PurePreviewMessage = ({
               if (type === "tool-createDocument") {
                 const { toolCallId, state } = part;
 
+                console.log("createDocument", part);
+
                 if (state === "input-available") {
                   const { input } = part;
                   const outputPart = findMatchingOutputPart(
@@ -820,13 +822,16 @@ export const ThinkingMessage = () => {
           }
         )}
       >
-        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
-          <Image
-            src="/assets/logo_datagvat.png"
-            alt="Logo"
-            width={32}
-            height={32}
-          />
+        <div className="size-9 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
+          <div className="translate-y-px">
+            <Image
+              src="/assets/logo_datagvat.png"
+              alt="Logo"
+              className="w-9 h-9 p-1.5 bg-card/60	rounded-full"
+              width={32}
+              height={32}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col gap-2 w-full">

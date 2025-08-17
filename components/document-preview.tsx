@@ -85,7 +85,7 @@ export function DocumentPreview({
   const document: Document | null = previewDocument
     ? previewDocument
     : artifact.status === "streaming"
-    ? {
+      ? {
         title: artifact.title,
         kind: artifact.kind,
         content: artifact.content,
@@ -93,9 +93,7 @@ export function DocumentPreview({
         createdAt: new Date(),
         userId: "noop",
       }
-    : null;
-
-  console.log(document);
+      : null;
 
   if (!document) return <LoadingSkeleton artifactKind={artifact.kind} />;
 
@@ -154,18 +152,18 @@ const PureHitboxLayer = ({
         artifact.status === "streaming"
           ? { ...artifact, isVisible: true }
           : {
-              ...artifact,
-              title: result.title,
-              documentId: result.id,
-              kind: result.kind,
-              isVisible: true,
-              boundingBox: {
-                left: boundingBox.x,
-                top: boundingBox.y,
-                width: boundingBox.width,
-                height: boundingBox.height,
-              },
-            }
+            ...artifact,
+            title: result.title,
+            documentId: result.id,
+            kind: result.kind,
+            isVisible: true,
+            boundingBox: {
+              left: boundingBox.x,
+              top: boundingBox.y,
+              width: boundingBox.width,
+              height: boundingBox.height,
+            },
+          }
       );
     },
     [setArtifact, result]
@@ -241,7 +239,7 @@ const DocumentContent = ({ document }: { document: Document }) => {
     isCurrentVersion: true,
     currentVersionIndex: 0,
     status: artifact.status,
-    saveContent: () => {},
+    saveContent: () => { },
     suggestions: [],
   };
 
@@ -250,13 +248,17 @@ const DocumentContent = ({ document }: { document: Document }) => {
       {document.kind === "code" ? (
         <div className="flex flex-1 relative w-full bg-card/60">
           <div className="absolute inset-0">
-            <CodeEditor {...commonProps} onSaveContent={() => {}} />
+            <CodeEditor {...commonProps} onSaveContent={() => { }} />
           </div>
         </div>
       ) : document.kind === "data-request" ? (
         <div className="flex flex-1 relative w-full bg-card/60">
-          <div className="absolute inset-0">
-            <Editor {...commonProps} onSaveContent={() => {}} />
+          <div className="absolute w-full h-full flex items-center justify-center">
+            <div className="text-sm text-muted-foreground">
+              <p>
+                Dieses Dokument ist noch nicht verfügbar.
+              </p>
+            </div>
           </div>
         </div>
       ) : null}

@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { user, suggestion, document, chat, messageV2, message, stream, voteV2, vote } from "./schema";
+import { user, suggestion, document, chat, message, messageV2, stream, vote, voteV2 } from "./schema";
 
 export const suggestionRelations = relations(suggestion, ({one}) => ({
 	user: one(user, {
@@ -26,16 +26,24 @@ export const documentRelations = relations(document, ({one, many}) => ({
 	}),
 }));
 
+export const messageRelations = relations(message, ({one, many}) => ({
+	chat: one(chat, {
+		fields: [message.chatId],
+		references: [chat.id]
+	}),
+	votes: many(vote),
+}));
+
 export const chatRelations = relations(chat, ({one, many}) => ({
+	messages: many(message),
 	user: one(user, {
 		fields: [chat.userId],
 		references: [user.id]
 	}),
 	messageV2s: many(messageV2),
-	messages: many(message),
 	streams: many(stream),
-	voteV2s: many(voteV2),
 	votes: many(vote),
+	voteV2s: many(voteV2),
 }));
 
 export const messageV2Relations = relations(messageV2, ({one, many}) => ({
@@ -46,29 +54,10 @@ export const messageV2Relations = relations(messageV2, ({one, many}) => ({
 	voteV2s: many(voteV2),
 }));
 
-export const messageRelations = relations(message, ({one, many}) => ({
-	chat: one(chat, {
-		fields: [message.chatId],
-		references: [chat.id]
-	}),
-	votes: many(vote),
-}));
-
 export const streamRelations = relations(stream, ({one}) => ({
 	chat: one(chat, {
 		fields: [stream.chatId],
 		references: [chat.id]
-	}),
-}));
-
-export const voteV2Relations = relations(voteV2, ({one}) => ({
-	chat: one(chat, {
-		fields: [voteV2.chatId],
-		references: [chat.id]
-	}),
-	messageV2: one(messageV2, {
-		fields: [voteV2.messageId],
-		references: [messageV2.id]
 	}),
 }));
 
@@ -80,5 +69,16 @@ export const voteRelations = relations(vote, ({one}) => ({
 	message: one(message, {
 		fields: [vote.messageId],
 		references: [message.id]
+	}),
+}));
+
+export const voteV2Relations = relations(voteV2, ({one}) => ({
+	chat: one(chat, {
+		fields: [voteV2.chatId],
+		references: [chat.id]
+	}),
+	messageV2: one(messageV2, {
+		fields: [voteV2.messageId],
+		references: [messageV2.id]
 	}),
 }));

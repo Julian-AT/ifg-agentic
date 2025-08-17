@@ -100,6 +100,8 @@ export async function saveChat({
       visibility,
     });
   } catch (error) {
+    console.log(error);
+
     throw new ChatSDKError("bad_request:database", "Failed to save chat");
   }
 }

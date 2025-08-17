@@ -16,7 +16,7 @@ interface CreateDocumentProps {
 export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
   tool({
     description:
-      "Create executable Python code artifacts for computational tasks such as data visualization, AI/ML model creation, statistical analysis, or data processing. Use this tool for ALL Python code generation - NEVER write Python code in chat responses. CRITICAL: When working with CSV data, you MUST provide the dataUrl parameter with the exact URL from getResourceDetails tool output. DO NOT use this for displaying dataset information - use getDatasetDetails, getResourceDetails, and other data tools instead for information display.",
+      "Creates a document from a given title, kind. A document can be a data request form, a code, a data analysis, or other purposes. Use this tool for ALL document creation - NEVER write document content in chat responses. Use this tool if the user want  to create a request for a data that is not available in the system or if they want to create a data analysis or other document.",
     inputSchema: z.object({
       title: z.string(),
       kind: z.enum(artifactKinds),
@@ -47,7 +47,7 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
     execute: async ({ title, kind, dataUrl, csvStructure }) => {
       const id = generateUUID();
 
-      console.log("creating document", { title, kind });
+      console.log("creating document", { title, kind, id });
 
       dataStream.write({
         type: "data-kind",

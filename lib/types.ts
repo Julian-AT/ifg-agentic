@@ -150,6 +150,17 @@ export type ChatTools = {
 export type CustomUIDataTypes = {
   textDelta: string;
   codeDelta: string;
+  formDelta: {
+    field: string;
+    content: string;
+    oldValue?: string;
+    isComplete: boolean;
+    hasChange?: boolean;
+  };
+  formComplete: {
+    formData: any;
+    isComplete: boolean;
+  };
   suggestion: Suggestion;
   appendMessage: string;
   id: string;

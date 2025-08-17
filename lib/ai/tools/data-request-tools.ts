@@ -360,39 +360,43 @@ export function submitDataRequest({
             history: [],
             publiclyVisible: false,
           },
-          submittedAt: new Date(),
-          title: (formData as any).title || "Data Request",
-          description: (formData as any).description || "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          agency: selectedAgency as unknown as Agency,
-          timeline: {
-            submittedAt: new Date(),
-            deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-            escalationLevel: 0,
-            expectedResponseAt: new Date(
-              Date.now() +
-                (selectedAgency as any).performanceMetrics.averageResponseTime *
-                  24 *
-                  60 *
-                  60 *
-                  1000
-            ),
-            actualResponseAt: null,
-            reminderSentAt: null,
-          },
-          statusHistory: [
-            {
-              status: "submitted",
-              timestamp: new Date(),
-              note: "Request submitted successfully",
-              actor: "user",
+          metadata: {
+            validation: {
             },
-          ],
-          requesterInfo: {
-            name: session.user?.name || "User",
-            email: session.user?.email || "",
-          },
+            submittedAt: new Date(),
+            title: (formData as any).title || "Data Request",
+            description: (formData as any).description || "",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            agency: selectedAgency as unknown as Agency,
+            timeline: {
+              submittedAt: new Date(),
+              deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+              escalationLevel: 0,
+              expectedResponseAt: new Date(
+                Date.now() +
+                (selectedAgency as any).performanceMetrics.averageResponseTime *
+                24 *
+                60 *
+                60 *
+                1000
+              ),
+              actualResponseAt: null,
+              reminderSentAt: null,
+            },
+            statusHistory: [
+              {
+                status: "submitted",
+                timestamp: new Date(),
+                note: "Request submitted successfully",
+                actor: "user",
+              },
+            ],
+            requesterInfo: {
+              name: session.user?.name || "User",
+              email: session.user?.email || "",
+            },
+          }
         };
 
         dataStream.write({

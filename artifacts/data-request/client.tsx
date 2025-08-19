@@ -22,7 +22,6 @@ interface DataRequestFormData {
   dataProtectionMeasures?: string;
   ethicsApproval?: string;
   timeframe?: string;
-  specificDocuments?: string;
 }
 
 interface Metadata {
@@ -140,53 +139,6 @@ export const dataRequestArtifact = new Artifact<"data-request", Metadata>({
     );
   },
   actions: [
-    {
-      icon: <SendIcon />,
-      label: "Anfrage einreichen",
-      description: "Die ausgefüllte Datenanfrage an die Behörde senden",
-      onClick: ({ metadata, sendMessage }) => {
-        const { formData } = metadata;
-
-        // Validate required fields
-        if (
-          !formData.requestType ||
-          !formData.title ||
-          !formData.description ||
-          !formData.requesterName ||
-          !formData.requesterEmail
-        ) {
-          return;
-        }
-
-        sendMessage?.({
-          role: "user",
-          parts: [
-            {
-              type: "text",
-              text: `Create an official Austrian ${formData.requestType} data request document and submit it. Use the createDocument tool to generate a professional data request with this form data: ${JSON.stringify(formData, null, 2)}
-
-The document should include proper legal formatting, required justifications, and compliance with Austrian ${formData.requestType} regulations.`,
-            },
-          ],
-        });
-      },
-    },
-    {
-      icon: <BotIcon />,
-      label: "AI Auto-Fill",
-      description: "Generate complete form content using AI assistance",
-      onClick: ({ sendMessage, metadata }) => {
-        sendMessage?.({
-          role: "user",
-          parts: [
-            {
-              type: "text",
-              text: `Please help me fill out this data request form with AI assistance. Analyze the current form data and provide suggestions or auto-fill appropriate fields based on best practices for Austrian data requests (IFG, IWG, DZG). Current form data: ${JSON.stringify(metadata.formData, null, 2)}`,
-            },
-          ],
-        });
-      },
-    },
   ],
 
   toolbar: [],
@@ -211,7 +163,6 @@ function getFieldLabel(field: string): string {
     dataProtectionMeasures: "Data Protection",
     ethicsApproval: "Ethics Approval",
     timeframe: "Timeframe",
-    specificDocuments: "Specific Documents",
   };
 
   return labels[field] || field;

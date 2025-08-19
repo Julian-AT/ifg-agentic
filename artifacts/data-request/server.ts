@@ -533,7 +533,6 @@ function getFormSchema(requestType: string) {
     default: // IFG
       return baseSchema.extend({
         timeframe: z.string().optional().describe("Specific time period for requested information"),
-        specificDocuments: z.string().optional().describe("Specific documents or information types requested"),
       });
   }
 }

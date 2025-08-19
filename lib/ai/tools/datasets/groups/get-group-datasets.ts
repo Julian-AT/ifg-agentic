@@ -16,7 +16,7 @@ interface DatasetToolsProps {
  */
 export const getGroupDatasets = ({ session, dataStream }: DatasetToolsProps) =>
   tool({
-    description: 
+    description:
       "Return the datasets (packages) of a specific group with enhanced filtering and analysis. Groups organize datasets by theme or category in the Austrian data portal.",
     inputSchema: z.object({
       id: z
@@ -47,7 +47,7 @@ export const getGroupDatasets = ({ session, dataStream }: DatasetToolsProps) =>
         params.append("id", id);
         params.append("limit", limit.toString());
         params.append("offset", offset.toString());
-        
+
         if (sort) {
           params.append("sort", sort);
         }
@@ -75,7 +75,7 @@ export const getGroupDatasets = ({ session, dataStream }: DatasetToolsProps) =>
 
       } catch (error) {
         console.error("❌ Error getting group datasets:", error);
-        
+
         return createGroupDatasetErrorResult(error, { id, limit, offset, sort });
       }
     },
@@ -86,12 +86,12 @@ export const getGroupDatasets = ({ session, dataStream }: DatasetToolsProps) =>
  */
 function enhanceGroupDatasetData(data: any, params: any) {
   const datasets = data.result || [];
-  
+
   // Process each dataset with additional metadata
   const processedDatasets = datasets.map((dataset: any) => {
     const analysis = analyzeDataset(dataset);
     const resources = analyzeResources(dataset.resources || []);
-    
+
     return {
       ...dataset,
       enhanced: {
@@ -138,7 +138,7 @@ function analyzeDataset(dataset: any) {
 
   return {
     title: dataset.title || dataset.name,
-    hasDescription: !!(dataset.notes && dataset.notes.trim()),
+    hasDescription: !!(dataset.notes?.trim()),
     resourceCount: dataset.resources?.length || 0,
     tagCount: dataset.tags?.length || 0,
     hasLicense: !!(dataset.license_title || dataset.license_id),
@@ -159,13 +159,13 @@ function analyzeResources(resources: any[]) {
   resources.forEach(resource => {
     const format = (resource.format || 'unknown').toUpperCase();
     formatCounts[format] = (formatCounts[format] || 0) + 1;
-    
+
     if (isResourceDownloadable(resource)) {
       downloadableCount++;
     }
-    
-    if (resource.size && !isNaN(resource.size)) {
-      totalSize += parseInt(resource.size);
+
+    if (resource.size && !Number.isNaN(resource.size)) {
+      totalSize += Number.parseInt(resource.size);
     }
   });
 
@@ -185,13 +185,13 @@ function analyzeResources(resources: any[]) {
 function isResourceDownloadable(resource: any): boolean {
   const url = resource.url || '';
   const format = (resource.format || '').toLowerCase();
-  
+
   // Direct download formats
   const downloadableFormats = ['csv', 'json', 'xml', 'xlsx', 'pdf', 'zip', 'geojson'];
   if (downloadableFormats.includes(format)) {
     return true;
   }
-  
+
   // URL patterns that suggest downloadable content
   const downloadPatterns = ['.csv', '.json', '.xml', '.xlsx', '.pdf', '.zip', 'download', 'file'];
   return downloadPatterns.some(pattern => url.toLowerCase().includes(pattern));
@@ -202,7 +202,7 @@ function isResourceDownloadable(resource: any): boolean {
  */
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 B';
-  
+
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let unitIndex = 0;
   let size = bytes;
@@ -221,7 +221,7 @@ function formatFileSize(bytes: number): string {
 function assessDatasetAccessibility(dataset: any): any {
   const resources = dataset.resources || [];
   const downloadableResources = resources.filter(isResourceDownloadable);
-  
+
   let score = 0;
   const factors: string[] = [];
 
@@ -239,7 +239,7 @@ function assessDatasetAccessibility(dataset: any): any {
 
   // Open formats
   const openFormats = ['csv', 'json', 'xml', 'geojson'];
-  const hasOpenFormat = resources.some(r => 
+  const hasOpenFormat = resources.some((r: any) =>
     openFormats.includes((r.format || '').toLowerCase())
   );
   if (hasOpenFormat) {
@@ -254,7 +254,7 @@ function assessDatasetAccessibility(dataset: any): any {
   }
 
   // Documentation
-  if (dataset.notes && dataset.notes.trim()) {
+  if (dataset.notes?.trim()) {
     score += 10;
     factors.push('Has description');
   }
@@ -272,10 +272,10 @@ function assessDatasetAccessibility(dataset: any): any {
 function getLastActivity(dataset: any): string | null {
   const modified = dataset.metadata_modified;
   const created = dataset.metadata_created;
-  
+
   const lastDate = modified || created;
   if (!lastDate) return null;
-  
+
   try {
     return new Date(lastDate).toISOString();
   } catch {
@@ -288,23 +288,23 @@ function getLastActivity(dataset: any): string | null {
  */
 function calculateDatasetQuality(dataset: any): number {
   let score = 0;
-  
+
   // Basic metadata
   if (dataset.title) score += 15;
-  if (dataset.notes && dataset.notes.trim()) score += 20;
+  if (dataset.notes?.trim()) score += 20;
   if (dataset.tags && dataset.tags.length > 0) score += 10;
-  
+
   // Resources
   const resourceCount = dataset.resources?.length || 0;
   if (resourceCount > 0) score += 25;
   if (resourceCount > 1) score += 5;
-  
+
   // License
   if (dataset.license_title || dataset.license_id) score += 15;
-  
+
   // Organization
   if (dataset.organization) score += 10;
-  
+
   return Math.min(score, 100);
 }
 
@@ -313,11 +313,11 @@ function calculateDatasetQuality(dataset: any): number {
  */
 function analyzeGroupDatasets(datasets: any[]) {
   const totalDatasets = datasets.length;
-  
+
   // Resource analysis
   const totalResources = datasets.reduce((sum, d) => sum + (d.enhanced.resources.total || 0), 0);
   const totalDownloadable = datasets.reduce((sum, d) => sum + (d.enhanced.resources.downloadable || 0), 0);
-  
+
   // Format distribution
   const formatDistribution: Record<string, number> = {};
   datasets.forEach(dataset => {
@@ -325,18 +325,18 @@ function analyzeGroupDatasets(datasets: any[]) {
       formatDistribution[format] = (formatDistribution[format] || 0) + (count as number);
     });
   });
-  
+
   // Organization distribution
   const organizationDistribution: Record<string, number> = {};
   datasets.forEach(dataset => {
     const org = dataset.enhanced.analysis.organization || 'Unknown';
     organizationDistribution[org] = (organizationDistribution[org] || 0) + 1;
   });
-  
+
   // Quality distribution
   const qualityScores = datasets.map(d => d.enhanced.qualityScore);
   const averageQuality = qualityScores.reduce((sum, score) => sum + score, 0) / totalDatasets;
-  
+
   return {
     totalDatasets,
     totalResources,

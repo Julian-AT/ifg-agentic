@@ -118,10 +118,10 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
         }
 
         // Signal completion
-        dataStream.write({ 
-          type: "data-finish", 
-          data: null, 
-          transient: true 
+        dataStream.write({
+          type: "data-finish",
+          data: null,
+          transient: true
         });
 
         console.log(`✅ Document created successfully: ${id}`);
@@ -141,15 +141,10 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
 
       } catch (error) {
         console.error("❌ Error creating document:", error);
-        
-        // Stream error information
+
         dataStream.write({
-          type: "data-error",
-          data: {
-            message: error instanceof Error ? error.message : "Unknown error occurred",
-            timestamp: new Date().toISOString(),
-          },
-          transient: false,
+          type: "error",
+          errorText: error instanceof Error ? error.message : "Unknown error occurred",
         });
 
         return {

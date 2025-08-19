@@ -99,7 +99,7 @@ export function validateDataRequest({
                         isValid: validationResult.isValid,
                         completeness: validationResult.completeness,
                         errorCount: validationResult.errors.length,
-                        warningCount: validationResult.errors.filter(e => e.severity === "warning").length,
+                        warningCount: validationResult.errors.filter((e: any) => e.severity === "warning").length,
                     },
                 };
             } catch (error) {
@@ -125,14 +125,14 @@ export function validateDataRequest({
 function processValidationResult(result: any, requestType: RequestType): any {
     // Sort errors by severity
     const sortedErrors = result.errors.sort((a: any, b: any) => {
-        const severityOrder = { error: 3, warning: 2, info: 1 };
-        return severityOrder[b.severity] - severityOrder[a.severity];
+        const severityOrder: { [key: string]: number } = { error: 3, warning: 2, info: 1 };
+        return (severityOrder[b.severity] || 0) - (severityOrder[a.severity] || 0);
     });
 
     // Sort suggestions by priority
     const sortedSuggestions = result.suggestions.sort((a: any, b: any) => {
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        return priorityOrder[b.priority] - priorityOrder[a.priority];
+        const priorityOrder: { [key: string]: number } = { high: 3, medium: 2, low: 1 };
+        return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
     });
 
     // Add framework-specific recommendations

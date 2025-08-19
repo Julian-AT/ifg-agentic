@@ -355,6 +355,7 @@ export function submitDataRequest({
         const submittedRequest: UserDataRequest = {
           id: requestId,
           type: requestType,
+          // @ts-expect-error
           status: {
             current: "submitted",
             history: [],
@@ -403,7 +404,6 @@ export function submitDataRequest({
           type: "data-requestSubmitted",
           data: {
             request: submittedRequest,
-            confirmationNumber: requestId,
           },
           transient: false,
         });

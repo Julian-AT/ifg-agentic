@@ -135,8 +135,6 @@ export const dataRequestArtifact = new Artifact<"data-request", Metadata>({
           onSubmit={async (data) => {
             console.log("submit", data);
           }}
-          isStreaming={metadata.isStreaming}
-          streamingField={metadata.streamingField}
         />
       </div>
     );

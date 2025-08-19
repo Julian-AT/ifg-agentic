@@ -63,7 +63,7 @@ export const getActivityDiff = ({ session, dataStream }: ActivityToolsProps) =>
 
       } catch (error) {
         console.error('❌ Error getting activity diff:', error);
-        
+
         return createActivityDiffErrorResult(error, { id, object_type, diff_type });
       }
     },
@@ -74,7 +74,7 @@ export const getActivityDiff = ({ session, dataStream }: ActivityToolsProps) =>
  */
 function enhanceActivityDiff(data: any, params: any) {
   const diff = data.result;
-  
+
   if (!diff) {
     return {
       ...data,
@@ -88,13 +88,13 @@ function enhanceActivityDiff(data: any, params: any) {
 
   // Analyze the diff content
   const analysis = analyzeDiffContent(diff, params.object_type);
-  
+
   // Generate change summary
   const summary = generateDiffSummary(analysis, params.object_type);
-  
+
   // Extract insights from changes
   const insights = extractDiffInsights(analysis, params.object_type);
-  
+
   // Assess change impact
   const impact = assessChangeImpact(analysis, params.object_type);
 
@@ -137,10 +137,10 @@ function analyzePlainTextDiff(diffText: string, objectType: string) {
   const additions: string[] = [];
   const deletions: string[] = [];
   const modifications: string[] = [];
-  
+
   let additionCount = 0;
   let deletionCount = 0;
-  
+
   lines.forEach(line => {
     if (line.startsWith('+') && !line.startsWith('+++')) {
       additions.push(line.substring(1).trim());
@@ -207,7 +207,7 @@ function assessDiffComplexity(totalChanges: number): 'low' | 'medium' | 'high' {
  */
 function extractSignificantChanges(lines: string[], objectType: string): string[] {
   const significantChanges: string[] = [];
-  
+
   // Define significant fields by object type
   const significantFields: Record<string, string[]> = {
     'package': ['title', 'notes', 'license', 'resources', 'tags', 'private'],
@@ -217,11 +217,11 @@ function extractSignificantChanges(lines: string[], objectType: string): string[
   };
 
   const fieldsToCheck = significantFields[objectType] || [];
-  
+
   lines.forEach(line => {
     fieldsToCheck.forEach(field => {
-      if (line.toLowerCase().includes(field.toLowerCase()) && 
-          (line.startsWith('+') || line.startsWith('-'))) {
+      if (line.toLowerCase().includes(field.toLowerCase()) &&
+        (line.startsWith('+') || line.startsWith('-'))) {
         significantChanges.push(`${field} was modified`);
       }
     });
@@ -255,7 +255,7 @@ function generateDiffSummary(analysis: any, objectType: string): string {
 
   const changesSummary = parts.join(', ');
   const complexity = analysis.complexity;
-  
+
   return `${changesSummary} (${complexity} complexity) in this ${objectType}`;
 }
 
@@ -264,7 +264,7 @@ function generateDiffSummary(analysis: any, objectType: string): string {
  */
 function extractDiffInsights(analysis: any, objectType: string): string[] {
   const insights: string[] = [];
-  
+
   if (!analysis) {
     insights.push('No diff analysis available');
     return insights;
@@ -292,25 +292,25 @@ function extractDiffInsights(analysis: any, objectType: string): string[] {
   // Object-specific insights
   switch (objectType) {
     case 'package':
-      if (significantChanges.some(c => c.includes('resources'))) {
+      if (significantChanges.some((c: string) => c.includes('resources'))) {
         insights.push('Dataset resources were modified - may affect data accessibility');
       }
-      if (significantChanges.some(c => c.includes('license'))) {
+      if (significantChanges.some((c: string) => c.includes('license'))) {
         insights.push('License information changed - review usage implications');
       }
-      if (significantChanges.some(c => c.includes('private'))) {
+      if (significantChanges.some((c: string) => c.includes('private'))) {
         insights.push('Privacy settings changed - affects public visibility');
       }
       break;
 
     case 'organization':
-      if (significantChanges.some(c => c.includes('state'))) {
+      if (significantChanges.some((c: string) => c.includes('state'))) {
         insights.push('Organization state changed - may affect dataset availability');
       }
       break;
 
     case 'user':
-      if (significantChanges.some(c => c.includes('state'))) {
+      if (significantChanges.some((c: string) => c.includes('state'))) {
         insights.push('User state changed - may affect their contributions');
       }
       break;
@@ -351,19 +351,19 @@ function assessChangeImpact(analysis: any, objectType: string) {
 
   // Assess user-facing impact
   const userFacingFields = ['title', 'description', 'notes', 'image_url'];
-  const userFacing = significantChanges.some(change => 
+  const userFacing = significantChanges.some((change: string) =>
     userFacingFields.some(field => change.toLowerCase().includes(field))
   );
 
   // Assess breaking changes
   const breakingFields = ['private', 'state', 'license'];
-  const breaking = significantChanges.some(change => 
+  const breaking = significantChanges.some((change: string) =>
     breakingFields.some(field => change.toLowerCase().includes(field))
   );
 
   // Assess data-affecting changes
   const dataFields = ['resources', 'url', 'format'];
-  const dataAffecting = significantChanges.some(change => 
+  const dataAffecting = significantChanges.some((change: string) =>
     dataFields.some(field => change.toLowerCase().includes(field))
   );
 

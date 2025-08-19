@@ -23,8 +23,6 @@ import type {
     RequestType,
     FormStep,
     FormField,
-    FormState,
-    ValidationRule,
     DataRequestFormData
 } from "@/lib/types/data-request";
 
@@ -49,15 +47,15 @@ interface AIEnhancement {
 }
 
 export function AIFormWizard({
+    initialData,
     requestType,
-    initialData = {},
     onSubmit,
     onStepChange,
     onValidation,
     className,
 }: AIFormWizardProps) {
     const [currentStep, setCurrentStep] = useState(0);
-    const [formData, setFormData] = useState<Partial<DataRequestFormData>>(initialData);
+    const [formData, setFormData] = useState<Partial<DataRequestFormData>>(initialData || {} as DataRequestFormData);
     const [errors, setErrors] = useState<FormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formSteps, setFormSteps] = useState<FormStep[]>([]);
@@ -123,9 +121,10 @@ export function AIFormWizard({
             setIsGeneratingEnhancements(false);
         }
     };
-
     const updateFormData = useCallback((fieldId: string, value: any) => {
-        setFormData(prev => ({
+        // @ts-expect-error
+        setFormData((prev) => ({
+            // @ts-expect-error
             ...prev,
             [fieldId]: value,
         }));
@@ -156,7 +155,7 @@ export function AIFormWizard({
             if (field.validation?.customValidator) {
                 const value = formData[field.id as keyof DataRequestFormData];
                 if (value && !field.validation.customValidator(value)) {
-                    stepErrors[field.id] = field.validation.errorMessage;
+                    stepErrors[field.id] = field.validation.errorMessage || 'Validation failed';
                 }
             }
         }

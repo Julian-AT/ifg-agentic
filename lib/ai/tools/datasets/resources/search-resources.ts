@@ -16,7 +16,7 @@ interface DatasetToolsProps {
  */
 export const searchResources = ({ session, dataStream }: DatasetToolsProps) =>
   tool({
-    description: 
+    description:
       "Search for resources satisfying given search criteria. Use this to find specific data files by format, name, or other properties across all datasets in the Austrian portal.",
     inputSchema: z.object({
       query: z
@@ -49,7 +49,7 @@ export const searchResources = ({ session, dataStream }: DatasetToolsProps) =>
 
         const params = new URLSearchParams();
         params.append("query", query);
-        
+
         if (fields) params.append("fields", fields);
         if (order_by) params.append("order_by", order_by);
         params.append("offset", offset.toString());
@@ -70,8 +70,8 @@ export const searchResources = ({ session, dataStream }: DatasetToolsProps) =>
         }
 
         // Enhance search results with analysis
-        const enhancedData = enhanceResourceSearchResults(data, { 
-          query, order_by, offset, limit 
+        const enhancedData = enhanceResourceSearchResults(data, {
+          query, order_by, offset, limit
         });
 
         console.log(`✅ Found ${enhancedData.result.count} resources`);
@@ -80,7 +80,7 @@ export const searchResources = ({ session, dataStream }: DatasetToolsProps) =>
 
       } catch (error) {
         console.error("❌ Error searching resources:", error);
-        
+
         return createResourceSearchErrorResult(error, { query, order_by, offset, limit });
       }
     },
@@ -92,13 +92,13 @@ export const searchResources = ({ session, dataStream }: DatasetToolsProps) =>
 function enhanceResourceSearchResults(data: any, params: any) {
   const results = data.result?.results || [];
   const count = data.result?.count || 0;
-  
+
   // Process each resource result
   const processedResults = results.map((resource: any) => {
     const analysis = analyzeSearchResult(resource);
     const accessibility = assessResourceAccessibility(resource);
     const recommendations = generateResourceRecommendations(resource);
-    
+
     return {
       ...resource,
       enhanced: {
@@ -111,9 +111,9 @@ function enhanceResourceSearchResults(data: any, params: any) {
   });
 
   // Sort by relevance if no specific order requested
-  const sortedResults = params.order_by ? 
-    processedResults : 
-    processedResults.sort((a, b) => b.enhanced.relevanceScore - a.enhanced.relevanceScore);
+  const sortedResults = params.order_by ?
+    processedResults :
+    processedResults.sort((a: any, b: any) => b.enhanced.relevanceScore - a.enhanced.relevanceScore);
 
   // Generate search analytics
   const analytics = generateSearchAnalytics(sortedResults, params.query);
@@ -151,8 +151,8 @@ function analyzeSearchResult(resource: any) {
     url: resource.url,
     description: resource.description,
     size: {
-      bytes: resource.size ? parseInt(resource.size) : null,
-      human: resource.size ? formatFileSize(parseInt(resource.size)) : 'Unknown',
+      bytes: resource.size ? Number.parseInt(resource.size) : null,
+      human: resource.size ? formatFileSize(Number.parseInt(resource.size)) : 'Unknown',
     },
     dates: {
       created: resource.created,
@@ -179,7 +179,7 @@ function assessResourceAccessibility(resource: any) {
   if (isValidUrl(resource.url)) {
     score += 30;
     factors.push('Valid URL');
-    
+
     if (isDirectDownloadUrl(resource.url)) {
       score += 20;
       factors.push('Direct download URL');
@@ -199,7 +199,7 @@ function assessResourceAccessibility(resource: any) {
   }
 
   // Documentation
-  if (resource.description && resource.description.trim()) {
+  if (resource.description?.trim()) {
     score += 10;
     factors.push('Has description');
   }
@@ -250,7 +250,7 @@ function generateResourceRecommendations(resource: any): string[] {
   }
 
   // Size-based recommendations
-  const sizeBytes = resource.size ? parseInt(resource.size) : 0;
+  const sizeBytes = resource.size ? Number.parseInt(resource.size) : 0;
   if (sizeBytes > 50 * 1024 * 1024) { // > 50MB
     recommendations.push('Large file - consider memory management strategies');
   }
@@ -266,17 +266,17 @@ function calculateRelevanceScore(resource: any, searchQuery: string): number {
   let score = 0;
 
   // Exact matches in name
-  if (resource.name && resource.name.toLowerCase().includes(query)) {
+  if (resource.name?.toLowerCase().includes(query)) {
     score += 40;
   }
 
   // Format matches
-  if (resource.format && resource.format.toLowerCase().includes(query)) {
+  if (resource.format?.toLowerCase().includes(query)) {
     score += 30;
   }
 
   // Description matches
-  if (resource.description && resource.description.toLowerCase().includes(query)) {
+  if (resource.description?.toLowerCase().includes(query)) {
     score += 20;
   }
 
@@ -335,8 +335,9 @@ function generateSearchAnalytics(results: any[], searchQuery: string) {
     totalResults: results.length,
     formatDistribution,
     packageDistribution: Object.entries(packageDistribution)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 10) // Top 10 packages
+      // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
       .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}),
     aggregateSize: {
       bytes: totalSize,
@@ -348,7 +349,7 @@ function generateSearchAnalytics(results: any[], searchQuery: string) {
       percentage: results.length > 0 ? Math.round((accessibleCount / results.length) * 100) : 0,
     },
     qualityMetrics: {
-      averageRelevance: results.length > 0 
+      averageRelevance: results.length > 0
         ? Math.round(results.reduce((sum, r) => sum + r.enhanced.relevanceScore, 0) / results.length)
         : 0,
       hasDescription: results.filter(r => r.enhanced.analysis.description).length,
@@ -376,12 +377,12 @@ function isValidUrl(url: string | undefined): boolean {
 
 function isDirectDownloadUrl(url: string | undefined): boolean {
   if (!url) return false;
-  
+
   const directPatterns = [
     '.csv', '.json', '.xml', '.xlsx', '.xls', '.pdf', '.zip', '.geojson',
     'download', 'file', 'attachment'
   ];
-  
+
   return directPatterns.some(pattern => url.toLowerCase().includes(pattern));
 }
 
@@ -397,7 +398,7 @@ function isMachineReadable(format: string): boolean {
 
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 B';
-  
+
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let unitIndex = 0;
   let size = bytes;

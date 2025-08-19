@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/app/(auth)/auth";
 import { generateObject } from "ai";
 import { myProvider } from "@/lib/ai/providers";
 import { z } from "zod";
-import type { RequestType, FormStep, FormField } from "@/lib/types/data-request";
+import type { RequestType, FormStep } from "@/lib/types/data-request";
 
 const FormSchemaRequestSchema = z.object({
     requestType: z.enum(["IFG", "IWG", "DZG"]),
@@ -63,10 +63,10 @@ export async function POST(request: NextRequest) {
         });
     } catch (error) {
         console.error("Error generating form schema:", error);
-        return NextResponse.json(
-            { error: "Failed to generate form schema" },
-            { steps: getDefaultFormSteps(request.url.includes("requestType") ? "IFG" : "IFG") }
-        );
+        return NextResponse.json({
+            error: "Failed to generate form schema",
+            steps: getDefaultFormSteps(request.url.includes("requestType") ? "IFG" : "IFG")
+        });
     }
 }
 

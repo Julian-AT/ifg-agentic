@@ -142,9 +142,9 @@ export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
                 }
 
                 // If we get here, no search terms returned results
-                console.log(`🚫 No results found after ${searchAttempts} attempts`);
+                console.log(`🚫 No results found after ${searchAttempts + 1} attempts`);
 
-                const emptyResult = createEmptyResult(q, searchTerms, searchAttempts);
+                const emptyResult = createEmptyResult(q, searchTerms, searchAttempts + 1);
 
                 dataStream.write({
                     type: "data-datasetSearchResult",
@@ -156,7 +156,7 @@ export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
             } catch (error) {
                 console.error("❌ Error searching datasets:", error);
 
-                const errorResult = createErrorResult(q, error);
+                const errorResult = createErrorResult(error, q);
 
                 dataStream.write({
                     type: "data-datasetSearchResult",
@@ -285,10 +285,10 @@ function enhanceSearchResults(data: any, searchInfo: any) {
     };
 }
 
-/**
+/**s
  * Create empty result when no datasets found
  */
-function createEmptyResult(originalQuery?: string, searchTerms: string[] = [], attempts: number = 0) {
+function createEmptyResult(originalQuery?: string, searchTerms: string[] = [], attempts = 0) {
     return {
         success: true,
         result: {
@@ -310,7 +310,7 @@ function createEmptyResult(originalQuery?: string, searchTerms: string[] = [], a
 /**
  * Create error result for failed searches
  */
-function createErrorResult(originalQuery?: string, error: unknown) {
+function createErrorResult(error: unknown, originalQuery?: string) {
     return {
         success: false,
         error: {

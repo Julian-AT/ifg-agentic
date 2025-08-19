@@ -17,7 +17,6 @@ export function AIFormDemo() {
     const handleFormSubmit = async (data: DataRequestFormData) => {
         console.log("Form submitted:", data);
 
-        // Simulate submission process
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         setSubmittedData(data);
@@ -73,7 +72,7 @@ export function AIFormDemo() {
                             <div>
                                 <h3 className="font-medium">Request Details:</h3>
                                 <p className="text-sm text-muted-foreground">
-                                    Type: {submittedData.requestType} - {submittedData.title}
+                                    Type: {selectedRequestType}
                                 </p>
                             </div>
 

@@ -4,7 +4,7 @@ import { streamObject, tool, type UIMessageStreamWriter } from 'ai';
 import { getDocumentById, saveSuggestions } from '@/lib/db/queries';
 import type { Suggestion } from '@/lib/db/schema';
 import { generateUUID } from '@/lib/utils';
-import { myProvider } from '../providers';
+import { myProvider } from '@/lib/ai/providers';
 import type { ChatMessage } from '@/lib/types';
 
 interface RequestSuggestionsProps {
@@ -21,7 +21,7 @@ export const requestSuggestions = ({
   dataStream,
 }: RequestSuggestionsProps) =>
   tool({
-    description: 
+    description:
       'Request AI-powered suggestions for improving a document. Provides detailed suggestions with reasoning and prioritization.',
     inputSchema: z.object({
       documentId: z
@@ -86,9 +86,9 @@ export const requestSuggestions = ({
             id: generateUUID(),
             documentId: documentId,
             isResolved: false,
-            // Additional metadata
-            priority: element.priority,
-            category: element.category,
+            createdAt: new Date(),
+            userId: session.user?.id,
+            documentCreatedAt: document.createdAt,
           };
 
           dataStream.write({
@@ -142,7 +142,7 @@ export const requestSuggestions = ({
 
       } catch (error) {
         console.error('❌ Error generating suggestions:', error);
-        
+
         return {
           success: false,
           error: error instanceof Error ? error.message : "Failed to generate suggestions",
@@ -180,9 +180,9 @@ Requirements:
       clarity: "Focus primarily on clarity, readability, and ease of understanding",
       accuracy: "Focus primarily on factual accuracy and precision of information",
       completeness: "Focus primarily on identifying missing information and gaps",
-    };
+    } as const;
 
-    basePrompt += `\n\nSpecial Focus: ${focusInstructions[focusArea]}`;
+    basePrompt += `\n\nSpecial Focus: ${focusInstructions[focusArea as keyof typeof focusInstructions]}`;
   }
 
   return basePrompt;
@@ -224,7 +224,7 @@ function analyzeSuggestions(suggestions: any[]) {
     categoryDistribution,
     totalSuggestions: suggestions.length,
     highPriorityCount: priorityDistribution.high,
-    averageImpact: priorityDistribution.high > suggestions.length / 2 ? 'high' : 
-                   priorityDistribution.medium > suggestions.length / 2 ? 'medium' : 'low',
+    averageImpact: priorityDistribution.high > suggestions.length / 2 ? 'high' :
+      priorityDistribution.medium > suggestions.length / 2 ? 'medium' : 'low',
   };
 }

@@ -16,7 +16,7 @@ interface UpdateDocumentProps {
  */
 export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
   tool({
-    description: 
+    description:
       'Update an existing document with the given description. Provides detailed feedback about the update process and validates changes.',
     inputSchema: z.object({
       id: z
@@ -78,10 +78,10 @@ export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
         }
 
         // Signal completion
-        dataStream.write({ 
-          type: 'data-finish', 
-          data: null, 
-          transient: true 
+        dataStream.write({
+          type: 'data-finish',
+          data: null,
+          transient: true
         });
 
         console.log(`✅ Document updated successfully: ${id}`);
@@ -101,16 +101,10 @@ export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
 
       } catch (error) {
         console.error('❌ Error updating document:', error);
-        
-        // Stream error information
+
         dataStream.write({
-          type: 'data-error',
-          data: {
-            message: error instanceof Error ? error.message : "Unknown error occurred",
-            documentId: id,
-            timestamp: new Date().toISOString(),
-          },
-          transient: false,
+          type: 'error',
+          errorText: error instanceof Error ? error.message : "Unknown error occurred",
         });
 
         return {

@@ -59,7 +59,7 @@ export const AITextarea = forwardRef<HTMLTextAreaElement, AITextareaProps>(
         const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
         const [enhancementSuggestion, setEnhancementSuggestion] = useState<AISuggestion | null>(null);
         const [showEnhancement, setShowEnhancement] = useState(false);
-        const textareaRef = useRef<HTMLTextAreaElement>(null);
+        const textareaRef = useRef<HTMLTextAreaElement | null>(null);
         const suggestionTimeoutRef = useRef<NodeJS.Timeout>();
         const enhancementTimeoutRef = useRef<NodeJS.Timeout>();
 

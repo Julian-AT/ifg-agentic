@@ -55,7 +55,7 @@ export const AITextInput = forwardRef<HTMLInputElement, AITextInputProps>(
         const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
         const [showSuggestions, setShowSuggestions] = useState(false);
         const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
-        const inputRef = useRef<HTMLInputElement>(null);
+        const inputRef = useRef<HTMLInputElement | null>(null);
         const suggestionTimeoutRef = useRef<NodeJS.Timeout>();
 
         // Use AI completion for real-time suggestions

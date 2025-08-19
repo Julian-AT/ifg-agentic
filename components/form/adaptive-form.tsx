@@ -83,9 +83,9 @@ export function AdaptiveForm({
             }
 
             // Ensure all fields have required properties
-            const hasValidFields = structure.sections.every(section =>
+            const hasValidFields = structure.sections.every((section: any) =>
                 section.fields && Array.isArray(section.fields) &&
-                section.fields.every(field =>
+                section.fields.every((field: any) =>
                     field.id && field.type && typeof field.required === 'boolean'
                 )
             );

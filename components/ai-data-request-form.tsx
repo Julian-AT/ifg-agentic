@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Loader2, FileText, Building2, Target, Palette, DollarSign, Settings, Send, Sparkles, Calendar, Globe, Database } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, FileText, Building2, Target, Palette, DollarSign, Settings, Send, Sparkles, Calendar, Globe, Database, FlaskRoundIcon, GlobeIcon, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -51,7 +51,6 @@ interface FormDataState {
         email: string;
         organization: string;
         phone?: string;
-        address?: string;
     };
     preferredFormat: string;
     intendedUse: string;
@@ -62,7 +61,6 @@ interface FormDataState {
         start?: string;
         end?: string;
     };
-    specificDocuments: string[];
     exemptionConcerns: string[];
     feeAcceptance: {
         willingToPay: boolean;
@@ -91,7 +89,6 @@ const getSteps = (requestType: RequestType) => {
         { id: "requester", title: "Antragsteller", icon: Building2 },
         { id: "request-details", title: "Anfragedetails", icon: Target },
         { id: "data-specifications", title: "Datenspezifikationen", icon: Database },
-        { id: "additional", title: "Zusätzliche Informationen", icon: Settings },
     ];
 
     if (requestType === "IWG") {
@@ -141,7 +138,6 @@ export function AIDataRequestForm({
             email: "",
             organization: "",
             phone: "",
-            address: "",
         },
         preferredFormat: "pdf",
         intendedUse: "commercial",
@@ -149,7 +145,6 @@ export function AIDataRequestForm({
         urgency: "normal",
         expectedResponseTime: "4-weeks",
         dataTimeframe: {},
-        specificDocuments: [],
         exemptionConcerns: [],
         feeAcceptance: {
             willingToPay: false,
@@ -307,7 +302,7 @@ export function AIDataRequestForm({
                     formVersion: "2.0",
                     requestId: `REQ-${Date.now()}`,
                 },
-                requestType: formData.requestType,
+                requestType: requestType,
                 basicInformation: {
                     title: formData.title,
                     description: formData.description,
@@ -323,7 +318,6 @@ export function AIDataRequestForm({
                     publicInterest: formData.publicInterest,
                     preferredFormat: formData.preferredFormat,
                     dataTimeframe: formData.dataTimeframe,
-                    specificDocuments: formData.specificDocuments,
                     exemptionConcerns: formData.exemptionConcerns,
                 },
                 dataSpecifications: {
@@ -417,22 +411,19 @@ export function AIDataRequestForm({
                                     type: "IFG" as const,
                                     title: "IFG - Informationsfreiheitsgesetz",
                                     description: "Allgemeine Transparenzanfragen für Regierungsinformationen",
-                                    color: "bg-blue-50 hover:bg-blue-100 border-blue-200",
-                                    icon: "📋",
+                                    icon: <BookOpen />
                                 },
                                 {
                                     type: "IWG" as const,
                                     title: "IWG - Informationsweiterverwendungsgesetz",
                                     description: "Geschäftliche Datenweiterverwendung und Geschäftsanwendungen",
-                                    color: "bg-green-50 hover:bg-green-100 border-green-200",
-                                    icon: "💼",
+                                    icon: <GlobeIcon />
                                 },
                                 {
                                     type: "DZG" as const,
                                     title: "DZG - Datenzugangsgesetz",
                                     description: "Forschungs- und hochwertige Datensätze für akademische Nutzung",
-                                    color: "bg-purple-50 hover:bg-purple-100 border-purple-200",
-                                    icon: "🔬",
+                                    icon: <FlaskRoundIcon />,
                                 },
                             ].map((option) => (
                                 <motion.div
@@ -541,7 +532,7 @@ export function AIDataRequestForm({
                                 <Label htmlFor="name">Vollständiger Name *</Label>
                                 <Input
                                     id="name"
-                                    placeholder="Ihr vollständiger rechtlicher Name"
+                                    placeholder="Ihr vollständiger Name"
                                     value={formData.requesterInfo.name}
                                     onChange={(e) => updateRequesterInfo("name", e.target.value)}
                                     className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
@@ -552,7 +543,7 @@ export function AIDataRequestForm({
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="ihre.email@beispiel.com"
+                                    placeholder="name@example.com"
                                     value={formData.requesterInfo.email}
                                     onChange={(e) => updateRequesterInfo("email", e.target.value)}
                                     className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
@@ -562,7 +553,7 @@ export function AIDataRequestForm({
                                 <Label htmlFor="organization">Organisation</Label>
                                 <Input
                                     id="organization"
-                                    placeholder="Ihr Unternehmen oder Ihre Organisation"
+                                    placeholder="Beispiel GmbH"
                                     value={formData.requesterInfo.organization}
                                     onChange={(e) => updateRequesterInfo("organization", e.target.value)}
                                     className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
@@ -595,7 +586,7 @@ export function AIDataRequestForm({
                             <motion.div variants={fadeInUp}>
                                 <InlineCompletionInput
                                     id="publicInterest"
-                                    label="Begründung des öffentlichen Interesses *"
+                                    label="Begründung des öffentlichen Interesses"
                                     value={formData.publicInterest}
                                     onChange={(value) => updateFormData("publicInterest", value)}
                                     placeholder="Erklären Sie, warum diese Information im öffentlichen Interesse liegt"
@@ -608,8 +599,14 @@ export function AIDataRequestForm({
                             <motion.div variants={fadeInUp} className="space-y-2">
                                 <Label>Bevorzugtes Antwortformat</Label>
                                 <RadioGroup
-                                    value={formData.preferredFormat}
-                                    onValueChange={(value) => updateFormData("preferredFormat", value)}
+                                    value={formData.preferredFormat.startsWith("other:") ? "other" : formData.preferredFormat}
+                                    onValueChange={(value) => {
+                                        if (value === "other") {
+                                            updateFormData("preferredFormat", "other:");
+                                        } else {
+                                            updateFormData("preferredFormat", value);
+                                        }
+                                    }}
                                     className="space-y-2"
                                 >
                                     {[
@@ -633,13 +630,13 @@ export function AIDataRequestForm({
                                         </motion.div>
                                     ))}
                                 </RadioGroup>
-                                {formData.preferredFormat === "other" && (
+                                {(formData.preferredFormat === "other" || formData.preferredFormat.startsWith("other:")) && (
                                     <motion.div variants={fadeInUp}>
                                         <Input
                                             id="preferredFormatOther"
                                             placeholder="Bitte geben Sie das gewünschte Format an"
-                                            value={formData.preferredFormat === "other" ? "" : formData.preferredFormat}
-                                            onChange={(e) => updateFormData("preferredFormat", e.target.value)}
+                                            value={formData.preferredFormat.startsWith("other:") ? formData.preferredFormat.split(":")[1] || "" : ""}
+                                            onChange={(e) => updateFormData("preferredFormat", `other:${e.target.value}`)}
                                             className="mt-2"
                                         />
                                     </motion.div>
@@ -663,7 +660,7 @@ export function AIDataRequestForm({
                                 <motion.div variants={fadeInUp}>
                                     <InlineCompletionInput
                                         id="businessModel"
-                                        label="Geschäftsmodell *"
+                                        label="Geschäftsmodell"
                                         value={formData.businessModel}
                                         onChange={(value) => updateFormData("businessModel", value)}
                                         placeholder="Beschreiben Sie Ihr Geschäftsmodell und wie Sie diese Daten nutzen möchten"
@@ -810,7 +807,7 @@ export function AIDataRequestForm({
                     );
                 }
 
-            case 5: // Additional Information
+            default: // Additional Information
                 return (
                     <>
                         <CardHeader>
@@ -924,8 +921,6 @@ export function AIDataRequestForm({
                     </>
                 );
 
-            default:
-                return null;
         }
     };
 

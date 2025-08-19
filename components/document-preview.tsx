@@ -228,7 +228,7 @@ const DocumentContent = ({ document }: { document: Document }) => {
   const { artifact } = useArtifact();
 
   const containerClassName = cn(
-    "h-[257px] overflow-y-scroll border rounded-b-2xl dark:bg-card/60 border-t-0 dark:border-zinc-700",
+    "h-[257px] overflow-y-auto border rounded-b-2xl dark:bg-card/60 border-t-0 dark:border-zinc-700 w-full",
     {
       "p-0": document.kind === "code",
     }
@@ -252,11 +252,11 @@ const DocumentContent = ({ document }: { document: Document }) => {
           </div>
         </div>
       ) : document.kind === "data-request" ? (
-        <div className="flex flex-1 relative w-full bg-card/60">
+        <div className="flex flex-1 relative w-full bg-card/60 h-full">
           <div className="absolute w-full h-full flex items-center justify-center">
             <div className="text-sm text-muted-foreground">
               <p>
-                Dieses Dokument ist noch nicht verfügbar.
+                Hier klicken um das Dokument zu öffnen
               </p>
             </div>
           </div>

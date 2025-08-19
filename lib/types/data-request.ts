@@ -45,14 +45,14 @@ export interface Timeline {
 
 export interface RequestStatus {
   current:
-    | "draft"
-    | "submitted"
-    | "assigned"
-    | "in_progress"
-    | "clarification_needed"
-    | "completed"
-    | "rejected"
-    | "overdue";
+  | "draft"
+  | "submitted"
+  | "assigned"
+  | "in_progress"
+  | "clarification_needed"
+  | "completed"
+  | "rejected"
+  | "overdue";
   history: StatusChange[];
   publiclyVisible: boolean;
 }
@@ -81,7 +81,6 @@ export interface Agency {
 // IFG (Information Freedom Act) - General access to public information
 export interface IFGRequest extends BaseRequestData {
   type: "IFG";
-  specificDocuments?: string[];
   timeframe?: DateRange;
   preferredFormat: ResponseFormat;
   publicInterest: string;
@@ -91,10 +90,10 @@ export interface IFGRequest extends BaseRequestData {
 
 export interface ExemptionConcern {
   type:
-    | "privacy"
-    | "business_secrets"
-    | "state_security"
-    | "ongoing_proceedings";
+  | "privacy"
+  | "business_secrets"
+  | "state_security"
+  | "ongoing_proceedings";
   description: string;
 }
 
@@ -105,11 +104,11 @@ export interface IWGRequest extends BaseRequestData {
   businessModel?: string;
   dataFormat: DataFormat[];
   updateFrequency:
-    | "one_time"
-    | "monthly"
-    | "quarterly"
-    | "yearly"
-    | "real_time";
+  | "one_time"
+  | "monthly"
+  | "quarterly"
+  | "yearly"
+  | "real_time";
   technicalRequirements: TechnicalRequirements;
   existingDataCheck: ExistingDataCheck;
   feeAcceptance: FeeAcceptance;
@@ -149,12 +148,12 @@ export interface DZGRequest extends BaseRequestData {
 
 export interface ResearchPurpose {
   field:
-    | "health"
-    | "environment"
-    | "economics"
-    | "social_science"
-    | "technology"
-    | "other";
+  | "health"
+  | "environment"
+  | "economics"
+  | "social_science"
+  | "technology"
+  | "other";
   description: string;
   publicBenefit: string;
   methodology: string;
@@ -183,11 +182,11 @@ export interface InstitutionalAffiliation {
   role: string;
   supervisor?: string;
   institutionType:
-    | "university"
-    | "research_institute"
-    | "private_company"
-    | "ngo"
-    | "government";
+  | "university"
+  | "research_institute"
+  | "private_company"
+  | "ngo"
+  | "government";
 }
 
 export interface EthicsApproval {
@@ -293,15 +292,15 @@ export interface FormStep {
 export interface FormField {
   id: string;
   type:
-    | "text"
-    | "textarea"
-    | "select"
-    | "multiselect"
-    | "checkbox"
-    | "radio"
-    | "date"
-    | "file"
-    | "number";
+  | "text"
+  | "textarea"
+  | "select"
+  | "multiselect"
+  | "checkbox"
+  | "radio"
+  | "date"
+  | "file"
+  | "number";
   label: string;
   placeholder?: string;
   helpText?: string;
@@ -316,11 +315,11 @@ export interface ConditionalLogic {
   if: {
     field: string;
     operator:
-      | "equals"
-      | "not_equals"
-      | "contains"
-      | "greater_than"
-      | "less_than";
+    | "equals"
+    | "not_equals"
+    | "contains"
+    | "greater_than"
+    | "less_than";
     value: any;
   };
   then: {

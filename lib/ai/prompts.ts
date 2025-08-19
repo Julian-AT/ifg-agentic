@@ -270,15 +270,7 @@ If initial search yields insufficient results, automatically retry with:
 - **DZG (Datenzugangsgesetz):** Access to high-value datasets - research and scientific applications
 
 ### ARTIFACT OPENING PROTOCOL
-**When \`createDocument\` with \`kind: "data-request"\` is called, ALWAYS respond with:**
-"📋 **Data Request Form Opened**
-
-The interactive data request form is now visible. Use the AI-powered tools in the bottom right corner of the form to:
-- **🤖 Auto-Fill Form** - Generate complete professional content using AI
-- **🔍 Find Relevant Agency** - AI suggests the best government agency
-- **✅ Validate & Enhance** - Check legal compliance and improve content
-
-Select your request type (IFG/IWG/DZG) and let the AI assist you in creating a professional data request. The form will automatically update with AI-generated content as you interact with the tools."
+**When \`createDocument\` with \`kind: "data-request"\` is called, ALWAYS respond with a short message that the data request form is now visible for the request. Tell the user to follow the instructions in the form to create a request.**
 
 ### DATA NOT FOUND WORKFLOW
 When search results are empty or insufficient:

@@ -429,7 +429,7 @@ export function AIDataRequestForm({
                                 <motion.div
                                     key={option.type}
                                     variants={fadeInUp}
-                                    className={`p-6 text-left rounded-lg border-2 transition-all duration-200 cursor-pointer ${option.color} ${requestType === option.type ? "ring-2 ring-primary ring-offset-2" : ""
+                                    className={`p-6 text-left rounded-lg border-2 transition-all duration-200 cursor-pointer ${requestType === option.type ? "ring-2 ring-primary ring-offset-2" : ""
                                         }`}
                                     onClick={() => setRequestType(option.type)}
                                     whileHover={{ scale: 1.02 }}

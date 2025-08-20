@@ -1,9 +1,8 @@
 "use client";
 import cx from "classnames";
-import { AnimatePresence, motion } from "framer-motion";
-import { memo, useState } from "react";
+import { memo, useState, lazy, Suspense } from "react";
 import type { Vote } from "@/lib/db/schema";
-import { PencilEditIcon } from "./icons";
+import { PencilEditIcon } from "./icons/core-icons";
 import { Markdown } from "./markdown";
 import { MessageActions } from "./message-actions";
 import { PreviewAttachment } from "./preview-attachment";
@@ -12,11 +11,15 @@ import { cn, sanitizeText } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { MessageEditor } from "./message-editor";
-import { MessageReasoning } from "./message-reasoning";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { ChatMessage } from "@/lib/types";
 import { useDataStream } from "./data-stream-provider";
 import { DocumentToolCall, DocumentToolResult } from "./document";
+
+// Lazy load heavy components
+const AnimatePresence = lazy(() => import("framer-motion").then(m => ({ default: m.AnimatePresence })));
+const motion = lazy(() => import("framer-motion").then(m => ({ default: m.motion })));
+const MessageReasoning = lazy(() => import("./message-reasoning").then(m => ({ default: m.MessageReasoning })));
 import { DocumentPreview } from "./document-preview";
 
 import Image from "next/image";

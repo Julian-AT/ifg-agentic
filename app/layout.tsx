@@ -2,6 +2,7 @@ import { Toaster } from "sonner";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PerformanceMonitor } from "@/components/performance-monitor";
 
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
@@ -10,6 +11,12 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://chat.vercel.ai"),
   title: "IFG Chatbot",
   description: "IFG Chatbot",
+  keywords: ["chatbot", "AI", "IFG"],
+  authors: [{ name: "IFG Team" }],
+  robots: "index, follow",
+  alternates: {
+    canonical: "https://chat.vercel.ai",
+  },
 };
 
 export const viewport = {
@@ -77,6 +84,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <PerformanceMonitor />
           <Toaster position="top-center" />
           <SessionProvider>{children}</SessionProvider>
         </ThemeProvider>

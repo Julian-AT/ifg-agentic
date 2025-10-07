@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { artifactDefinitions } from "./artifact";
 import { initialArtifactData, useArtifact } from "@/hooks/use-artifact";
+import { artifactDefinitions } from "./artifact";
 import { useDataStream } from "./data-stream-provider";
 
 export function DataStreamHandler() {
@@ -12,14 +12,17 @@ export function DataStreamHandler() {
   const lastProcessedIndex = useRef(-1);
 
   useEffect(() => {
-    if (!dataStream?.length) return;
+    if (!dataStream?.length) {
+      return;
+    }
 
     const newDeltas = dataStream.slice(lastProcessedIndex.current + 1);
     lastProcessedIndex.current = dataStream.length - 1;
 
-    newDeltas.forEach((delta) => {
+    for (const delta of newDeltas) {
       const artifactDefinition = artifactDefinitions.find(
-        (artifactDefinition) => artifactDefinition.kind === artifact.kind
+        (currentArtifactDefinition) =>
+          currentArtifactDefinition.kind === artifact.kind
       );
 
       if (artifactDefinition?.onStreamPart) {
@@ -74,7 +77,7 @@ export function DataStreamHandler() {
             return draftArtifact;
         }
       });
-    });
+    }
   }, [dataStream, setArtifact, setMetadata, artifact]);
 
   return null;

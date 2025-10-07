@@ -1,3 +1,4 @@
+import { geolocation } from "@vercel/functions";
 import {
   convertToModelMessages,
   createUIMessageStream,
@@ -6,8 +7,22 @@ import {
   stepCountIs,
   streamText,
 } from "ai";
+import { unstable_cache as cache } from "next/cache";
+import { after } from "next/server";
+import {
+  createResumableStreamContext,
+  type ResumableStreamContext,
+} from "resumable-stream";
+import type { ModelCatalog } from "tokenlens/core";
+import { fetchModels } from "tokenlens/fetch";
+import { getUsage } from "tokenlens/helpers";
 import { auth, type UserType } from "@/app/(auth)/auth";
+import type { VisibilityType } from "@/components/visibility-selector";
+import { entitlementsByUserType } from "@/lib/ai/entitlements";
+import type { ChatModel } from "@/lib/ai/models";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
+import { myProvider } from "@/lib/ai/providers";
+import { isProductionEnvironment } from "@/lib/constants";
 import {
   createStreamId,
   deleteChatById,
@@ -16,62 +31,38 @@ import {
   getMessagesByChatId,
   saveChat,
   saveMessages,
+  updateChatLastContextById,
 } from "@/lib/db/queries";
-import { convertToUIMessages, generateUUID } from "@/lib/utils";
-import { generateTitleFromUserMessage } from "../../actions";
-import {
-  listDatasets,
-  searchDatasets,
-  getDatasetDetails,
-  listOrganizations,
-  getCurrentDatasetsList,
-  autocompleteDatasets,
-  getGroupDatasets,
-  getResourceDetails,
-  getResourceViewDetails,
-  listResourceViews,
-  searchResources,
-} from "@/lib/ai/tools/datasets-tools";
-import {
-  getPackageActivityList,
-  getGroupActivityList,
-  getOrganizationActivityList,
-  getRecentlyChangedPackagesActivityList,
-  getActivityDetails,
-  getActivityData,
-  getActivityDiff,
-} from "@/lib/ai/tools/activity-tools";
-import { createDocument } from "@/lib/ai/tools/create-document";
-import { updateDocument } from "@/lib/ai/tools/update-document";
-import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
-import { exploreCsvData } from "@/lib/ai/tools/explore-csv-data";
-import { checkDataAvailability } from "@/lib/ai/tools/check-data-availability";
-import {
-  generateDataRequestSuggestions,
-  findRelevantAgencies,
-  enhanceDataRequest,
-  validateDataRequest,
-  submitDataRequest,
-} from "@/lib/ai/tools/data-request-tools";
-import { getDataRequestGuidance } from "@/lib/ai/tools/create-data-request";
-import { isProductionEnvironment } from "@/lib/constants";
-import { myProvider } from "@/lib/ai/providers";
-import { entitlementsByUserType } from "@/lib/ai/entitlements";
-import { postRequestBodySchema, type PostRequestBody } from "./schema";
-import { geolocation } from "@vercel/functions";
-import {
-  createResumableStreamContext,
-  type ResumableStreamContext,
-} from "resumable-stream";
-import { after } from "next/server";
 import { ChatSDKError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
-import type { ChatModel } from "@/lib/ai/models";
-import type { VisibilityType } from "@/components/visibility-selector";
+import type { AppUsage } from "@/lib/usage";
+import { convertToUIMessages, generateUUID } from "@/lib/utils";
+import { generateTitleFromUserMessage } from "../../actions";
+import { type PostRequestBody, postRequestBodySchema } from "./schema";
+import { createDocument, requestSuggestions, updateDocument } from "@/lib/ai/tools";
+import { exploreCsvData, listDatasets, searchDatasets } from "@/lib/ai/tools/datasets";
+import { getDatasetDetails } from "@/lib/ai/tools/datasets/get-dataset-details";
+import { createAnalysisPlan } from "@/lib/ai/tools/analysis";
 
 export const maxDuration = 60;
 
 let globalStreamContext: ResumableStreamContext | null = null;
+
+const getTokenlensCatalog = cache(
+  async (): Promise<ModelCatalog | undefined> => {
+    try {
+      return await fetchModels();
+    } catch (err) {
+      console.warn(
+        "TokenLens: catalog fetch failed, using default catalog",
+        err
+      );
+      return; // tokenlens helpers will fall back to defaultCatalog
+    }
+  },
+  ["tokenlens-catalog"],
+  { revalidate: 24 * 60 * 60 } // 24 hours
+);
 
 export function getStreamContext() {
   if (!globalStreamContext) {
@@ -135,7 +126,11 @@ export async function POST(request: Request) {
 
     const chat = await getChatById({ id });
 
-    if (!chat) {
+    if (chat) {
+      if (chat.userId !== session.user.id) {
+        return new ChatSDKError("forbidden:chat").toResponse();
+      }
+    } else {
       const title = await generateTitleFromUserMessage({
         message,
       });
@@ -146,10 +141,6 @@ export async function POST(request: Request) {
         title,
         visibility: selectedVisibilityType,
       });
-    } else {
-      if (chat.userId !== session.user.id) {
-        return new ChatSDKError("forbidden:chat").toResponse();
-      }
     }
 
     const messagesFromDb = await getMessagesByChatId({ id });
@@ -180,14 +171,27 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
+    let finalMergedUsage: AppUsage | undefined;
+
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages: convertToModelMessages(uiMessages),
-          stopWhen: stepCountIs(100),
+          stopWhen: stepCountIs(5),
           experimental_transform: smoothStream({ chunking: "word" }),
+          activeTools: selectedChatModel !== "chat-model-reasoning" ?
+            [
+              "createDocument",
+              "updateDocument",
+              "requestSuggestions",
+              "listDatasets",
+              "searchDatasets",
+              "getDatasetDetails",
+              "exploreCsvData",
+              "createAnalysisPlan"
+            ] : [],
           tools: {
             createDocument: createDocument({ session, dataStream }),
             updateDocument: updateDocument({ session, dataStream }),
@@ -195,57 +199,56 @@ export async function POST(request: Request) {
               session,
               dataStream,
             }),
-            exploreCsvData: exploreCsvData(),
-            checkDataAvailability: checkDataAvailability(),
             listDatasets: listDatasets({ session, dataStream }),
             searchDatasets: searchDatasets({ session, dataStream }),
             getDatasetDetails: getDatasetDetails({ session, dataStream }),
-            listOrganizations: listOrganizations({ session, dataStream }),
-            getCurrentDatasetsList: getCurrentDatasetsList({
-              session,
-              dataStream,
-            }),
-            autocompleteDatasets: autocompleteDatasets({ session, dataStream }),
-            getGroupDatasets: getGroupDatasets({ session, dataStream }),
-            getResourceDetails: getResourceDetails({ session, dataStream }),
-            getResourceViewDetails: getResourceViewDetails({
-              session,
-              dataStream,
-            }),
-            listResourceViews: listResourceViews({ session, dataStream }),
-            searchResources: searchResources({ session, dataStream }),
-            getPackageActivityList: getPackageActivityList({
-              session,
-              dataStream,
-            }),
-            getGroupActivityList: getGroupActivityList({ session, dataStream }),
-            getOrganizationActivityList: getOrganizationActivityList({
-              session,
-              dataStream,
-            }),
-            getRecentlyChangedPackagesActivityList:
-              getRecentlyChangedPackagesActivityList({ session, dataStream }),
-            getActivityDetails: getActivityDetails({ session, dataStream }),
-            getActivityData: getActivityData({ session, dataStream }),
-            getActivityDiff: getActivityDiff({ session, dataStream }),
-            // Data Request Tools (AI-powered)
-            generateDataRequestSuggestions: generateDataRequestSuggestions({
-              session,
-              dataStream,
-            }),
-            findRelevantAgencies: findRelevantAgencies({ session, dataStream }),
-            enhanceDataRequest: enhanceDataRequest({ session, dataStream }),
-            validateDataRequest: validateDataRequest({ session, dataStream }),
-            submitDataRequest: submitDataRequest({ session, dataStream }),
-            // Data Request Guidance Tool
-            getDataRequestGuidance: getDataRequestGuidance({
-              session,
-              dataStream,
-            }),
+            exploreCsvData: exploreCsvData({ session, dataStream }),
+            createAnalysisPlan: createAnalysisPlan({ session, dataStream }),
           },
+          ...(selectedChatModel === "chat-model-reasoning" && {
+            providerOptions: {
+              openai: {
+                reasoningSummary: "detailed",
+                include: ["reasoning.encrypted_content"],
+                store: false,
+              },
+            },
+          }),
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
             functionId: "stream-text",
+          },
+          onFinish: async ({ usage }) => {
+            try {
+              const providers = await getTokenlensCatalog();
+              const modelId =
+                myProvider.languageModel(selectedChatModel).modelId;
+              if (!modelId) {
+                finalMergedUsage = usage;
+                dataStream.write({
+                  type: "data-usage",
+                  data: finalMergedUsage,
+                });
+                return;
+              }
+
+              if (!providers) {
+                finalMergedUsage = usage;
+                dataStream.write({
+                  type: "data-usage",
+                  data: finalMergedUsage,
+                });
+                return;
+              }
+
+              const summary = getUsage({ modelId, usage, providers });
+              finalMergedUsage = { ...usage, ...summary, modelId } as AppUsage;
+              dataStream.write({ type: "data-usage", data: finalMergedUsage });
+            } catch (err) {
+              console.warn("TokenLens enrichment failed", err);
+              finalMergedUsage = usage;
+              dataStream.write({ type: "data-usage", data: finalMergedUsage });
+            }
           },
         });
 
@@ -253,46 +256,69 @@ export async function POST(request: Request) {
 
         dataStream.merge(
           result.toUIMessageStream({
-            sendReasoning: true,
+            sendReasoning: selectedChatModel === "chat-model-reasoning",
           })
         );
       },
       generateId: generateUUID,
       onFinish: async ({ messages }) => {
         await saveMessages({
-          messages: messages.map((message) => ({
-            id: message.id,
-            role: message.role,
-            parts: message.parts,
+          messages: messages.map((currentMessage) => ({
+            id: currentMessage.id,
+            role: currentMessage.role,
+            parts: currentMessage.parts,
             createdAt: new Date(),
             attachments: [],
             chatId: id,
           })),
         });
+
+        if (finalMergedUsage) {
+          try {
+            await updateChatLastContextById({
+              chatId: id,
+              context: finalMergedUsage,
+            });
+          } catch (err) {
+            console.warn("Unable to persist last usage for chat", id, err);
+          }
+        }
       },
       onError: () => {
         return "Oops, an error occurred!";
       },
     });
 
-    const streamContext = getStreamContext();
+    // const streamContext = getStreamContext();
 
-    if (streamContext) {
-      return new Response(
-        await streamContext.resumableStream(streamId, () =>
-          stream.pipeThrough(new JsonToSseTransformStream())
-        )
-      );
-    } else {
-      return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
-    }
+    // if (streamContext) {
+    //   return new Response(
+    //     await streamContext.resumableStream(streamId, () =>
+    //       stream.pipeThrough(new JsonToSseTransformStream())
+    //     )
+    //   );
+    // }
+
+    return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
   } catch (error) {
+    const vercelId = request.headers.get("x-vercel-id");
+
     if (error instanceof ChatSDKError) {
       return error.toResponse();
     }
 
-    console.error("Unexpected error in chat route:", error);
-    return new ChatSDKError("bad_request:api").toResponse();
+    // Check for Vercel AI Gateway credit card error
+    if (
+      error instanceof Error &&
+      error.message?.includes(
+        "AI Gateway requires a valid credit card on file to service requests"
+      )
+    ) {
+      return new ChatSDKError("bad_request:activate_gateway").toResponse();
+    }
+
+    console.error("Unhandled error in chat API:", error, { vercelId });
+    return new ChatSDKError("offline:chat").toResponse();
   }
 }
 
@@ -312,7 +338,7 @@ export async function DELETE(request: Request) {
 
   const chat = await getChatById({ id });
 
-  if (chat.userId !== session.user.id) {
+  if (chat?.userId !== session.user.id) {
     return new ChatSDKError("forbidden:chat").toResponse();
   }
 

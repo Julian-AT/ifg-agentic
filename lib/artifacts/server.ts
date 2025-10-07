@@ -1,11 +1,11 @@
 import { codeDocumentHandler } from "@/artifacts/code/server";
-import { dataRequestDocumentHandler } from "@/artifacts/data-request/server";
 import type { ArtifactKind } from "@/components/artifact";
 import type { Document } from "../db/schema";
 import { saveDocument } from "../db/queries";
 import type { Session } from "next-auth";
 import type { UIMessageStreamWriter } from "ai";
 import type { ChatMessage } from "../types";
+import { sheetDocumentHandler } from "@/artifacts/sheet/server";
 
 export interface SaveDocumentProps {
   id: string;
@@ -103,7 +103,7 @@ export function createDocumentHandler<T extends ArtifactKind>(config: {
  */
 export const documentHandlersByArtifactKind: Array<DocumentHandler> = [
   codeDocumentHandler,
-  dataRequestDocumentHandler,
+  sheetDocumentHandler
 ];
 
-export const artifactKinds = ["code", "data-request"] as const;
+export const artifactKinds = ["code", "sheet"] as const;

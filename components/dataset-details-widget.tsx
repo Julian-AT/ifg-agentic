@@ -1,15 +1,49 @@
 import Link from "next/link";
 
-interface DatasetResult {
+interface Keyword {
   id: string;
-  title: string;
-  publisher?: string;
-  notes?: string;
-  tags?: Array<{ display_name: string; id: string }>;
-  num_resources?: number;
-  metadata_created?: string;
-  metadata_modified?: string;
-  license_title?: string;
+  label: string;
+  language: string;
+}
+
+interface Catalog {
+  id: string;
+  title: { [key: string]: string };
+  modified?: string;
+  issued?: string;
+}
+
+interface Publisher {
+  type: string;
+  name: string;
+}
+
+interface Distribution {
+  id: string;
+  title: { [key: string]: string };
+  license?: {
+    resource: string;
+  };
+  access_url?: string[];
+}
+
+interface Temporal {
+  gte: string;
+  lte: string;
+}
+
+export interface DatasetResult {
+  id: string;
+  title: { [key: string]: string };
+  description?: { [key: string]: string };
+  publisher?: Publisher;
+  keywords?: Keyword[];
+  distributions?: Distribution[];
+  modified?: string;
+  issued?: string;
+  temporal?: Temporal[];
+  catalog?: Catalog;
+  is_hvd?: boolean;
 }
 
 interface DatasetDetailsWidgetProps {
@@ -17,6 +51,26 @@ interface DatasetDetailsWidgetProps {
 }
 
 export const DatasetDetailsWidget = ({ result }: DatasetDetailsWidgetProps) => {
+  console.log(result);
+
+  const getLocalizedText = (textObj: { [key: string]: string } | undefined, fallback = "") => {
+    if (!textObj) return fallback;
+    return textObj.de || textObj.en || Object.values(textObj)[0] || fallback;
+  };
+
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return null;
+    try {
+      return new Date(dateString).toLocaleDateString("de-AT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
     <Link
       href={`https://www.data.gv.at/katalog/dataset/${result.id}`}
@@ -26,41 +80,41 @@ export const DatasetDetailsWidget = ({ result }: DatasetDetailsWidgetProps) => {
         {/* Header */}
         <div className="flex flex-row gap-2 items-start">
           <img
-            src={"https://www.data.gv.at/favicon.ico"}
+            src={"https://www.data.gv.at/assets/datagvat-logo-b60376ea.svg"}
             alt={"data.gv.at logo"}
-            className="w-8 h-8 aspect-square rounded-sm bg-secondary border p-1 mt-0.5"
+            className="w-8 h-8 aspect-square rounded-sm p-0.5 mt-0.5"
           />
           <div className="flex flex-col flex-1 min-w-0">
             <div className="text-xs text-muted-foreground">
-              {result.publisher || "data.gv.at"}
+              {result.publisher?.name || getLocalizedText(result.catalog?.title) || "data.gv.at"}
             </div>
             <h3 className="font-medium leading-tight text-sm">
-              {result.title}
+              {getLocalizedText(result.title)}
             </h3>
           </div>
         </div>
 
         {/* Description */}
-        {result.notes && (
-          <div className="text-xs text-muted-foreground line-clamp-1">
-            {result.notes}
+        {result.description && (
+          <div className="text-xs text-muted-foreground line-clamp-2">
+            {getLocalizedText(result.description)}
           </div>
         )}
 
-        {/* Tags */}
-        {result.tags && result.tags.length > 0 && (
+        {/* Keywords */}
+        {result.keywords && result.keywords.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {result.tags.slice(0, 4).map((tag) => (
+            {result.keywords.slice(0, 4).map((keyword) => (
               <span
-                key={`${result.id}-${tag.id}`}
+                key={`${result.id}-${keyword.id}`}
                 className="text-xs bg-secondary px-2 py-0.5 rounded text-muted-foreground"
               >
-                {tag.display_name}
+                {keyword.label}
               </span>
             ))}
-            {result.tags.length > 4 && (
+            {result.keywords.length > 4 && (
               <span className="text-xs bg-secondary px-2 py-0.5 rounded text-muted-foreground">
-                +{result.tags.length - 4}
+                +{result.keywords.length - 4}
               </span>
             )}
           </div>
@@ -68,64 +122,59 @@ export const DatasetDetailsWidget = ({ result }: DatasetDetailsWidgetProps) => {
 
         {/* Metadata Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {result.num_resources && (
+          {result.distributions && result.distributions.length > 0 && (
             <div className="bg-background/50 rounded p-2 border border-border/50">
               <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
                 Ressourcen
               </div>
               <div className="text-sm font-semibold">
-                {result.num_resources}
+                {result.distributions.length}
               </div>
             </div>
           )}
 
-          {result.metadata_created && (
+          {result.issued && (
             <div className="bg-background/50 rounded p-2 border border-border/50">
               <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
                 Erstellt
               </div>
               <div className="text-xs font-medium">
-                {new Date(result.metadata_created).toLocaleDateString("de-AT", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                })}
+                {formatDate(result.issued)}
               </div>
             </div>
           )}
 
-          {result.metadata_modified && (
+          {result.modified && (
             <div className="bg-background/50 rounded p-2 border border-border/50">
               <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
                 Aktualisiert
               </div>
               <div className="text-xs font-medium">
-                {new Date(result.metadata_modified).toLocaleDateString(
-                  "de-AT",
-                  {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  }
-                )}
+                {formatDate(result.modified)}
               </div>
             </div>
           )}
 
-          {result.license_title && (
+          {result.temporal && result.temporal.length > 0 && (
             <div className="bg-background/50 rounded p-2 border border-border/50">
               <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-                Lizenz
+                Zeitraum
               </div>
-              <div
-                className="text-xs font-medium truncate"
-                title={result.license_title}
-              >
-                {result.license_title}
+              <div className="text-xs font-medium">
+                {formatDate(result.temporal[0].gte)} - {formatDate(result.temporal[0].lte)}
               </div>
             </div>
           )}
         </div>
+
+        {/* HVD Badge */}
+        {result.is_hvd && (
+          <div className="flex">
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
+              High-Value Dataset
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   );

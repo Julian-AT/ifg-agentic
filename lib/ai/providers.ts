@@ -1,10 +1,7 @@
 import {
   customProvider,
-  extractReasoningMiddleware,
-  wrapLanguageModel,
 } from "ai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import {
   chatModel,
   reasoningModel,
@@ -13,27 +10,24 @@ import {
 } from "./models.test";
 import { isTestEnvironment } from "../constants";
 
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY,
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export const myProvider = isTestEnvironment
   ? customProvider({
-      languageModels: {
-        "chat-model": chatModel,
-        "chat-model-reasoning": reasoningModel,
-        "title-model": titleModel,
-        "artifact-model": artifactModel,
-      },
-    })
+    languageModels: {
+      "chat-model": chatModel,
+      "chat-model-reasoning": reasoningModel,
+      "title-model": titleModel,
+      "artifact-model": artifactModel,
+    },
+  })
   : customProvider({
-      languageModels: {
-        "chat-model": openai("gpt-4.1"),
-        "chat-model-reasoning": wrapLanguageModel({
-          model: openai("gpt-4.1"),
-          middleware: extractReasoningMiddleware({ tagName: "think" }),
-        }),
-        "title-model": openai("gpt-4-turbo"),
-        "artifact-model": openai("gpt-4.1"),
-      },
-    });
+    languageModels: {
+      "chat-model": openai.chat("gpt-4.1"),
+      "chat-model-reasoning": openai.responses("gpt-5"),
+      "title-model": openai("gpt-4-turbo"),
+      "artifact-model": openai("gpt-4.1"),
+    },
+  });

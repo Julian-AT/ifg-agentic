@@ -1,43 +1,39 @@
-import { z } from "zod";
 import { streamObject } from "ai";
-import { myProvider } from "@/lib/ai/providers";
+import { z } from "zod";
 import { codePrompt, updateDocumentPrompt } from "@/lib/ai/prompts";
+import { myProvider } from "@/lib/ai/providers";
 import { createDocumentHandler } from "@/lib/artifacts/server";
 
 export const codeDocumentHandler = createDocumentHandler<"code">({
   kind: "code",
   onCreateDocument: async ({ title, dataStream, dataUrl, csvStructure }) => {
-    console.log("onCreateDocument code", { title, dataUrl, csvStructure });
-
     let draftContent = "";
 
-    // Enhance the prompt with dataUrl and csvStructure information if provided
+    // Build enhanced prompt with data context
     let enhancedPrompt = title;
 
-    if (dataUrl && csvStructure) {
-      const columnInfo = csvStructure.columns
-        .map(
-          (col) => `- ${col.name} (${col.type}): ${col.sampleValues.join(", ")}`
-        )
-        .join("\n");
-
-      enhancedPrompt = `${title}
-
-IMPORTANT: Use this exact data URL for loading data: ${dataUrl}
-Do not invent or guess any URLs. Only use the provided URL above.
-
-CSV STRUCTURE INFORMATION (from automatic exploration):
-Dataset: ${csvStructure.datasetName || "Austrian Dataset"}
-Rows: ${csvStructure.totalRows}
-Columns: ${csvStructure.totalColumns}
-
-Column Details:
-${columnInfo}
-
-CRITICAL: Use the exact column names shown above. Do NOT do manual data exploration - the structure is already provided. Focus on the actual analysis task using these known columns.`;
-    } else if (dataUrl) {
-      enhancedPrompt = `${title}\n\nIMPORTANT: Use this exact data URL for loading data: ${dataUrl}\nDo not invent or guess any URLs. Only use the provided URL above.`;
+    if (dataUrl) {
+      enhancedPrompt += `\n\nData URL: ${dataUrl}`;
     }
+
+    if (csvStructure) {
+      enhancedPrompt += `\n\nCSV Structure:`;
+      enhancedPrompt += `\n- Total Rows: ${csvStructure.totalRows}`;
+      enhancedPrompt += `\n- Total Columns: ${csvStructure.totalColumns}`;
+      enhancedPrompt += `\n- Columns:`;
+      csvStructure.columns.forEach(col => {
+        enhancedPrompt += `\n  • ${col.name} (${col.type})`;
+        if (col.sampleValues?.length > 0) {
+          enhancedPrompt += ` - Examples: ${col.sampleValues.slice(0, 2).join(', ')}`;
+        }
+      });
+    }
+
+    console.log('📝 Creating code with context:', {
+      hasDataUrl: !!dataUrl,
+      hasStructure: !!csvStructure,
+      columnCount: csvStructure?.columns?.length
+    });
 
     const { fullStream } = streamObject({
       model: myProvider.languageModel("artifact-model"),

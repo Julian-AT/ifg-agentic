@@ -1,0 +1,1891 @@
+# An OpenAPI 3.0 (a.k.a. Swagger) definition of the Engine API.
+#
+# This is used for generating API documentation and the types used by the
+# client/server. See api/README.md for more information.
+#
+# Some style notes:
+# - This file is used by ReDoc, which allows GitHub Flavored Markdown in
+#   descriptions.
+# - There is no maximum line length, for ease of editing and pretty diffs.
+# - operationIds are in the format "verbNoun".
+
+# Some comments are copied from the Docker Engine API Specification
+
+openapi: '3.0.3'
+
+info:
+  version: 3.3.1
+  title: piveau hub-repo service
+  description: |
+    The API simplifies the management of datasets, adhering to the DCAT-AP standard for structured data descriptions. It integrates seamlessly with Virtuoso, an efficient database server and Triplestore, making dataset management more accessible. The DCAT-AP standard ensures consistent, comprehensive data descriptions, enhancing data sharing and discovery. The API simplifies the process of making datasets accessible to a wider audience. This promotes transparency, knowledge sharing, and collaboration. This introduction lays the groundwork for exploring the hub-repo Open API. Detailed information on authentication, API endpoints, error handling, and practical examples can be found in the subsequent sections to gain a comprehensive understanding of the API's functionality.
+  x-logo:
+    url: images/logo
+
+# Workaround, see: https://github.com/Redocly/redoc/issues/1172
+servers:
+  - url: ''
+
+# The tags on paths define the menu sections in the ReDoc documentation, so
+# the usage of tags must make sense for that:
+# - They should be singular, not plural.
+# - There should not be too many tags, or the menu becomes unwieldly. For
+#   example, it is preferable to add a path to the "System" tag instead of
+#   creating a tag with a single path in it.
+# - The order of tags in this list defines the order in the menu.
+tags:
+  # Primary objects
+  - name: Catalogues
+    x-displayName: "Catalogues"
+  - name: Datasets
+    x-displayName: "Datasets"
+  - name: Distributions
+    x-displayName: "Distributions"
+  - name: Vocabularies
+    x-displayName: "Vocabularies"
+  - name: Drafts
+    x-displayName: "Drafts"
+  - name: Identifiers
+    x-displayName: "Identifiers"
+    description: |
+      Create persistent identifiers for data artifacts.
+  - name: Resources
+    x-displayName: "Resources"
+  - name: Actions
+    x-displayName: "Action API"
+    description: |
+      The action API utilizes the [JSON-RPC 2.0](https://www.jsonrpc.org/specification) specification with the following constraints:
+
+      * `id` reference needs to be a string
+      * `params` are passed as object map, not as array list
+      * `data` of an error is an object
+      * Batch processing of actions is not yet supported
+      
+      Although a correlation identifier (`id`) is not necessary on top of HTTP, you should always include it to allow 
+      the server to distinguish between sync calls and notifications. Omit the `id` only in case of a notification.
+      For notifications, the server will immediately respond with a `202 Accepted` without a body.
+
+paths:
+
+  ##############
+  # CATALOGUES #
+  ##############
+
+  /catalogues:
+    get:
+      description: To retrieve the list of catalogues, send a GET request to the specified URL of the API with the resource path "catalogues". The query parameter "limit" specifies the number of resources to retrieve, while the query parameter "offset" determines the starting point for counting. Upon success, the response will contain, by default, an array with the URLs of the chosen number of catalogues (with 100 being the default limit). To retrieve identifiers (normalized IDs), metadata, or original IDs (IDs as by data provider) , you can choose a different value for the parameter "valueType".
+      summary: List catalogues
+      operationId: listCatalogues
+      tags:
+        - Catalogues
+      parameters:
+        - $ref: '#/components/parameters/ValueType'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/RDFLIST200'
+        '400':
+          description: Bad Request
+    head:
+      description: To retrieve only the headers for the list of catalogues, send a HEAD request to the specified URL of the API with the resource path "catalogues". The query parameter "limit" specifies the number of catalogues to retrieve, while the query parameter "offset" determines the starting point for counting. Upon success, the response will contain, by default, the headers for chosen number of catalogues' URLs (with 100 being the default limit). To retrieve the headers for the other data of catalogues select a different value for the parameter "valueType".
+      summary: Headers only for "List catalogues"
+      operationId: headListCatalogues
+      tags:
+        - Catalogues
+      parameters:
+        - $ref: '#/components/parameters/ValueType'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Headers of list catalogues
+        '400':
+          description: Bad request
+
+  /catalogues/{catalogueId}:
+    parameters:
+      - $ref: '#/components/parameters/CatalogueId'
+    get:
+      description: You can get a catalogue making a GET request to the specified URL of the API endpoint with the resource path "catalogues/{catalogueId}" set the unique ID of the catalogue as {catalogueId} element of the URL. If successful, the response contains the information about the specified catalogue.
+      summary: Get catalogue
+      operationId: getCatalogue
+      tags:
+        - Catalogues
+      responses:
+        '200':
+          $ref: '#/components/responses/RDF200'
+        '404':
+          description: Catalogue Not Found
+    head:
+      description: You can get only the headers for catalogue making a HEAD request to the specified URL of the API endpoint with the resource path "catalogues/{catalogueId}" set the unique ID of the catalogue as {catalogueId} element of the URL. If successful, the response contains the headers of the specified catalogue.
+      summary: Headers only for "Get catalogue"
+      operationId: headGetCatalogue
+      tags:
+        - Catalogues
+      responses:
+        '200':
+          description: Headers of get catalogue
+        '404':
+          description: Catalogue Not Found
+    put:
+      description: This function is reserved for internal use only and is not part of our public API offerings. As an authorized user you can create or update the information of a specific catalog. Send a PUT request to the specified URL of the API endpoint, including the unique ID of the catalogue as {catalogueId} element of the URL and the updated information in the request. If the request is successful and the catalogueID already exists, the information in the catalogue will be updated with the newly provided information. If the catalogueID is new, a new catalogue will be created.
+      summary: Create or update catalogue
+      operationId: putCatalogue
+      tags:
+        - Catalogues
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '201':
+          description: Catalogue created
+          headers:
+            Location:
+              $ref: '#/components/headers/LocationURIRef'
+        '204':
+          description: Catalogue updated
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      description: 'This function is reserved for internal use only and is not part of our public API offerings. As an authorized user you can delete a specific catalogue. Send a DELETE request to the specified URL of the API endpoint with the resource path "/catalogues/{catalogueId}" at the end of URL, set the unique ID of the catalogue as {catalogueId} element of the URL. This operation deletes a catalogue''s metadata, as well as the metadata of all referenced datasets, from the repository and the index. It also removes any related quality measurements if they exist. Caution: you cannot revert this operation'
+      summary: Delete catalogue
+      operationId: deleteCatalogue
+      tags:
+        - Catalogues
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      responses:
+        '204':
+          description: Catalogue deleted
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Catalogue Not Found
+
+  /catalogues/{catalogueId}/datasets:
+    parameters:
+      - $ref: '#/components/parameters/CatalogueId'
+    get:
+      description: To retrieve a list of datasets of a specific catalogue make a GET request to the specified URL of the API endpoint with the resource path "/catalogues/{catalogueId}/datasets" at the end of the URL, including the unique ID of the catalogue as {catalogueId} element of the URL. The query parameter "limit" specifies the number of datasets to retrieve, while the query parameter "offset" determines the starting point for counting. If the request is successful, by default, the response will contain an array with the URLs of the chosen number of datasets (with 100 being the default limit) from the specified catalogue. To retrieve other data of the datasets from the specified catalogue select a different value for the parameter "valueType".
+      summary: List datasets of catalogue
+      operationId: listCatalogueDatasets
+      tags:
+        - Catalogues
+      parameters:
+        - $ref: '#/components/parameters/ValueType'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/RDFLIST200'
+        '400':
+          description: Bad Request
+        '404':
+          description: Catalogue Not Found
+    head:
+      description: To retrieve only the headers for the list of datasets from a specific catalogue, you can make a HEAD request to the specified URL of the API endpoint with the resource path "/catalogues/{catalogueId}/datasets" at the end of the URL, including the unique ID of the catalogue as {catalogueId} element of the URL. The query parameter "limit" specifies the number of datasets to retrieve, while the query parameter "offset" determines the starting point for counting. If the request is successful, by default, the response will contain the headers for chosen number of datasets' URLs (with 100 being the default limit) from the specified catalogue. To retrieve the headers for other data of the datasets from the specified catalogue select a different value for the parameter "valueType".
+      summary: Headers only for "List datasets of catalogue"
+      operationId: headListCatalogueDatasets
+      tags:
+        - Catalogues
+      parameters:
+        - $ref: '#/components/parameters/ValueType'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Headers of list dataset of catalogue
+        '400':
+          description: Bad Request
+        '404':
+          description: Catalogue Not Found
+    post:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to add a dataset. As an authorized user, you make a POST request to the specified URL of the API endpoint with the resource path "/catalogues/{catalogueId}/datasets" at the end of the URL and specify the unique ID of the catalogues as the {catalogueId} element of the URL.
+      summary: Add dataset to catalogue
+      operationId: postCatalogueDataset
+      tags:
+        - Catalogues
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '201':
+          description: Dataset created
+          headers:
+            Location:
+              $ref: '#/components/headers/LocationURIRef'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Catalogue Not Found
+
+  /catalogues/{catalogueId}/datasets/origin:
+    parameters:
+      - $ref: '#/components/parameters/CatalogueId'
+      - name: originalId
+        required: true
+        in: query
+        description: The original id of the dataset
+        schema:
+          type: string
+    get:
+      description: To retrieve a specific dataset send a GET request to the specified URL of the API endpoint with the resource path "/catalogues/{catalogueId}/datasets/origin" at the end of the URL, set the unique ID of the catalogue as {catalogueId} element and the unique ID of the dataset as {origin} element of the URL.
+      summary: Get datasets of catalogue by means of an original id
+      operationId: getCatalogueDatasetsOrigin
+      tags:
+        - Catalogues
+      responses:
+        '200':
+          $ref: '#/components/responses/RDF200'
+        '400':
+          description: Bad Request
+        '404':
+          description: Catalogue or Dataset Not Found
+    head:
+      description: To retrieve the headers for a specific dataset send a HEAD request to the specified URL of the API endpoint with the resource path "/catalogues/{catalogueId}/datasets/origin" at the end of the URL, set the unique ID of the catalogue as {catalogueId} element and the unique ID of the dataset as {origin} element of the URL.
+      summary: Headers only for "Get dataset of a catalogue by means of an original id"
+      operationId: headGetCatalogueDatasetsOrigin
+      tags:
+        - Catalogues
+      responses:
+        '200':
+          description: Headers of get dataset of catalogue by means of an original id
+        '400':
+          description: Bad Request
+        '404':
+          description: Catalogue or Dataset Not Found
+    put:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to create or update a dataset. As an authorized user, you make a PUT request to the specified URL of the API endpoint with the resource path "/catalogues/{catalogueId}/datasets/origin" at the end of the URL. Specify the unique ID of the catalogue, where the dataset is created, as the {catalogueId} and the unique ID of the dataset as the {origin} element of the URL accordingly. If the dataset with this ID already exists, it is updated.
+      summary: Create or update dataset of catalogue by means of an original id
+      operationId: putCatalogueDatasetsOrigin
+      tags:
+        - Catalogues
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '201':
+          description: Dataset created
+          headers:
+            Location:
+              $ref: '#/components/headers/LocationURIRef'
+        '204':
+          description: Dataset updated
+        '304':
+          description: Not modified, no update necessary
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Catalogue Not Found
+    delete:
+      description: 'This function is reserved for internal use only and is not part of our public API offerings. As an authorized user you can delete a dataset of a specific catalogue. Send a DELETE request to the specified URL of the API endpoint with the resource path "/catalogues/{catalogueId}/datasets/origin". Specify the unique ID of the catalogue as the {catalogueId} and the unique ID of the dataset as the {origin} element of the URL accordingly. This operation deletes the specified dataset, as well as all referenced distributions, from the repository and the index. It also removes any related quality measurements if they exist. Caution: you cannot revert this operation'
+      summary: Delete dataset of catalogue by means of an original id
+      operationId: deleteCatalogueDatasetsOrigin
+      tags:
+        - Catalogues
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Dataset deleted
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Catalogue or Dataset Not Found
+
+  ############
+  # DATASETS #
+  ############
+
+  /datasets:
+    get:
+      description: Retrieve a list of datasets. This endpoint supports pagination using the "limit" and "offset" query parameters. The "valueType" query parameter can be used to specify the type of value to be returned for each dataset (e.g. normalized ID, metadata, or original ID). The "catalogue" and "sourceIds" query parameters are deprecated and will be removed in a future version.
+      summary: List datasets
+      operationId: listDatasets
+      tags:
+        - Datasets
+      parameters:
+        - $ref: '#/components/parameters/ValueType'
+        - name: catalogue
+          deprecated: true
+          in: query
+          description: Please, use `GET /catalogues/{catalogueId}/datasets` instead
+          schema:
+            type: string
+        - name: sourceIds
+          deprecated: true
+          in: query
+          description: Please, use `valueType=originIds` instead
+          schema:
+            type: boolean
+            default: false
+        - $ref: '#/components/parameters/Hydra'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/UsePagedCollection'
+      responses:
+        '200':
+          $ref: '#/components/responses/RDFLIST200'
+        '400':
+          description: Bad Request
+        '404':
+          description: Deprecated! See `catalogue` query parameter. Catalogue Not Found
+    head:
+      description: Retrieve only the headers for a list of datasets. This endpoint has the same query parameters and behavior as the GET method, but it only returns the headers of the response.
+      summary: Headers only for "List datasets"
+      operationId: headListDatasets
+      tags:
+        - Datasets
+      parameters:
+        - $ref: '#/components/parameters/ValueType'
+        - name: catalogue
+          deprecated: true
+          in: query
+          description: Please, use `GET /catalogues/{catalogueId}/datasets` instead
+          schema:
+            type: string
+        - name: sourceIds
+          in: query
+          description: Please, use `valueType=originIds` instead
+          deprecated: true
+          schema:
+            type: boolean
+            default: false
+        - $ref: '#/components/parameters/Hydra'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/UsePagedCollection'
+      responses:
+        '200':
+          description: Headers of list datasets
+        '400':
+          description: Bad Request
+    post:
+      deprecated: true
+      summary: Add dataset
+      description: Deprecated. Please use `POST /catalogues/{catalogueId}/datasets/origin` instead.
+      operationId: postCatalogueDatasetLegacy
+      tags:
+        - Datasets
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      parameters:
+        - name: catalogue
+          in: query
+          description: The catalogue to add the dataset
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '201':
+          description: Dataset created
+          headers:
+            Location:
+              $ref: '#/components/headers/LocationURIRef'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Catalogue Not Found
+    put:
+      deprecated: true
+      description: Deprecated. Please use `PUT /catalogues/{catalogueId}/datasets/origin` instead
+      summary: Create or update dataset
+      operationId: putDatasetLegacy
+      tags:
+        - Datasets
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: The dataset id
+          schema:
+            type: string
+        - name: catalogue
+          in: query
+          required: true
+          description: The catalogue id
+          schema:
+            type: string
+        - name: data
+          in: query
+          description: Generate data url
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '201':
+          description: Dataset created
+          headers:
+            Location:
+              $ref: '#/components/headers/LocationURIRef'
+        '204':
+          description: Dataset updated
+        '304':
+          description: Dataset not modified, no update necessary
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Forbidden
+    delete:
+      deprecated: true
+      summary: Delete a dataset
+      description:  Deprecated. Please use `DELETE /catalogues/{catalogueId}/datasets/origin` instead.
+      operationId: deleteDatasetLegacy
+      tags:
+        - Datasets
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: The dataset id
+          schema:
+            type: string
+        - name: catalogue
+          in: query
+          required: true
+          description: The catalogue id
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Dataset deleted
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Dataset Not Found
+
+  /datasets/{datasetId}:
+    parameters:
+      - $ref: '#/components/parameters/DatasetId'
+    get:
+      description: To retrieve only the headers for a list of datasets, send a HEAD request to the specified API URL with the resource path "datasets". The query parameter "limit" specifies the number of resources to retrieve, while the query parameter "offset" determines the starting point for counting. Upon success, the response will contain, by default, the headers for the URLs of the chosen number of datasets (with 100 being the default limit). To retrieve identifiers (normalized IDs), metadata, or original IDs (IDs as by data provider) , you can choose a different value for the parameter "valueType".
+      summary: Get dataset
+      operationId: getDataset
+      parameters:
+        - name: catalogue
+          deprecated: true
+          in: query
+          description: Please, use `GET /catalogues/{catalogueId}/datasets/origin` instead
+          schema:
+            type: string
+      tags:
+        - Datasets
+      responses:
+        '200':
+          $ref: '#/components/responses/RDF200'
+        '400':
+          description: Bad Request
+        '404':
+          description: Catalogue or Dataset Not Found
+    head:
+      description: You can get the headers for a specific dataset making a HEAD request to the specified API endpoint URL with the resource path "datasets/{datasetId}" at the end of the URL. Replace {datasetId} with the unique ID of the dataset as an element in the URL.
+      summary: Headers only for "Get dataset"
+      operationId: headGetDataset
+      parameters:
+        - name: catalogue
+          deprecated: true
+          in: query
+          description: Please, use `HEAD /catalogues/{catalogueId}/datasets/origin` instead
+          schema:
+            type: string
+      tags:
+        - Datasets
+      responses:
+        '200':
+          description: Headers of get dataset
+        '400':
+          description: Bad request
+        '404':
+          description: Catalogue or Dataset Not Found
+    put:
+      description: Update a dataset. When you use an original dataset id for creation or update, please, use `PUT /catalogues/{catalogueId}/datasets/origin` instead.
+      summary: Update a Dataset
+      operationId: putDataset
+      tags:
+        - Datasets
+      parameters:
+        - name: catalogue
+          deprecated: true
+          in: query
+          description: Please, use `PUT /catalogues/{catalogueId}/datasets/origin` instead
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '201':
+          description: Deprecated! see `catalogue` query parameter
+        '204':
+          description: Dataset updated
+        '304':
+          description: Dataset not modified, no update necessary
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Dataset Not Found
+    delete:
+      description: 'This function is reserved for internal use only and is not part of our public API offerings. As an authorized user you can delete a specific dataset. Send a DELETE request to the specified URL of the API endpoint with the resource path "datasets/{datasetId}". Set  the {datasetId} as the unique ID of the dataset you want to delete. This operation deletes the specified dataset, as well as all referenced distributions, from the repository and the index. It also removes any related quality measurements if they exist. Caution: you cannot revert this operation'
+      summary: Delete a dataset
+      operationId: deleteDataset
+      tags:
+        - Datasets
+      parameters:
+        - name: catalogue
+          deprecated: true
+          in: query
+          description: Please, use `DELETE /catalogue/{catalogueId}/datasets/origin` instead
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Dataset deleted
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Dataset Not Found
+
+  /datasets/{datasetId}/distributions:
+    parameters:
+      - $ref: '#/components/parameters/DatasetId'
+    get:
+      description: To get a list of distributions of a particular dataset make a GET request to the specified URL of the API endpoint with the resource path "/datasets/{datasetId}/distributions" at the end of the URL, set the unique ID of the dataset as {datasetId} element of the URL. If successful, the response will contain, by default, an array with the URLs of all distributions. To retrieve the other data of the distributions from the specified dataset select a different value for the parameter "valueType".
+      summary: List dataset distributions
+      operationId: listDatasetDistributions
+      tags:
+        - Datasets
+      parameters:
+        - $ref: '#/components/parameters/ValueType'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/RDFLIST200'
+        '400':
+          description: Bad Request
+        '404':
+          description: Dataset Not Found
+    head:
+      description: To retrieve only the headers of the distributions' list from a specific dataset, make a HEAD request to the specified URL of the API endpoint with the resource path "/datasets/{datasetId}/distributions", including the unique ID of the dataset as {datasetId} element of the URL. The query parameter "limit" specifies the number of distributions to retrieve, while the query parameter "offset" determines the starting point for counting. If the request is successful, by default, the response will contain the headers for the list of URLs of all distributions from the specified dataset. To retrieve the headers for other data of the list of distributions from the specified dataset select a different value for the parameter "valueType".
+      summary: Headers only for "List dataset distributions"
+      operationId: headListDatasetDistributions
+      tags:
+        - Datasets
+      parameters:
+        - $ref: '#/components/parameters/ValueType'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Headers of list dataset distributions
+        '400':
+          description: Bad Request
+        '404':
+          description: Dataset Not Found
+    post:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to insert a new distribution into a dataset. As an authorized user, you make a POST request to the specified URL of the API endpoint with the resource path "datasets/{datasetId}/distributions", setting the unique ID of the dataset as {datasetId} element of the URL, to add a new distribution of the specified dataset.
+      summary: Add distribution to dataset
+      operationId: postDatasetDistribution
+      tags:
+        - Datasets
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '201':
+          description: Distribution created
+          headers:
+            Location:
+              $ref: '#/components/headers/LocationURIRef'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Dataset Not Found
+
+  #################
+  # DISTRIBUTIONS #
+  #################
+
+  /distributions/{distributionId}:
+    parameters:
+      - $ref: '#/components/parameters/DistributionId'
+    get:
+      description: You can get a specific distribution of a dataset making a GET request to the specified URL of the API endpoint with the resource path "/distributions/{distributionId}" at the end of the URL, set the unique ID of the distribution as {distributionId} element of the URL.
+      summary: Get distribution
+      operationId: getDistribution
+      tags:
+        - Distributions
+      responses:
+        '200':
+          $ref: '#/components/responses/RDF200'
+        '404':
+          description: Distribution not found
+    head:
+      description: To retrieve only the headers for a specific distribution of a dataset make a HEAD request to the specified URL of the API endpoint with the resource path "/distributions/{distributionId}" at the end of the URL, set the unique ID of the distribution as {distributionId} element of the URL.
+      summary: Headers only for "Get distribution"
+      operationId: headGetDistribution
+      tags:
+        - Distributions
+      responses:
+        '200':
+          description: Headers of get distribution
+        '404':
+          description: Distribution Not Found
+    put:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to create or update a dataset's distribution. As an authorized user, you make a PUT request to the specified URL of the API endpoint with the resource path "/distributions/{distributionId}" at the end of the URL. Specify the unique ID of the distribution as the {distributionId}. If the distribution with this ID already exists, it will be updated. If the distribution ID is new, a new distribution will be created.
+      summary: Update distribution
+      operationId: putDistribution
+      tags:
+        - Distributions
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '204':
+          description: Distribution updated
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Distribution Not Found
+    delete:
+      description: This function is reserved for internal use only and is not part of our public API offerings. As an authorized user you can delete a specific distribution. Send a DELETE request to the specified URL of the API endpoint with the resource path "/distributions/{distributionId}" at the end of the URL. Specify the unique ID of the distribution as the {distributionId}. The specified distribution will be deleted.
+      summary: Delete distribution
+      operationId: deleteDistribution
+      tags:
+        - Distributions
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Distribution deleted
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Distribution Not Found
+
+  ###########
+  # METRICS #
+  ###########
+
+  /datasets/{datasetId}/metrics:
+    parameters:
+      - $ref: '#/components/parameters/DatasetId'
+    get:
+      description: To retrieve the metrics of metadata quality and their corresponding values for a specified dataset, send a GET request to the designated API endpoint URL with the resource path "/datasets/{datasetId}/metrics" added at the end of the URL, set the unique ID of the dataset as {datasetId} element of the URL. By default the latest measurements will be provide. To obtain a graph with all data collected for the specified dataset, set the query parameter "historic" to "true".
+      summary: Get dataset metrics
+      operationId: getMetrics
+      tags:
+        - Datasets
+      parameters:
+        - name: historic
+          in: query
+          description: Whether the historic metrics graph should be returned. Ignored when historic graphs are disabled in config.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          $ref: '#/components/responses/RDF200'
+        '400':
+          description: Bad Request
+        '404':
+          description: Dataset Not Found
+    head:
+      description: To retrieve the headers for the metrics of metadata quality and their corresponding values for a specified dataset, send a HEAD request to the specified API endpoint URL with the resource path "/datasets/{datasetId}/metrics" added at the end of the URL, set the unique ID of the dataset as {datasetId} element of the URL. By default the headers for metadata of the latest measurements will be provide. To get headers for a graph with the metadata of all data, collected for the specified dataset, set the query parameter "historic" to "true".
+      summary: Headers only for "Get dataset metrics"
+      operationId: headGetMetrics
+      tags:
+        - Datasets
+      parameters:
+        - name: historic
+          in: query
+          description: Whether the historic metrics graph should be returned. Ignored when historic graphs are disabled in config.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Dataset metrics info
+        '400':
+          description: Bad Request
+        '404':
+          description: Dataset not found
+    put:
+      description: This function is reserved for internal use only and is not part of our public API offerings. As an authorized user you can createor update metrics for a dataset, by making a PUT request to the specified  API endpoint URL with the resource path "/datasets/{datasetId}/metrics" added at the end of the URL. Specify the unique ID of the dataset as the {datasetId}.
+      summary: Create/Update metrics for a dataset
+      operationId: putMetrics
+      tags:
+        - Datasets
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '201':
+          description: Dataset metrics created
+          headers:
+            Location:
+              $ref: '#/components/headers/LocationURIRef'
+        '204':
+          description: Dataset metrics updated
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Dataset not found
+    delete:
+      description: This function is reserved for internal use only and is not part of our public API offerings. As an authorized user you can create or update metrics for a dataset, making a DELETE request to the specified API endpoint URL with the resource path "/datasets/{datasetId}/metrics" added at the end of the URL. Specify the unique ID of the dataset as the {datasetId}.
+      summary: Delete metrics
+      operationId: deleteMetrics
+      tags:
+        - Datasets
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      responses:
+        '204':
+          description: Dataset metrics deleted
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Dataset not found
+
+  #####################
+  # CATALOGUE RECORDS #
+  #####################
+
+  /datasets/{datasetId}/record:
+    parameters:
+      - $ref: '#/components/parameters/DatasetId'
+    get:
+      description: To retrieve the catalogue record of a specific dataset, make a GET request to the specified URL of the API endpoint with the resource path "/datasets/{datasetId}/record" at the end of the URL, set the unique ID of the dataset as {datasetId} element of the URL.
+      summary: Get catalogue record
+      operationId: getRecord
+      tags:
+        - Datasets
+      responses:
+        '200':
+          $ref: '#/components/responses/RDF200'
+        '404':
+          description: Dataset not found
+    head:
+      description: To retrieve only the headers for a catalogue record of a specific dataset make a HEAD request to the specified API endpoint URL with the resource path "/datasets/{datasetId}/record" added at the end of the URL, set the unique ID of the dataset as {datasetId} element of the URL.
+      summary: Headers only for "Get catalogue record"
+      operationId: headGetRecord
+      tags:
+        - Datasets
+      responses:
+        '200':
+          description: Headers of get catalogue record
+        '404':
+          description: Dataset not found
+
+  /records/{datasetId}:
+    parameters:
+      - $ref: '#/components/parameters/DatasetId'
+      - name: catalogue
+        in: query
+        required: false
+        schema:
+          type: string
+    get:
+      deprecated: true
+      summary: Get catalogue record
+      operationId: getRecordLegacy
+      tags:
+        - Datasets
+      responses:
+        '200':
+          $ref: '#/components/responses/RDF200'
+        '404':
+          description: Dataset not found
+    head:
+      deprecated: true
+      summary: Headers only for "Get catalogue record"
+      operationId: headGetRecordLegacy
+      tags:
+        - Datasets
+      responses:
+        '200':
+          description: Headers of get catalogue record
+        '404':
+          description: Not Found
+
+  ####################
+  # DATASET INDEXING #
+  ####################
+
+  /datasets/{datasetId}/index:
+    parameters:
+      - $ref: '#/components/parameters/DatasetId'
+    get:
+      description: This function is reserved for internal use only and is not part of our public API offerings. As an authorized user, you can add a specified dataset to the distributed document store (hub-search) and receive an index of the stored dataset in the response.
+      summary: Index/Reindex a dataset
+      operationId: getDatasetIndex
+      tags:
+        - Datasets
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Dataset index. Dataset is re-indexed.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Dataset not found
+
+  ##################
+  # DRAFTS DATASET #
+  ##################
+
+  /drafts/datasets:
+    get:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to retrieve drafts of datasets. As an authorized user, you make a GET request to the specified API endpoint URL with the resource path "/drafts/datasets" added at the end of the URL. If successful, the response contains an array of the drafts' ID that the user is authorized to read, update and delete.
+      summary: Get dataset drafts
+      operationId: listDatasetDrafts
+      tags:
+        - Drafts
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: filterByProvider
+          in: query
+          description: "By default, all drafts that the user is allowed to read, update and delete are returned. With `filterByProvider=true` only drafts that the user has created are returned."
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                type: string
+            application/rdf+xml:
+              schema:
+                type: string
+            text/turtle:
+              schema:
+                type: string
+            text/n3:
+              schema:
+                type: string
+            application/trig:
+              schema:
+                type: string
+            application/n-triples:
+              schema:
+                type: string
+        '400':
+          description: Invalid request.
+    post:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to create a draft of a dataset. As an authorized user, you make a POST request to the specified URL of the API endpoint with the resource path "/drafts/datasets" added at the end of the URL. The ID of the catalogue, where the draft is added, is a required query parameter. If successful, the draft ID will be created automatically.
+      summary: Create a dataset draft
+      operationId: createDatasetDraft
+      tags:
+        - Drafts
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: catalogue
+          in: query
+          required: true
+          description: 'The ID of the catalogue which should contain this dataset draft'
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Dataset created.
+        '400':
+          description: Invalid request.
+  /drafts/datasets/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: 'ID of the draft dataset.'
+        required: true
+        schema:
+          type: string
+    get:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to get a dataset draft. As an authorized user, you make a GET request to the specified URL of the API endpoint with the resource path "/drafts/datasets/{id}" at the end of the URL, set the unique ID of the draft as {id} element of the URL.
+      summary: Get a dataset draft
+      operationId: readDatasetDraft
+      tags:
+        - Drafts
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: catalogue
+          in: query
+          required: true
+          description: 'The ID of the catalogue which should contain this dataset draft'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/ld+json:
+              schema:
+                type: string
+            application/rdf+xml:
+              schema:
+                type: string
+            text/turtle:
+              schema:
+                type: string
+            text/n3:
+              schema:
+                type: string
+            text/plain:
+              schema:
+                type: string
+            application/trig:
+              schema:
+                type: string
+            application/n-triples:
+              schema:
+                type: string
+        '400':
+          description: Invalid request.
+        '404':
+          description: Catalogue or Dataset Draft ID not found.
+    put:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to create or update a dataset draft with given ID. As an authorized user, you make a PUT request to the specified URL of the API endpoint with the resource path "/drafts/datasets/{id}" added at the end of the URL, set the unique ID of the draft as {id} element of the URL. If the request is successful and the ID already exists, the information in the draft will be updated with the newly provided information. If the ID is new, a new draft will be created.
+      summary: Create or Update a dataset draft
+      operationId: createOrUpdateDatasetDraft
+      tags:
+        - Drafts
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: catalogue
+          in: query
+          required: true
+          description: 'The ID of the catalogue which should contain this dataset draft'
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '204':
+          description: Dataset updated.
+        '201':
+          description: Dataset created.
+        '400':
+          description: Invalid request.
+    delete:
+      description: 'This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to delete a dataset draft. As an authorized user, you make a DELETE request to the specified URL of the API endpoint with the resource path "/drafts/datasets/{id}" at the end of the URL, set the unique ID of the draft as {id} element of the URL.  Caution: you cannot revert this operation'
+      summary: Delete a dataset draft
+      operationId: deleteDatasetDraft
+      tags:
+        - Drafts
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: catalogue
+          in: query
+          required: true
+          description: 'The ID of the catalogue which should contain this dataset draft'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request accepted.
+        '404':
+          description: Dataset ID not found.
+  /drafts/datasets/publish/{id}:
+    put:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to publish a dataset draft. As an authorized user, you make a PUT request to the specified URL of the API endpoint with the resource path "/drafts/datasets/publish/{id}" added at the end of the URL, set the unique ID of the specified draft as {id} element of the URL. If successful, the draft is published and gets another ID as dataset.
+      summary: Publish a dataset draft
+      operationId: publishDatasetDraft
+      tags:
+        - Drafts
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: 'ID of the draft dataset.'
+          required: true
+          schema:
+            type: string
+        - name: catalogue
+          in: query
+          required: true
+          description: 'The ID of the catalogue which should contain this dataset draft'
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Dataset draft published.
+        '400':
+          description: Invalid request.
+  /drafts/datasets/hide/{id}:
+    put:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized to withdraw a published dataset from publication, by setting it into draft. As an authorized user, you make a PUT request to the specified URL of the API endpoint with the resource path "/drafts/datasets/hide/{id}" at the end of the URL, set the unique ID of the specified dataset as {id} element of the URL. If successful, the dataset is retracted and set to the drafts.
+      summary: Hide a published dataset
+      operationId: hideDataset
+      tags:
+        - Drafts
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: 'ID of the published dataset.'
+          required: true
+          schema:
+            type: string
+        - name: catalogue
+          in: query
+          required: true
+          description: 'The ID of the catalogue which should contain this dataset draft'
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Dataset hidden.
+        '400':
+          description: Invalid request.
+
+  ################
+  # VOCABULARIES #
+  ################
+
+  /vocabularies:
+    get:
+      description: You can get a list of indexed (controlled) vocabularies used by the portal sending a GET request to the specified URL of the API endpoint with the resource path "/vocabularies" at the end of the URL. Upon success, the response will contain, by default, an array with the URLs of the chosen number of vocabularies (with 100 being the default limit). To retrieve identifiers (normalized IDs), metadata etc. you can choose a different value for the parameter "valueType".
+      summary: Get list of vocabularies
+      operationId: listVocabularies
+      parameters:
+        - $ref: '#/components/parameters/ValueType'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      tags:
+        - Vocabularies
+      responses:
+        '200':
+          $ref: '#/components/responses/RDFLIST200'
+        '400':
+          description: Bad Request
+    head:
+      description: To retrieve only the headers for the list of indexed (controlled) vocabularies used by the portal sending a HEAD request to the specified URL of the API endpoint with the resource path "/vocabularies" at the end of the URL. Upon success, the response will contain, by default, the headers for chosen number of the vocabularies' URLs (with 100 being default limit). To retrieve headers for other data of the vocabularies select a different value for the parameter "valueType".
+      summary: Head get list of vocabularies
+      operationId: headListVocabularies
+      parameters:
+        - $ref: '#/components/parameters/ValueType'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      tags:
+        - Vocabularies
+      responses:
+        '200':
+          description: Headers of list vocabularies
+        '400':
+          description: Bad Request
+    put:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized for this operation. As an authorized user you can create or update a vocabulary, sending a PUT request to the specified API endpoint URL with the resource path "/vocabularies" at the end of the URL. Set the unique ID and URI of the vocabulary as required parameters of the request, if the vocabulary ID and URI already exist, the vocabulary is updated.
+      summary: Create or Update a vocabulary
+      deprecated: true
+      operationId: createOrUpdateVocabulary
+      tags:
+        - Vocabularies
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: vocabularyId
+          in: query
+          description: ID of the vocabulary
+          required: true
+          schema:
+            type: string
+        - name: uri
+          in: query
+          description: URI of the vocabulary
+          required: true
+          schema:
+            type: string
+        - name: hash
+          in: query
+          description: Hash of the vocabulary. Used for chunk-wise processing. Default is empty.
+          required: false
+          schema:
+            type: string
+        - name: chunkId
+          in: query
+          description: Id of the corresponding chunk of the vocabulary. Used for chunk-wise processing. Default is 0.
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: numberOfChunks
+          in: query
+          description: Number of total chunks of the vocabulary. Used for chunk-wise processing. Default is 1.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '204':
+          description: Vocabulary updated
+        '201':
+          description: Vocabulary created
+          headers:
+            Location:
+              $ref: '#/components/headers/LocationURIRef'
+        '202':
+          description: Vocabulary chunk accepted
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /vocabularies/{vocabularyId}:
+    parameters:
+      - $ref: '#/components/parameters/VocabularyId'
+    get:
+      description: You can get a vocabulary, making a GET request to the specified URL of the API endpoint with the resource path "/vocabularies/{vocabularyId}". Set the unique identifier of the vocabulary as {vocabularyId} element of the URL. If successful, the response contains the vocabulary.
+      summary: Get a vocabulary
+      operationId: getVocabulary
+      tags:
+        - Vocabularies
+      responses:
+        '200':
+          $ref: '#/components/responses/RDF200'
+        '404':
+          description: Not Found
+    head:
+      description: You can get only the headers for a vocabulary making a HEAD request to the specified URL of the API endpoint with the resource path  "/vocabularies/{vocabularyId}". Set the unique identifier of the vocabulary as {vocabularyId} element of the URL. If successful, the response contains the headers of the specified vocabulary.
+      summary: Head get a vocabulary
+      operationId: headGetVocabulary
+      tags:
+        - Vocabularies
+      responses:
+        '200':
+          description: Headers of get a vocabulary
+        '404':
+          description: Not Found
+    put:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized for this operation. As an authorized user you can create or update a vocabulary, sending a PUT request to the specified URL of the API endpoint "/vocabularies/{vocabularyId}". Set the unique identifier of the vocabulary as {vocabularyId} element of the URL. If the vocabulary ID already exists, the vocabulary is updated.  If the vocabulary ID is new, a new vocabulary will be created
+      summary: Create or update a vocabulary
+      operationId: putVocabulary
+      tags:
+        - Vocabularies
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      requestBody:
+        $ref: '#/components/requestBodies/RDFBody'
+      responses:
+        '204':
+          description: Vocabulary updated
+        '201':
+          description: Vocabulary created
+          headers:
+            Location:
+              $ref: '#/components/headers/LocationURIRef'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized for this operation. As an authorized user you can delete a vocabulary, sending a DELETE request to the specified URL of the API endpoint with the resource path "/vocabularies/{vocabularyId}" added at the end of the URL. Set the unique ID of the vocabulary as {vocabularyId} element of the URL. Caution! You cannot revert this operation.
+      summary: Delete a vocabulary
+      operationId: deleteVocabulary
+      tags:
+        - Vocabularies
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      responses:
+        '204':
+          description: Vocabulary deleted
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+
+  ################
+  # TRANSLATIONS #
+  ################
+
+  /translation:
+    post:
+      description: This function is reserved for internal use only and is not part of our public API offerings. You must be authorized for this operation. As an authorized user you can add a completed translation for catalogues, datasets, distributions.
+      summary: Post a completed translation.
+      operationId: postTranslation
+      tags:
+        - Translation
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      responses:
+        '204':
+          description: Translation stored
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+      requestBody:
+        description: JSON with the completed translations.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+
+  ##################
+  # IDENTIFIERS #
+  ##################
+
+  /identifiers/datasets/{datasetId}:
+    parameters:
+      - $ref: '#/components/parameters/DatasetId'
+    put:
+      description: This function is reserved for internal use only and is not part of our public API offerings. This endpoint allows to create a persistent identifier for a dataset, that will be stored in the adms:identifier property. Choose value "mock" for the query parameter type if you need it for simulation purpose.
+      summary: Create a persistent identifier for a dataset
+      operationId: createDatasetIdentifier
+      tags:
+        - Identifiers
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: catalogue
+          deprecated: true
+          in: query
+          description: The the catalogue id to which the dataset belongs
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: true
+          description: 'The type of the persistent identifier'
+          schema:
+            type: string
+            enum:
+              - eu-ra-doi
+              - mock
+      responses:
+        '200':
+          description: Identifier created, details in the response body
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Dataset not found
+        '422':
+          description: Unprocessable Entity, details in the response body.
+          content:
+            application/json:
+              schema:
+                type: object
+  /identifiers/datasets/{datasetId}/eligibility:
+    parameters:
+      - $ref: '#/components/parameters/DatasetId'
+    get:
+      description: This function is reserved for internal use only and is not part of our public API offerings. As an authorized user you can check if the specified dataset has all required elements ("creator", "publisher" etc.) to obtain an identifier. Send a GET request to the specified API endpoint URL with the resource path "/identifiers/datasets/{datasetId}/eligibility" added at the end of the URL,  set the unique ID of the dataset as {datasetID} element of the URL. Choose value "mock" for the query parameter type if you need it for simulation purpose.
+
+      summary: Check if an identifier can be issued for the given dataset.
+      operationId: checkIdentifierEligibility
+      tags:
+        - Identifiers
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: catalogue
+          in: query
+          description: The the catalogue id to which the dataset belongs
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: 'The type of the persistent identifier'
+          schema:
+            type: string
+            enum: [ eu-ra-doi, mock ]
+      responses:
+        '200':
+          description: Eligible or not
+        '404':
+          description: The dataset was not found
+
+  #############
+  # RESOURCES #
+  #############
+
+  /resources:
+    get:
+      description: You can get a list of resource types.
+      summary: List resource types
+      operationId: listResourceTypes
+      tags:
+        - Resources
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                type: string
+            application/rdf+xml:
+              schema:
+                type: string
+            text/turtle:
+              schema:
+                type: string
+            text/n3:
+              schema:
+                type: string
+            application/trig:
+              schema:
+                type: string
+            application/n-triples:
+              schema:
+                type: string
+        '400':
+          description: Invalid request.
+
+  /resources/{type}:
+    get:
+      description: You can get a list of resources of an exact type with required parameter 'type'.
+      summary: List resources
+      operationId: listResources
+      tags:
+        - Resources
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: Type to which the resources belong.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                type: string
+            application/rdf+xml:
+              schema:
+                type: string
+            text/turtle:
+              schema:
+                type: string
+            text/n3:
+              schema:
+                type: string
+            application/trig:
+              schema:
+                type: string
+            application/n-triples:
+              schema:
+                type: string
+        '400':
+          description: Invalid request.
+    post:
+      description: You can post a resource with type.
+      summary: Create a resource
+      operationId: postResource
+      tags:
+        - Resources
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: Type to which the resource belongs.
+          schema:
+            type: string
+      requestBody:
+        description: Model of the new Resource
+        required: true
+        content:
+          application/rdf+xml:
+            schema:
+              type: string
+          application/n-triples:
+            schema:
+              type: string
+          application/trig:
+            schema:
+              type: string
+          text/turtle:
+            schema:
+              type: string
+          text/n3:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Resource created.
+        '400':
+          description: Invalid request.
+        '404':
+          description: Resource type not found.
+    put:
+      description: You can put a resource with id and type.
+      summary: Create or Update a resource
+      operationId: putResource
+      tags:
+        - Resources
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: query
+          description: Id of the created or updated resource
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: path
+          required: true
+          description: Type to which the resource belongs.
+          schema:
+            type: string
+      requestBody:
+        description: Model of the new Resource
+        required: true
+        content:
+          application/rdf+xml:
+            schema:
+              type: string
+          application/n-triples:
+            schema:
+              type: string
+          application/trig:
+            schema:
+              type: string
+          text/turtle:
+            schema:
+              type: string
+          text/n3:
+            schema:
+              type: string
+      responses:
+        '204':
+          description: Resource updated.
+        '201':
+          description: Resource created.
+        '400':
+          description: Invalid request.
+        '404':
+          description: Resource type not found.
+  /resources/{type}/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Id of the resource
+        required: true
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: Type to which the resource belongs.
+        schema:
+          type: string
+    get:
+      description: You can get a resource with id and type.
+      summary: Get a resource
+      operationId: getResource
+      tags:
+        - Resources
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/ld+json:
+              schema:
+                type: string
+            application/rdf+xml:
+              schema:
+                type: string
+            text/turtle:
+              schema:
+                type: string
+            text/n3:
+              schema:
+                type: string
+            text/plain:
+              schema:
+                type: string
+            application/trig:
+              schema:
+                type: string
+            application/n-triples:
+              schema:
+                type: string
+        '400':
+          description: Invalid request.
+        '404':
+          description: Resource type or resource id not found.
+    head:
+      description: Get headers returned when requesting a resource
+      summary: HEAD a resource
+      operationId: headGetResource
+      tags:
+        - Resources
+      responses:
+        '200':
+          description: Request accepted.
+        '400':
+          description: Invalid request.
+        '404':
+          description: Resource type or resource id not found.
+    delete:
+      description: You can delete a resource with id and type.
+      summary: Delete a resource
+      operationId: deleteResource
+      tags:
+        - Resources
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      responses:
+        '204':
+          description: Request accepted.
+        '400':
+          description: Invalid request.
+        '404':
+          description: Resource type or resource id not found.
+
+  ###########
+  # Actions #
+  ###########
+
+  /action:
+    post:
+      tags:
+        - Action API
+      description: |
+        Post a JSON-RPC request to make a call to an action
+      summary: Call an Action
+      operationId: postAction
+      requestBody:
+        description: The action in JSON-RPC format
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      security:
+        - ApiKeyAuth: [ ]
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: JSON-RPC Response
+          content:
+            application/json:
+              schema:
+                type: object
+        '202':
+          description: In case of an omitted `id` correlator
+
+components:
+  schemas:
+    RDFXML:
+      type: object
+      xml:
+        namespace: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+        prefix: rdf
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    CatalogueId:
+      name: catalogueId
+      description: The catalogue id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '[a-z,0-9,\-]+'
+    DatasetId:
+      name: datasetId
+      description: The dataset id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '[a-z,0-9,\-,~]+'
+    VocabularyId:
+      name: vocabularyId
+      description: The vocabulary id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '[a-z,0-9,\-,~]+'
+    DistributionId:
+      name: distributionId
+      description: The distribution id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '[a-z,0-9,\-,~]+'
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: number
+        format: int64
+        default: 100
+        minimum: 1
+        maximum: 5000
+    Offset:
+      name: offset
+      in: query
+      schema:
+        type: number
+        format: int64
+        default: 0
+        minimum: 0
+    Hydra:
+      name: hydra
+      in: query
+      description: "Indicate that hydra paging should be used, only for valueType=metadata. If your service is behind a proxy, this might not work correctly. Find out more in the documentation:  https://doc.piveau.eu/admin-guide/hub-repo-admin-guide/"
+      schema:
+        type: boolean
+        default: false
+    UsePagedCollection:
+      name: usePagedCollection
+      in: query
+      description: "Set to 'true' to use the legacy PagedCollection format for pagination. By default, the response will use the updated PartialCollectionView format. This parameter is provided for backward compatibility with clients that expect the old format."
+      schema:
+        type: boolean
+        default: false
+    ValueType:
+      name: valueType
+      in: query
+      description: Return value type. In case of `urifRefs` and `identifiers` Accept header will be ignored and the return type will always be a JSON array
+      schema:
+        type: string
+        enum:
+          - uriRefs
+          - identifiers
+          - originalIds
+          - metadata
+        default: uriRefs
+  requestBodies:
+    RDFBody:
+      required: true
+      content:
+        application/rdf+xml:
+          schema:
+            $ref: '#/components/schemas/RDFXML'
+        application/ld+json:
+          schema:
+            type: object
+        application/n-triples:
+          schema:
+            type: string
+        application/n-quads:
+          schema:
+            type: string
+        application/trig:
+          schema:
+            type: string
+        application/trix:
+          schema:
+            type: string
+        text/turtle:
+          schema:
+            type: string
+        text/n3:
+          schema:
+            type: string
+
+  responses:
+    RDFLIST200:
+      description: The list of resource(s)
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
+        application/rdf+xml:
+          schema:
+            $ref: '#/components/schemas/RDFXML'
+        application/ld+json:
+          schema:
+            type: object
+        application/n-triples:
+          schema:
+            type: string
+        application/n-quads:
+          schema:
+            type: string
+        application/trig:
+          schema:
+            type: string
+        application/trix:
+          schema:
+            type: string
+        text/turtle:
+          schema:
+            type: string
+        text/n3:
+          schema:
+            type: string
+
+    RDF200:
+      description: The resource graph(s)
+      content:
+        application/rdf+xml:
+          schema:
+            $ref: '#/components/schemas/RDFXML'
+        application/ld+json:
+          schema:
+            type: object
+        application/n-triples:
+          schema:
+            type: string
+        application/n-quads:
+          schema:
+            type: string
+        application/trig:
+          schema:
+            type: string
+        application/trix:
+          schema:
+            type: string
+        text/turtle:
+          schema:
+            type: string
+        text/n3:
+          schema:
+            type: string
+
+  headers:
+    LocationURIRef:
+      description: The final URIRef
+      schema:
+        type: string
+        format: uri
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

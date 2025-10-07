@@ -1,15 +1,17 @@
 import type { InferSelectModel } from "drizzle-orm";
 import {
-  pgTable,
-  varchar,
-  timestamp,
-  json,
-  uuid,
-  text,
-  primaryKey,
-  foreignKey,
   boolean,
+  foreignKey,
+  json,
+  jsonb,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
+import type { AppUsage } from "../usage";
 
 export const user = pgTable("User", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
@@ -29,6 +31,7 @@ export const chat = pgTable("Chat", {
   visibility: varchar("visibility", { enum: ["public", "private"] })
     .notNull()
     .default("private"),
+  lastContext: jsonb("lastContext").$type<AppUsage | null>(),
 });
 
 export type Chat = InferSelectModel<typeof chat>;
@@ -109,7 +112,7 @@ export const document = pgTable(
     createdAt: timestamp("createdAt").notNull(),
     title: text("title").notNull(),
     content: text("content"),
-    kind: varchar("text", { enum: ["code", "data-request"] })
+    kind: varchar("text", { enum: ["code", "sheet"] })
       .notNull()
       .default("code"),
     userId: uuid("userId")

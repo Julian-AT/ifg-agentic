@@ -1,327 +1,114 @@
-import { tool, type UIMessageStreamWriter } from "ai";
-import { z } from "zod";
-import type { Session } from "next-auth";
-import type { ChatMessage } from "@/lib/types";
-
-const BASE_URL = "https://www.data.gv.at/katalog/api/3";
+import { tool, type UIMessageStreamWriter } from 'ai';
+import { z } from 'zod';
+import type { Session } from 'next-auth';
+import type { ChatMessage } from '@/lib/types';
+import { buildUrl } from '../config';
 
 interface DatasetToolsProps {
     session: Session;
     dataStream: UIMessageStreamWriter<ChatMessage>;
 }
 
-/**
- * Enhanced dataset search tool with intelligent retry logic
- * Searches Austrian open data portal with automatic fallback strategies
- */
 export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
     tool({
         description:
-            "Search and filter datasets in the Austrian open data portal. This is the most powerful search tool - use it to find datasets by keywords, categories, organizations, or any other criteria. Returns full dataset metadata. Automatically retries with simpler terms if no results found.",
+            'List datasets from the data catalog. Returns dataset URLs, identifiers, or metadata depending on valueType parameter. Supports pagination.',
         inputSchema: z.object({
-            q: z
-                .string()
+            q: z.string().optional().describe('Search query'),
+            filter: z
+                .enum(['dataset'])
                 .optional()
-                .describe(
-                    'The search query. Use simple, broad search terms that will catch the user\'s request. Examples: "energy", "covid", "transport", "population"'
-                ),
-            fq: z
-                .string()
+                .describe('Search filter/query string to filter datasets')
+                .default('dataset'),
+            facets: z
+                .object({
+                    categories: z.array(z.string()).optional().default([]),
+                    publisher: z.array(z.string()).optional().default([]),
+                    format: z.array(z.enum(["CSV", "JSON"])).optional().default([]),
+                    catalog: z.array(z.string()).optional().default([]),
+                    keywords: z.array(z.string()).optional().default([]),
+                    country: z.array(z.string()).optional().default([]),
+                    license: z.array(z.string()).optional().default([]),
+                })
                 .optional()
-                .describe(
-                    'Filter query for advanced filtering. Examples: "res_format:CSV" (only CSV resources), "organization:ministry-*" (organizations starting with ministry)'
-                ),
-            sort: z
-                .string()
-                .optional()
-                .default("relevance asc, metadata_modified desc")
-                .describe(
-                    'How to sort the results. Examples: "metadata_modified desc" (newest first), "relevance desc" (most relevant first), "name asc" (alphabetical)'
-                ),
-            rows: z
+                .describe('Facet filters for categories, publisher, format, catalog, keywords, country, and license'),
+            limit: z
                 .number()
                 .min(1)
-                .max(1000)
+                .max(5000)
                 .optional()
-                .describe(
-                    "Number of datasets to return (1-1000). Recommended: 10-50 for user display, 100+ for analysis"
-                ),
-            start: z
+                .default(50)
+                .describe('Maximum number of datasets to return (1-5000)'),
+            page: z
                 .number()
                 .min(0)
                 .optional()
-                .describe(
-                    "Starting position for pagination (0-based). For page 2 with rows=10, use start=10"
-                ),
-            include_drafts: z
+                .default(0)
+                .describe('Page number for pagination (0-based)'),
+            sort: z
+                .string()
+                .optional()
+                .default('relevance+desc, modified+desc, title.de+asc')
+                .describe('Sort order: relevance+desc, modified+desc, title.de+asc, etc.'),
+            facetOperator: z
+                .enum(['AND', 'OR'])
+                .optional()
+                .default('AND')
+                .describe('Operator for combining facet filters'),
+            facetGroupOperator: z
+                .enum(['AND', 'OR'])
+                .optional()
+                .default('AND')
+                .describe('Operator for combining facet groups'),
+            dataServices: z
                 .boolean()
                 .optional()
                 .default(false)
-                .describe(
-                    "Whether to include draft/unpublished datasets (usually false for public queries)"
-                ),
-            keywords: z
-                .array(z.string())
-                .min(2)
-                .max(5)
-                .describe(
-                    "Keywords associated with the search term. This is only used for displaying keywords related to the search to the user. Fill this with about 3-5 short phrases/keywords that are related to the search term."
-                ),
-            _isRetry: z
-                .boolean()
+                .describe('Include data services in results'),
+            includes: z
+                .string()
                 .optional()
-                .default(false)
-                .describe("Internal flag to track retry attempts"),
+                .default('id,title.de,description.de,languages,modified,issued,catalog.id,catalog.title,catalog.country.id,distributions.id,distributions.format.label,distributions.format.id,distributions.license,categories.label,publisher')
+                .describe('Comma-separated list of fields to include in response'),
         }),
-        execute: async ({
-            q,
-            fq,
-            sort,
-            rows,
-            start,
-            include_drafts,
-            keywords,
-            _isRetry,
-        }) => {
-            try {
-                console.log(`🔍 Searching datasets:`, { q, rows, start });
+        execute: async ({ filter, limit, page, sort, facetOperator, facetGroupOperator, dataServices, includes, q, facets }) => {
+            console.log('🔧 [TOOL] listDatasets:', { filter, limit, page, sort, facetOperator, facetGroupOperator, dataServices, includes, q, facets });
 
-                const searchTerms = generateSearchTerms(q);
-                const searchAttempts = 0;
-                const maxAttempts = 3;
+            const facetsString = facets ? JSON.stringify(facets) : "";
 
-                // Stream search start notification
-                dataStream.write({
-                    type: "data-datasetSearch",
-                    data: {
-                        q: q ?? "Alle verfügbaren Datensätze",
-                        keywords: keywords ?? [],
-                    },
-                });
+            const url = buildUrl("api/hub/search/search", {
+                q,
+                filter,
+                limit,
+                page,
+                sort,
+                facetOperator,
+                facetGroupOperator,
+                dataServices,
+                includes,
+                facets: facetsString,
+            });
 
-                // Try each search term until we get results or exhaust attempts
-                for (const searchTerm of searchTerms) {
-                    if (searchAttempts >= maxAttempts) break;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/ld+json',
+                },
+            });
 
-                    console.log(`🔍 Search attempt ${searchAttempts + 1}: "${searchTerm}"`);
-
-                    const data = await performSearch({
-                        searchTerm,
-                        fq,
-                        sort,
-                        rows,
-                        start,
-                        include_drafts,
-                    });
-
-                    // Check if we got results
-                    if (data.success && data.result && data.result.count > 0) {
-                        console.log(`✅ Found ${data.result.count} results with term: "${searchTerm}"`);
-
-                        const enhancedData = enhanceSearchResults(data, {
-                            originalQuery: q,
-                            successfulQuery: searchTerm,
-                            attempts: searchAttempts + 1,
-                            alternativesGenerated: searchTerms.length - 1,
-                        });
-
-                        dataStream.write({
-                            type: "data-datasetSearchResult",
-                            data: enhancedData,
-                        });
-
-                        return enhancedData;
-                    }
-
-                    console.log(`❌ No results for term: "${searchTerm}"`);
-
-                    // Small delay between attempts
-                    if (searchAttempts < maxAttempts - 1) {
-                        await new Promise((resolve) => setTimeout(resolve, 100));
-                    }
-                }
-
-                // If we get here, no search terms returned results
-                console.log(`🚫 No results found after ${searchAttempts + 1} attempts`);
-
-                const emptyResult = createEmptyResult(q, searchTerms, searchAttempts + 1);
-
-                dataStream.write({
-                    type: "data-datasetSearchResult",
-                    data: emptyResult,
-                });
-
-                return emptyResult;
-
-            } catch (error) {
-                console.error("❌ Error searching datasets:", error);
-
-                const errorResult = createErrorResult(error, q);
-
-                dataStream.write({
-                    type: "data-datasetSearchResult",
-                    data: errorResult,
-                });
-
-                return errorResult;
+            if (!response.ok) {
+                throw new Error(`Failed to search datasets: ${response.status} ${response.statusText}`);
             }
+
+            const data = await response.json();
+
+            const datasets = data.result.results;
+
+            return {
+                success: true,
+                data: datasets,
+                count: datasets.length,
+            };
         },
     });
 
-/**
- * Generate alternative search terms for better results
- */
-function generateSearchTerms(originalQuery?: string): string[] {
-    const searchTerms: string[] = [];
-
-    if (originalQuery) {
-        searchTerms.push(originalQuery);
-        searchTerms.push(...generateAlternativeTerms(originalQuery));
-    } else {
-        // Empty search to get all datasets
-        searchTerms.push("");
-    }
-
-    return searchTerms;
-}
-
-/**
- * Generate alternative search terms based on the original query
- */
-function generateAlternativeTerms(originalQuery: string): string[] {
-    const alternatives: string[] = [];
-
-    // Remove common German words and simplify
-    const simplified = originalQuery
-        .toLowerCase()
-        .replace(
-            /\b(der|die|das|ein|eine|von|zu|in|mit|für|auf|über|nach|bei|durch|unter|zwischen|während|seit|bis|gegen|ohne|um|vor|hinter|neben|innerhalb|außerhalb|oberhalb|unterhalb|entlang|jenseits|diesseits|anstatt|statt|trotz|wegen|aufgrund|bezüglich|hinsichtlich|bezogen|bezugnehmend)\b/g,
-            ""
-        )
-        .replace(/\s+/g, " ")
-        .trim();
-
-    if (simplified !== originalQuery.toLowerCase()) {
-        alternatives.push(simplified);
-    }
-
-    // Extract key words (single terms)
-    const words = simplified.split(" ").filter((word) => word.length > 3);
-    alternatives.push(...words);
-
-    // Add broad category terms based on keywords
-    const categoryMappings: Record<string, string[]> = {
-        energie: ["energie", "strom", "power", "energy"],
-        bevölkerung: ["bevölkerung", "demografie", "einwohner", "population"],
-        verkehr: ["verkehr", "transport", "mobilität", "traffic"],
-        umwelt: ["umwelt", "klima", "natur", "environment"],
-        wirtschaft: ["wirtschaft", "unternehmen", "handel", "economy"],
-        bildung: ["bildung", "schule", "universität", "education"],
-        gesundheit: ["gesundheit", "medizin", "krankenhaus", "health"],
-        kultur: ["kultur", "kunst", "museum", "culture"],
-        tourismus: ["tourismus", "reise", "hotel", "tourism"],
-        wetter: ["wetter", "klima", "temperatur", "weather"],
-        statistik: ["statistik", "daten", "zahlen", "statistics"],
-    };
-
-    // Check if any keywords match our categories
-    for (const [category, terms] of Object.entries(categoryMappings)) {
-        if (
-            originalQuery.toLowerCase().includes(category) ||
-            terms.some((term) => originalQuery.toLowerCase().includes(term))
-        ) {
-            alternatives.push(...terms);
-        }
-    }
-
-    return [...new Set(alternatives)].slice(0, 5); // Remove duplicates and limit
-}
-
-/**
- * Perform a single search request
- */
-async function performSearch({
-    searchTerm,
-    fq,
-    sort,
-    rows,
-    start,
-    include_drafts,
-}: {
-    searchTerm: string;
-    fq?: string;
-    sort?: string;
-    rows?: number;
-    start?: number;
-    include_drafts?: boolean;
-}) {
-    const params = new URLSearchParams();
-
-    if (searchTerm) params.append("q", searchTerm);
-    if (fq !== undefined) params.append("fq", fq);
-    if (sort !== undefined) params.append("sort", sort);
-    if (rows !== undefined) params.append("rows", rows.toString());
-    if (start !== undefined) params.append("start", start.toString());
-    if (include_drafts !== undefined)
-        params.append("include_drafts", include_drafts.toString());
-
-    const response = await fetch(`${BASE_URL}/action/package_search?${params}`);
-
-    if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    return await response.json();
-}
-
-/**
- * Enhance search results with metadata
- */
-function enhanceSearchResults(data: any, searchInfo: any) {
-    return {
-        ...data,
-        searchInfo,
-        timestamp: new Date().toISOString(),
-    };
-}
-
-/**s
- * Create empty result when no datasets found
- */
-function createEmptyResult(originalQuery?: string, searchTerms: string[] = [], attempts = 0) {
-    return {
-        success: true,
-        result: {
-            count: 0,
-            results: [],
-            facets: {},
-        },
-        searchInfo: {
-            originalQuery,
-            successfulQuery: null,
-            attempts,
-            alternativesGenerated: searchTerms.length - 1,
-            searchTermsTried: searchTerms.slice(0, attempts),
-        },
-        timestamp: new Date().toISOString(),
-    };
-}
-
-/**
- * Create error result for failed searches
- */
-function createErrorResult(error: unknown, originalQuery?: string) {
-    return {
-        success: false,
-        error: {
-            message: error instanceof Error ? error.message : "Unknown error occurred",
-            originalQuery,
-            timestamp: new Date().toISOString(),
-        },
-        result: {
-            count: 0,
-            results: [],
-            facets: {},
-        },
-    };
-}

@@ -1,81 +1,52 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Button } from "./ui/button";
-import { memo } from "react";
 import type { UseChatHelpers } from "@ai-sdk/react";
-import type { VisibilityType } from "./visibility-selector";
+import { motion } from "framer-motion";
+import { memo } from "react";
 import type { ChatMessage } from "@/lib/types";
+import { Suggestion } from "./elements/suggestion";
+import type { VisibilityType } from "./visibility-selector";
 
-interface SuggestedActionsProps {
+type SuggestedActionsProps = {
   chatId: string;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   selectedVisibilityType: VisibilityType;
-}
+};
 
-function PureSuggestedActions({
-  chatId,
-  sendMessage,
-  selectedVisibilityType,
-}: SuggestedActionsProps) {
+function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
   const suggestedActions = [
-    {
-      title: "Bevölkerungsentwicklung",
-      label: "Demografische Trends und Statistiken",
-      action:
-        "Zeige mir aktuelle Daten zur Bevölkerungsentwicklung und demografischen Trends in Österreich",
-    },
-    {
-      title: "Verkehr & Mobilität",
-      label: "Öffentliche Verkehrsdaten",
-      action:
-        "Suche nach Datensätzen zu öffentlichen Verkehrsmitteln, Fahrgastzahlen und Verkehrsaufkommen",
-    },
-    {
-      title: "Energie & Umwelt",
-      label: "Nachhaltigkeit und Klimadaten",
-      action:
-        "Finde Informationen zu Energieverbrauch, erneuerbaren Energien und Umweltindikatoren",
-    },
-    {
-      title: "Wirtschaft & Arbeit",
-      label: "Arbeitsmarkt und Wirtschaftsdaten",
-      action:
-        "Analysiere Arbeitsmarktdaten, Wirtschaftsindikatoren und Beschäftigungstrends",
-    },
+    "Zeige mir Daten zum Bevölkerungswachstum",
+    "Welche öffentlichen Verkehrsdaten sind verfügbar?",
+    "Hilf mir bei der Suche nach Umweltdaten",
+    "Zeige mir Finanzdaten für Wien",
   ];
 
   return (
     <div
+      className="grid w-full gap-2 sm:grid-cols-2"
       data-testid="suggested-actions"
-      className="grid sm:grid-cols-2 gap-2 w-full max-w-4xl mx-auto px-6 md:px-0"
     >
       {suggestedActions.map((suggestedAction, index) => (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 20 }}
+          key={suggestedAction}
           transition={{ delay: 0.05 * index }}
-          key={`suggested-action-${suggestedAction.title}-${index}`}
-          className={index > 1 ? "hidden sm:block" : "block"}
         >
-          <Button
-            variant="ghost"
-            onClick={async () => {
+          <Suggestion
+            className="h-auto w-full whitespace-normal p-3 text-left"
+            onClick={(suggestion) => {
               window.history.replaceState({}, "", `/chat/${chatId}`);
-
               sendMessage({
                 role: "user",
-                parts: [{ type: "text", text: suggestedAction.action }],
+                parts: [{ type: "text", text: suggestion }],
               });
             }}
-            className="text-left bg-card/60 border border-border hover:bg-card/70 cursor-pointer rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-auto justify-start items-start"
+            suggestion={suggestedAction}
           >
-            <span className="font-medium">{suggestedAction.title}</span>
-            <span className="text-muted-foreground">
-              {suggestedAction.label}
-            </span>
-          </Button>
+            {suggestedAction}
+          </Suggestion>
         </motion.div>
       ))}
     </div>
@@ -85,9 +56,12 @@ function PureSuggestedActions({
 export const SuggestedActions = memo(
   PureSuggestedActions,
   (prevProps, nextProps) => {
-    if (prevProps.chatId !== nextProps.chatId) return false;
-    if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
+    if (prevProps.chatId !== nextProps.chatId) {
       return false;
+    }
+    if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
+      return false;
+    }
 
     return true;
   }

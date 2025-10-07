@@ -1,5 +1,11 @@
-import { Artifact } from "@/components/create-artifact";
+import { toast } from "sonner";
 import { CodeEditor } from "@/components/code-editor";
+import {
+  Console,
+  type ConsoleOutput,
+  type ConsoleOutputContent,
+} from "@/components/console";
+import { Artifact } from "@/components/create-artifact";
 import {
   CopyIcon,
   LogsIcon,
@@ -8,13 +14,7 @@ import {
   RedoIcon,
   UndoIcon,
 } from "@/components/icons";
-import { toast } from "sonner";
 import { generateUUID } from "@/lib/utils";
-import {
-  Console,
-  type ConsoleOutput,
-  type ConsoleOutputContent,
-} from "@/components/console";
 
 const OUTPUT_HANDLERS = {
   matplotlib: `
@@ -47,29 +47,6 @@ const OUTPUT_HANDLERS = {
 
         plt.show = custom_show
   `,
-  pandas: `
-    import pyodide_http
-    pyodide_http.patch_all()  # Patch all libraries
-    import pandas as pd
-    import io
-
-    original_read_csv = pd.read_csv
-
-    async def read_csv(filepath_or_buffer, **kwargs):
-        if isinstance(filepath_or_buffer, str) and (filepath_or_buffer.startswith('http://') or filepath_or_buffer.startswith('https://')):
-            import js
-            proxy_url = f"https://whateverorigin.org/get?url={js.encodeURIComponent(filepath_or_buffer)}"
-            response = await js.fetch(proxy_url)
-            if response.status != 200:
-                raise Exception(f"Failed to fetch data: HTTP {response.status}")
-            json_data = await response.json()
-            data = json_data.contents
-            return original_read_csv(io.StringIO(data), **kwargs)
-        else:
-            return original_read_csv(filepath_or_buffer, **kwargs)
-
-    pd.read_csv = read_csv
-  `,
   basic: `
     # Basic output capture setup
   `,
@@ -82,26 +59,18 @@ function detectRequiredHandlers(code: string): string[] {
     handlers.push("matplotlib");
   }
 
-  if (
-    code.includes("pandas") ||
-    code.includes("pd.") ||
-    code.includes("read_csv")
-  ) {
-    handlers.push("pandas");
-  }
-
   return handlers;
 }
 
-interface Metadata {
-  outputs: Array<ConsoleOutput>;
-}
+type Metadata = {
+  outputs: ConsoleOutput[];
+};
 
 export const codeArtifact = new Artifact<"code", Metadata>({
   kind: "code",
   description:
     "Useful for code generation; Code execution is only available for python code.",
-  initialize: async ({ setMetadata }) => {
+  initialize: ({ setMetadata }) => {
     setMetadata({
       outputs: [],
     });
@@ -149,7 +118,7 @@ export const codeArtifact = new Artifact<"code", Metadata>({
       description: "Execute code",
       onClick: async ({ content, setMetadata }) => {
         const runId = generateUUID();
-        const outputContent: Array<ConsoleOutputContent> = [];
+        const outputContent: ConsoleOutputContent[] = [];
 
         setMetadata((metadata) => ({
           ...metadata,
@@ -180,16 +149,6 @@ export const codeArtifact = new Artifact<"code", Metadata>({
             },
           });
 
-          await currentPyodideInstance.loadPackage("pyodide-http");
-          await currentPyodideInstance.loadPackage("pandas");
-          await currentPyodideInstance.loadPackage("matplotlib");
-
-          await currentPyodideInstance.runPythonAsync(
-            "import pyodide_http\npyodide_http.patch_all()"
-          );
-
-          await currentPyodideInstance.runPythonAsync("print('test')");
-
           await currentPyodideInstance.loadPackagesFromImports(content, {
             messageCallback: (message: string) => {
               setMetadata((metadata) => ({
@@ -206,23 +165,6 @@ export const codeArtifact = new Artifact<"code", Metadata>({
             },
           });
 
-          let processedContent = content;
-
-          console.log(processedContent);
-
-          processedContent = processedContent.replace(
-            /(?<!await\s+)pd\.read_csv\s*\(/g,
-            "await pd.read_csv("
-          );
-
-          // if (!/async\s+def\s+main\s*\(/.test(processedContent)) {
-          //   const indented = processedContent
-          //     .split("\n")
-          //     .map((line) => `    ${line}`)
-          //     .join("\n");
-          //   processedContent = `async def main():\n${indented}\nawait main()`;
-          // }
-
           const requiredHandlers = detectRequiredHandlers(content);
           for (const handler of requiredHandlers) {
             if (OUTPUT_HANDLERS[handler as keyof typeof OUTPUT_HANDLERS]) {
@@ -235,25 +177,10 @@ export const codeArtifact = new Artifact<"code", Metadata>({
                   "setup_matplotlib_output()"
                 );
               }
-
-              if (handler === "pandas") {
-                await currentPyodideInstance.runPythonAsync(`
-                  print("Pandas handler loaded. Use fetch_csv_from_url(url) to fetch CSV data from URLs.")
-                `);
-              }
             }
           }
 
-          try {
-            await currentPyodideInstance.runPythonAsync(processedContent);
-          } catch (error: any) {
-            setMetadata((metadata) => ({
-              ...metadata,
-              outputs: [
-                ...metadata.outputs.filter((output) => output.id !== runId),
-              ],
-            }));
-          }
+          await currentPyodideInstance.runPythonAsync(content);
 
           setMetadata((metadata) => ({
             ...metadata,
@@ -321,14 +248,14 @@ export const codeArtifact = new Artifact<"code", Metadata>({
   toolbar: [
     {
       icon: <MessageIcon />,
-      description: "Code Kommentare",
+      description: "Add comments",
       onClick: ({ sendMessage }) => {
         sendMessage({
           role: "user",
           parts: [
             {
               type: "text",
-              text: "Füge Kommentare zum Code hinzu, um ihn besser zu verstehen",
+              text: "Add comments to the code snippet for understanding",
             },
           ],
         });
@@ -336,14 +263,14 @@ export const codeArtifact = new Artifact<"code", Metadata>({
     },
     {
       icon: <LogsIcon />,
-      description: "Code Dokumentation",
+      description: "Add logs",
       onClick: ({ sendMessage }) => {
         sendMessage({
           role: "user",
           parts: [
             {
               type: "text",
-              text: "Dokumentiere den Code",
+              text: "Add logs to the code snippet for debugging",
             },
           ],
         });

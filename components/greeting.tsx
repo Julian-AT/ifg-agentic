@@ -5,7 +5,7 @@ export const Greeting = () => {
   return (
     <div
       key="overview"
-      className="max-w-3xl mx-auto text-center w-full flex flex-col justify-center gap-4 overflow-hidden"
+      className="max-w-3xl mx-auto text-center w-full flex flex-col justify-center gap-4 overflow-hidden h-[90%]"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}

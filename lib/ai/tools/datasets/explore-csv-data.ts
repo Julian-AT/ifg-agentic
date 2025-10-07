@@ -1,5 +1,7 @@
-import { tool } from "ai";
+import { tool, type UIMessageStreamWriter } from "ai";
 import { z } from "zod";
+import type { Session } from "next-auth";
+import type { ChatMessage } from "@/lib/types";
 
 interface CsvExplorationResult {
     datasetName: string;
@@ -24,34 +26,39 @@ interface CsvExplorationResult {
     };
 }
 
+interface DatasetToolsProps {
+    session: Session;
+    dataStream: UIMessageStreamWriter<ChatMessage>;
+}
+
 /**
  * Enhanced CSV data exploration tool
  * Automatically analyzes CSV structure from Austrian datasets with intelligent type detection
  */
-export const exploreCsvData = () =>
+export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
     tool({
         description:
-            "Automatically explore CSV data structure from Austrian datasets. This tool fetches a CSV file from getResourceDetails URL and returns comprehensive data structure information (columns, types, sample data, statistics) that can be used for code generation. Use this tool before creating analysis code to understand the data structure.",
+            "Analyze CSV file structure before writing code. CRITICAL: Use the access_url[0] from dataset.distributions array as the url parameter. This tool fetches the CSV, detects delimiter, infers column types, and returns sample data. You MUST call this before createDocument to know the exact column names and types.",
         inputSchema: z.object({
             url: z
                 .string()
                 .url("Invalid URL format")
-                .describe("The exact CSV URL from getResourceDetails tool output"),
+                .describe("The access_url[0] from the dataset distributions array (e.g., https://www.data.gv.at/katalog/dataset/xyz/resource/abc.csv)"),
             datasetName: z
                 .string()
                 .optional()
-                .describe("Name of the dataset for context"),
+                .describe("Name of the dataset for context (optional)"),
             sampleSize: z
                 .number()
                 .min(1)
                 .max(20)
                 .optional()
                 .default(5)
-                .describe("Number of sample rows to analyze (1-20)"),
+                .describe("Number of sample rows to analyze (1-20, default: 5)"),
             encoding: z
                 .string()
                 .optional()
-                .describe("Text encoding to use (e.g., 'utf-8', 'iso-8859-1')"),
+                .describe("Text encoding to use (e.g., 'utf-8', 'iso-8859-1', default: utf-8)"),
         }),
         execute: async ({ url, datasetName, sampleSize = 5, encoding = 'utf-8' }): Promise<CsvExplorationResult> => {
             try {

@@ -5,24 +5,17 @@ import { Skeleton } from "./ui/skeleton";
 import { SearchIcon, ChevronDown, ChevronRight, Search } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AnimatedShinyText } from "./magicui/animated-shiny-text";
+import { AnimatedShinyText } from "@/components/animated-shiny-text";
 
 interface DatasetSearchResult {
   id: string;
-  title: string;
-  publisher_link?: string;
+  title: { de: string };
+  publisher?: { homepage?: string };
 }
 
 interface DatasetSearchOutput {
-  result: {
-    results: DatasetSearchResult[];
-    count: number;
-  };
-  searchInfo?: {
-    originalQuery?: string;
-    successfulQuery?: string;
-    attempts?: number;
-  };
+  data: DatasetSearchResult[];
+  count: number;
 }
 
 interface DatasetSearchInput {
@@ -54,13 +47,13 @@ export function MergedDatasetSearch({
   let totalCount = 0;
 
   searches.forEach((search) => {
-    if (search.output?.result?.results) {
-      search.output.result.results.forEach((result) => {
+    if (search.output?.data) {
+      search.output.data.forEach((result) => {
         if (!allResults.find((existing) => existing.id === result.id)) {
           allResults.push(result);
         }
       });
-      totalCount += search.output.result.count || 0;
+      totalCount += search.output.count || 0;
     }
 
     if (search.input?.keywords) {
@@ -76,13 +69,15 @@ export function MergedDatasetSearch({
     }
   });
 
+  console.log(searches);
+
+
   const originalQuery =
     searches.find((s) => s.input?.q && s.input.q !== "data.gv.at")?.input.q ||
     queries[0] ||
     "Datensätzen";
   const isMultipleSearches = queries.length > 1;
 
-  // Pagination logic
   const RESULTS_PER_PAGE = 10;
   const displayedResults = showAllResults
     ? allResults
@@ -164,7 +159,7 @@ export function MergedDatasetSearch({
 
   return (
     <motion.div
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-3 min-w-full"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
@@ -205,9 +200,8 @@ export function MergedDatasetSearch({
                 <SparklesIcon size={14} />
                 <span>
                   {isMultipleSearches
-                    ? `Suche nach "${originalQuery}" (+ ${
-                        queries.length - 1
-                      } weitere Begriffe)`
+                    ? `Suche nach "${originalQuery}" (+ ${queries.length - 1
+                    } weitere Begriffe)`
                     : `Suche nach "${originalQuery}"`}
                 </span>
               </div>
@@ -252,16 +246,34 @@ export function MergedDatasetSearch({
                               target="_blank"
                             >
                               <img
-                                src={"https://www.data.gv.at/favicon.ico"}
+                                src={
+                                  result.publisher?.homepage
+                                    ? (() => {
+                                      try {
+                                        const url = new URL(result.publisher.homepage);
+                                        return `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=64`;
+                                      } catch {
+                                        return "https://www.data.gv.at/favicon.ico";
+                                      }
+                                    })()
+                                    : "https://www.data.gv.at/assets/datagvat-logo-b60376ea.svg"
+                                }
                                 alt={"logo"}
-                                className="w-6 h-6 rounded-full bg-secondary border p-1 mr-1"
+                                className="w-6 h-6 rounded-full bg-secondary border p-0.5 mr-1"
                               />
                               <span className="text-secondary-foreground font-medium max-w-1/2 truncate">
-                                {result.title}
+                                {result.title.de}
                               </span>
                               <span className="text-muted-foreground">
-                                {result.publisher_link
-                                  ? new URL(result.publisher_link).hostname
+                                {result.publisher?.homepage
+                                  ? (() => {
+                                    try {
+                                      const url = new URL(result.publisher.homepage);
+                                      return url.hostname;
+                                    } catch {
+                                      return result.publisher.homepage;
+                                    }
+                                  })()
                                   : "data.gv.at"}
                               </span>
                             </Link>
@@ -291,9 +303,8 @@ export function MergedDatasetSearch({
                         </motion.div>
                         {showAllResults
                           ? "Weniger anzeigen"
-                          : `${
-                              allResults.length - RESULTS_PER_PAGE
-                            } weitere anzeigen`}
+                          : `${allResults.length - RESULTS_PER_PAGE
+                          } weitere anzeigen`}
                       </motion.button>
                     )}
                   </>

@@ -1,21 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronRight, Database } from "lucide-react";
-import { DatasetDetailsWidget } from "./dataset-details-widget";
-import { AnimatedShinyText } from "./magicui/animated-shiny-text";
+import { DatasetDetailsWidget, DatasetResult } from "./dataset-details-widget";
+import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { DatasetDetailsSkeleton } from "./dataset-skeletons";
-
-interface DatasetResult {
-  id: string;
-  title: string;
-  publisher?: string;
-  notes?: string;
-  tags?: Array<{ display_name: string; id: string }>;
-  num_resources?: number;
-  metadata_created?: string;
-  metadata_modified?: string;
-  license_title?: string;
-}
 
 interface MergedDatasetResult {
   toolCallId: string;
@@ -35,14 +23,12 @@ export function MergedDatasetDetails({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showAllDatasets, setShowAllDatasets] = useState(false);
 
-  // Pagination logic
   const DATASETS_PER_PAGE = 3;
   const displayedDatasets = showAllDatasets
     ? datasets
     : datasets.slice(0, DATASETS_PER_PAGE);
   const hasMoreDatasets = datasets.length > DATASETS_PER_PAGE;
 
-  // Loading state with AnimatedShinyText
   if (isLoading) {
     return (
       <motion.div
@@ -157,9 +143,8 @@ export function MergedDatasetDetails({
                   </motion.div>
                   {showAllDatasets
                     ? "Weniger Datensätze anzeigen"
-                    : `${
-                        datasets.length - DATASETS_PER_PAGE
-                      } weitere Datensätze anzeigen`}
+                    : `${datasets.length - DATASETS_PER_PAGE
+                    } weitere Datensätze anzeigen`}
                 </motion.button>
               )}
             </motion.div>

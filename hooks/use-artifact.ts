@@ -1,8 +1,8 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
 import useSWR from "swr";
 import type { UIArtifact } from "@/components/artifact";
-import { useCallback, useMemo } from "react";
 
 export const initialArtifactData: UIArtifact = {
   documentId: "init",
@@ -27,7 +27,9 @@ export function useArtifactSelector<Selected>(selector: Selector<Selected>) {
   });
 
   const selectedValue = useMemo(() => {
-    if (!localArtifact) return selector(initialArtifactData);
+    if (!localArtifact) {
+      return selector(initialArtifactData);
+    }
     return selector(localArtifact);
   }, [localArtifact, selector]);
 
@@ -44,7 +46,9 @@ export function useArtifact() {
   );
 
   const artifact = useMemo(() => {
-    if (!localArtifact) return initialArtifactData;
+    if (!localArtifact) {
+      return initialArtifactData;
+    }
     return localArtifact;
   }, [localArtifact]);
 

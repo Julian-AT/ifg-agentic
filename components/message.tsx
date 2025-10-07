@@ -3,14 +3,10 @@ import cx from "classnames";
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useState } from "react";
 import type { Vote } from "@/lib/db/schema";
-import { PencilEditIcon } from "./icons";
-import { Markdown } from "./markdown";
 import { MessageActions } from "./message-actions";
 import { PreviewAttachment } from "./preview-attachment";
 import equal from "fast-deep-equal";
 import { cn, sanitizeText } from "@/lib/utils";
-import { Button } from "./ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { MessageEditor } from "./message-editor";
 import { MessageReasoning } from "./message-reasoning";
 import type { UseChatHelpers } from "@ai-sdk/react";
@@ -26,7 +22,12 @@ import { ResourceDetailsWidget } from "./resource-details-widget";
 import { ToolAccordion } from "./tool-accordion";
 import { MergedDatasetSearch } from "./merged-dataset-search";
 import { MergedDatasetDetails } from "./merged-dataset-details";
-import { AnimatedShinyText } from "./magicui/animated-shiny-text";
+import { AnimatedShinyText } from "@/components/animated-shiny-text";
+import { MessageContent } from "./elements/message";
+import { Response } from "./elements/response";
+import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "./elements/tool";
+import { Task, TaskContent, TaskItem, TaskItemFile, TaskTrigger } from "./elements/task";
+import { Database, FileSpreadsheet, Code, BarChart3 } from "lucide-react";
 
 // Helper function to find matching output part for an input part
 const findMatchingOutputPart = (
@@ -146,11 +147,13 @@ const groupDatasetDetailsParts = (datasetParts: any[]): any[] => {
           p.state === "output-available"
       );
 
-      if (matchingOutput?.output?.data?.result) {
+      const dataset = matchingOutput?.output?.dataset || matchingOutput?.output?.data?.result;
+
+      if (dataset) {
         groupedDatasets.push({
           toolCallId: part.toolCallId,
           datasetId: part.input?.id || "unknown",
-          result: matchingOutput.output.data.result,
+          result: dataset.result,
         });
       }
     }
@@ -293,34 +296,23 @@ const PurePreviewMessage = ({
               if (type === "text") {
                 if (mode === "view") {
                   return (
-                    <div key={key} className="flex flex-row gap-2 items-start">
-                      {message.role === "user" && !isReadonly && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              data-testid="message-edit-button"
-                              variant="ghost"
-                              className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
-                              onClick={() => {
-                                setMode("edit");
-                              }}
-                            >
-                              <PencilEditIcon />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Edit message</TooltipContent>
-                        </Tooltip>
-                      )}
-
-                      <div
-                        data-testid="message-content"
-                        className={cn("flex flex-col gap-4", {
-                          "bg-card/60 border border-border text-secondary-foreground px-3 py-2 rounded-xl":
+                    <div key={key}>
+                      <MessageContent
+                        className={cn({
+                          "w-fit break-words rounded-2xl px-3 py-2 text-right text-white":
                             message.role === "user",
+                          "bg-transparent px-0 py-0 text-left":
+                            message.role === "assistant",
                         })}
+                        data-testid="message-content"
+                        style={
+                          message.role === "user"
+                            ? { backgroundColor: "#006cff" }
+                            : undefined
+                        }
                       >
-                        <Markdown>{sanitizeText(part.text)}</Markdown>
-                      </div>
+                        <Response>{sanitizeText(part.text)}</Response>
+                      </MessageContent>
                     </div>
                   );
                 }
@@ -343,308 +335,181 @@ const PurePreviewMessage = ({
               }
 
               if (type === "tool-createDocument") {
-                const { toolCallId, state } = part;
+                const { toolCallId } = part;
 
-                console.log("createDocument", part);
-
-                if (state === "input-available") {
-                  const { input } = part;
-                  const outputPart = findMatchingOutputPart(
-                    part,
-                    message.parts || [],
-                    index
-                  );
-
-                  if (outputPart && "error" in outputPart.output) {
-                    return (
-                      <div
-                        key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
-                      >
-                        Error: {String(outputPart.output.error)}
-                      </div>
-                    );
-                  }
-
-                  if (!outputPart) {
-                    return (
-                      <motion.div
-                        key={toolCallId}
-                        className="flex flex-col gap-3"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
-                      >
-                        <AnimatedShinyText className="flex flex-row gap-2 items-center">
-                          <FileText className="w-4 h-4" />
-                          Erstelle Dokument...
-                        </AnimatedShinyText>
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.2, duration: 0.3 }}
-                        >
-                          <DocumentPreview
-                            isReadonly={isReadonly}
-                            args={input}
-                          />
-                        </motion.div>
-                      </motion.div>
-                    );
-                  }
-
+                if (part.output && "error" in part.output) {
                   return (
-                    <ToolAccordion
+                    <div
+                      className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50"
                       key={toolCallId}
-                      icon={<FileText className="w-4 h-4" />}
-                      loadingText="Erstelle Dokument..."
-                      completedText="Dokument erstellt"
-                      isLoading={false}
-                      toolCallId={toolCallId}
                     >
-                      <DocumentPreview
-                        isReadonly={isReadonly}
-                        result={outputPart.output}
-                      />
-                    </ToolAccordion>
+                      Error creating document: {String(part.output.error)}
+                    </div>
                   );
                 }
 
-                if (state === "output-available") {
-                  // This case is for standalone output parts (without matching input)
-                  const { output } = part;
-
-                  if ("error" in output) {
-                    return (
-                      <div
-                        key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
-                      >
-                        Error: {String(output.error)}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <ToolAccordion
-                      key={toolCallId}
-                      icon={<FileText className="w-4 h-4" />}
-                      loadingText="Erstelle Dokument..."
-                      completedText="Dokument erstellt"
-                      isLoading={false}
-                      toolCallId={toolCallId}
-                    >
-                      <DocumentPreview
-                        isReadonly={isReadonly}
-                        result={output}
-                      />
-                    </ToolAccordion>
-                  );
-                }
+                return (
+                  <DocumentPreview
+                    isReadonly={isReadonly}
+                    key={toolCallId}
+                    result={part.output}
+                  />
+                );
               }
 
               if (type === "tool-updateDocument") {
-                const { toolCallId, state } = part;
+                const { toolCallId } = part;
 
-                if (state === "input-available") {
-                  const { input } = part;
-                  const outputPart = findMatchingOutputPart(
-                    part,
-                    message.parts || [],
-                    index
-                  );
-
-                  if (outputPart && "error" in outputPart.output) {
-                    return (
-                      <div
-                        key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
-                      >
-                        Error: {String(outputPart.output.error)}
-                      </div>
-                    );
-                  }
-
-                  if (!outputPart) {
-                    return (
-                      <motion.div
-                        key={toolCallId}
-                        className="flex flex-col gap-3"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
-                      >
-                        <AnimatedShinyText className="flex flex-row gap-2 items-center">
-                          <FileText className="w-4 h-4" />
-                          Aktualisiere Dokument...
-                        </AnimatedShinyText>
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.2, duration: 0.3 }}
-                        >
-                          <DocumentToolCall
-                            type="update"
-                            args={input}
-                            isReadonly={isReadonly}
-                          />
-                        </motion.div>
-                      </motion.div>
-                    );
-                  }
-
+                if (part.output && "error" in part.output) {
                   return (
-                    <ToolAccordion
+                    <div
+                      className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50"
                       key={toolCallId}
-                      icon={<FileText className="w-4 h-4" />}
-                      loadingText="Aktualisiere Dokument..."
-                      completedText="Dokument aktualisiert"
-                      isLoading={false}
-                      toolCallId={toolCallId}
                     >
-                      <DocumentToolResult
-                        type="update"
-                        result={outputPart.output}
-                        isReadonly={isReadonly}
-                      />
-                    </ToolAccordion>
+                      Error updating document: {String(part.output.error)}
+                    </div>
                   );
                 }
 
-                if (state === "output-available") {
-                  // This case is for standalone output parts (without matching input)
-                  const { output } = part;
-
-                  if ("error" in output) {
-                    return (
-                      <div
-                        key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
-                      >
-                        Error: {String(output.error)}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <ToolAccordion
-                      key={toolCallId}
-                      icon={<FileText className="w-4 h-4" />}
-                      loadingText="Aktualisiere Dokument..."
-                      completedText="Dokument aktualisiert"
-                      isLoading={false}
-                      toolCallId={toolCallId}
-                    >
-                      <DocumentToolResult
-                        type="update"
-                        result={output}
-                        isReadonly={isReadonly}
-                      />
-                    </ToolAccordion>
-                  );
-                }
+                return (
+                  <div className="relative" key={toolCallId}>
+                    <DocumentPreview
+                      args={{ ...part.output, isUpdate: true }}
+                      isReadonly={isReadonly}
+                      result={part.output}
+                    />
+                  </div>
+                );
               }
+
 
               if (type === "tool-requestSuggestions") {
                 const { toolCallId, state } = part;
 
-                if (state === "input-available") {
-                  const { input } = part;
-                  const outputPart = findMatchingOutputPart(
-                    part,
-                    message.parts || [],
-                    index
-                  );
+                return (
+                  <Tool defaultOpen={true} key={toolCallId}>
+                    <ToolHeader state={state} type="tool-requestSuggestions" />
+                    <ToolContent>
+                      {state === "input-available" && (
+                        <ToolInput input={part.input} />
+                      )}
+                      {state === "output-available" && (
+                        <ToolOutput
+                          errorText={undefined}
+                          output={
+                            "error" in part.output ? (
+                              <div className="rounded border p-2 text-red-500">
+                                Error: {String(part.output.error)}
+                              </div>
+                            ) : (
+                              <DocumentToolResult
+                                isReadonly={isReadonly}
+                                result={part.output}
+                                type="request-suggestions"
+                              />
+                            )
+                          }
+                        />
+                      )}
+                    </ToolContent>
+                  </Tool>
+                );
+              }
 
-                  if (outputPart && "error" in outputPart.output) {
-                    return (
-                      <div
-                        key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
-                      >
-                        Error: {String(outputPart.output.error)}
-                      </div>
-                    );
-                  }
+              // Handle exploreCsvData tool
+              if (type === "tool-exploreCsvData" && "toolCallId" in part) {
+                const { toolCallId, state } = part as any;
+                const matchingOutput = findMatchingOutputPart(part, allParts, index);
 
-                  if (!outputPart) {
-                    return (
-                      <motion.div
-                        key={toolCallId}
-                        className="flex flex-col gap-3"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
-                      >
-                        <AnimatedShinyText className="flex flex-row gap-2 items-center">
-                          <Download className="w-4 h-4" />
-                          Lade Vorschläge...
-                        </AnimatedShinyText>
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.2, duration: 0.3 }}
-                        >
-                          <DocumentToolCall
-                            type="request-suggestions"
-                            args={input}
-                            isReadonly={isReadonly}
-                          />
-                        </motion.div>
-                      </motion.div>
-                    );
-                  }
+                return (
+                  <Tool defaultOpen={true} key={toolCallId}>
+                    <ToolHeader state={state} type="tool-exploreCsvData" />
+                    <ToolContent>
+                      {state === "input-available" && (
+                        <ToolInput input={part.input} />
+                      )}
+                      {matchingOutput && (
+                        <ToolOutput
+                          errorText={undefined}
+                          output={
+                            "error" in matchingOutput.output ? (
+                              <div className="rounded border p-2 text-red-500">
+                                Error: {String(matchingOutput.output.error)}
+                              </div>
+                            ) : (
+                              <div className="space-y-3 text-sm">
+                                <div>
+                                  <strong>Dataset:</strong> {matchingOutput.output.datasetName || 'CSV Data'}
+                                </div>
+                                <div>
+                                  <strong>Structure:</strong> {matchingOutput.output.totalRows} rows × {matchingOutput.output.totalColumns} columns
+                                </div>
+                                <div>
+                                  <strong>Columns:</strong>
+                                  <div className="mt-2 space-y-1 pl-4">
+                                    {matchingOutput.output.columns?.slice(0, 10).map((col: any, idx: number) => (
+                                      <div key={idx} className="text-xs">
+                                        • <code className="bg-muted px-1 rounded">{col.name}</code> ({col.type})
+                                        {col.sampleValues?.length > 0 && (
+                                          <span className="text-muted-foreground ml-2">
+                                            e.g., {col.sampleValues.slice(0, 2).join(', ')}
+                                          </span>
+                                        )}
+                                      </div>
+                                    ))}
+                                    {matchingOutput.output.columns?.length > 10 && (
+                                      <div className="text-xs text-muted-foreground">
+                                        ... and {matchingOutput.output.columns.length - 10} more columns
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          }
+                        />
+                      )}
+                    </ToolContent>
+                  </Tool>
+                );
+              }
 
-                  return (
-                    <ToolAccordion
-                      key={toolCallId}
-                      icon={<Download className="w-4 h-4" />}
-                      loadingText="Lade Vorschläge..."
-                      completedText="Vorschläge geladen"
-                      isLoading={false}
-                      toolCallId={toolCallId}
-                    >
-                      <DocumentToolResult
-                        type="request-suggestions"
-                        result={outputPart.output}
-                        isReadonly={isReadonly}
-                      />
-                    </ToolAccordion>
-                  );
-                }
+              // Handle data-task custom UI type
+              if (type === "data-task" && "data" in part) {
+                const taskData = part.data as any;
+                const iconMap = {
+                  dataset: Database,
+                  csv: FileSpreadsheet,
+                  python: Code,
+                  chart: BarChart3,
+                };
 
-                if (state === "output-available") {
-                  // This case is for standalone output parts (without matching input)
-                  const { output } = part;
-
-                  if ("error" in output) {
-                    return (
-                      <div
-                        key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
-                      >
-                        Error: {String(output.error)}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <ToolAccordion
-                      key={toolCallId}
-                      icon={<Download className="w-4 h-4" />}
-                      loadingText="Lade Vorschläge..."
-                      completedText="Vorschläge geladen"
-                      isLoading={false}
-                      toolCallId={toolCallId}
-                    >
-                      <DocumentToolResult
-                        type="request-suggestions"
-                        result={output}
-                        isReadonly={isReadonly}
-                      />
-                    </ToolAccordion>
-                  );
-                }
+                return (
+                  <Task key={`task-${index}`} defaultOpen={true}>
+                    <TaskTrigger title={taskData.title} />
+                    <TaskContent>
+                      {taskData.items.map((item: any, idx: number) => (
+                        <TaskItem key={idx}>
+                          {item.text}
+                          {item.file && (
+                            <>
+                              {" "}
+                              <TaskItemFile>
+                                {iconMap[item.file.icon as keyof typeof iconMap] &&
+                                  (() => {
+                                    const Icon = iconMap[item.file.icon as keyof typeof iconMap];
+                                    return <Icon className="size-4" />;
+                                  })()
+                                }
+                                <span>{item.file.name}</span>
+                              </TaskItemFile>
+                            </>
+                          )}
+                        </TaskItem>
+                      ))}
+                    </TaskContent>
+                  </Task>
+                );
               }
 
               // Note: tool-searchDatasets is handled above in the merged search logic
@@ -677,98 +542,6 @@ const PurePreviewMessage = ({
                 } else {
                   // Skip all other getDatasetDetails parts since they're handled above
                   return null;
-                }
-              }
-              if (type === "tool-getResourceDetails") {
-                const { toolCallId, state, input } = part;
-
-                if (state === "input-available") {
-                  const outputPart = findMatchingOutputPart(
-                    part,
-                    message.parts || [],
-                    index
-                  );
-
-                  if (outputPart && "error" in outputPart.output) {
-                    return (
-                      <div
-                        key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
-                      >
-                        Error: {String(outputPart.output.error)}
-                      </div>
-                    );
-                  }
-
-                  if (!outputPart) {
-                    return (
-                      <motion.div
-                        key={toolCallId}
-                        className="flex flex-col gap-3"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
-                      >
-                        <AnimatedShinyText className="flex flex-row gap-2 items-center">
-                          <FileText className="w-4 h-4" />
-                          Lade Ressourcen-Details...
-                        </AnimatedShinyText>
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.2, duration: 0.3 }}
-                        >
-                          <ResourceDetailsSkeleton />
-                        </motion.div>
-                      </motion.div>
-                    );
-                  }
-
-                  return (
-                    <ToolAccordion
-                      key={toolCallId}
-                      icon={<FileText className="w-4 h-4" />}
-                      loadingText="Lade Ressourcen-Details..."
-                      completedText="Ressourcen-Details geladen"
-                      isLoading={false}
-                      toolCallId={toolCallId}
-                    >
-                      <ResourceDetailsWidget
-                        result={outputPart.output.result}
-                      />
-                    </ToolAccordion>
-                  );
-                }
-
-                if (state === "output-available") {
-                  // This case is for standalone output parts (without matching input)
-                  const { output } = part;
-
-                  if ("error" in output) {
-                    return (
-                      <div
-                        key={toolCallId}
-                        className="text-red-500 p-2 border rounded"
-                      >
-                        Error: {String(output.error)}
-                      </div>
-                    );
-                  }
-
-                  const result = output.result;
-
-                  return (
-                    <ToolAccordion
-                      key={toolCallId}
-                      icon={<FileText className="w-4 h-4" />}
-                      loadingText="Lade Ressourcen-Details..."
-                      completedText="Ressourcen-Details geladen"
-                      isLoading={false}
-                      toolCallId={toolCallId}
-                    >
-                      <ResourceDetailsWidget result={result} />
-                    </ToolAccordion>
-                  );
                 }
               }
             })}

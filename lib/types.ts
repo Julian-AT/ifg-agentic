@@ -1,44 +1,16 @@
 import { z } from "zod";
-import type {
-  listDatasets,
-  searchDatasets,
-  getDatasetDetails,
-  listOrganizations,
-  getCurrentDatasetsList,
-  autocompleteDatasets,
-  getGroupDatasets,
-  getResourceDetails,
-  getResourceViewDetails,
-  listResourceViews,
-  searchResources,
-} from "./ai/tools/datasets-tools";
-// Activity API tools
-import type {
-  getPackageActivityList,
-  getGroupActivityList,
-  getOrganizationActivityList,
-  getRecentlyChangedPackagesActivityList,
-  getActivityDetails,
-  getActivityData,
-  getActivityDiff,
-} from "./ai/tools/activity-tools";
 import type { InferUITool, UIMessage } from "ai";
 
 import type { Suggestion } from "./db/schema";
 import type { ArtifactKind } from "@/components/artifact";
-import type { createDocument } from "./ai/tools/create-document";
-import type { updateDocument } from "./ai/tools/update-document";
-import type { requestSuggestions } from "./ai/tools/request-suggestions";
-import type { exploreCsvData } from "./ai/tools/explore-csv-data";
-import type { checkDataAvailability } from "./ai/tools/check-data-availability";
-import type { getDataRequestGuidance } from "./ai/tools/create-data-request";
-import type {
-  generateDataRequestSuggestions,
-  findRelevantAgencies,
-  enhanceDataRequest,
-  validateDataRequest,
-  submitDataRequest,
-} from "./ai/tools/data-request-tools";
+import type { listDatasets } from "./ai/tools/datasets/list-datasets";
+import type { searchDatasets } from "./ai/tools/datasets";
+import type { getDatasetDetails } from "./ai/tools/datasets/get-dataset-details";
+import type { exploreCsvData } from "./ai/tools/datasets/explore-csv-data";
+import type { createAnalysisPlan } from "./ai/tools/analysis";
+import { createDocument, requestSuggestions, updateDocument } from "./ai/tools";
+import { AppUsage } from "./usage";
+
 
 export type DataPart = { type: "append-message"; message: string };
 
@@ -48,119 +20,32 @@ export const messageMetadataSchema = z.object({
 
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
 
+
 type listDatasetsTool = InferUITool<ReturnType<typeof listDatasets>>;
 type searchDatasetsTool = InferUITool<ReturnType<typeof searchDatasets>>;
 type getDatasetDetailsTool = InferUITool<ReturnType<typeof getDatasetDetails>>;
-type listOrganizationsTool = InferUITool<ReturnType<typeof listOrganizations>>;
-type getCurrentDatasetsListTool = InferUITool<
-  ReturnType<typeof getCurrentDatasetsList>
->;
-type autocompleteDatasetsTools = InferUITool<
-  ReturnType<typeof autocompleteDatasets>
->;
-type getGroupDatasetsTool = InferUITool<ReturnType<typeof getGroupDatasets>>;
-type getResourceDetailsTool = InferUITool<
-  ReturnType<typeof getResourceDetails>
->;
-type getResourceViewDetailsTool = InferUITool<
-  ReturnType<typeof getResourceViewDetails>
->;
-type listResourceViewsTool = InferUITool<ReturnType<typeof listResourceViews>>;
-type searchResourcesTool = InferUITool<ReturnType<typeof searchResources>>;
-
-// Activity API tool types
-type getPackageActivityListTool = InferUITool<
-  ReturnType<typeof getPackageActivityList>
->;
-type getGroupActivityListTool = InferUITool<
-  ReturnType<typeof getGroupActivityList>
->;
-type getOrganizationActivityListTool = InferUITool<
-  ReturnType<typeof getOrganizationActivityList>
->;
-type getRecentlyChangedPackagesActivityListTool = InferUITool<
-  ReturnType<typeof getRecentlyChangedPackagesActivityList>
->;
-type getActivityDetailsTool = InferUITool<
-  ReturnType<typeof getActivityDetails>
->;
-type getActivityDataTool = InferUITool<ReturnType<typeof getActivityData>>;
-type getActivityDiffTool = InferUITool<ReturnType<typeof getActivityDiff>>;
+type exploreCsvDataTool = InferUITool<ReturnType<typeof exploreCsvData>>;
+type createAnalysisPlanTool = InferUITool<ReturnType<typeof createAnalysisPlan>>;
 type createDocumentTool = InferUITool<ReturnType<typeof createDocument>>;
 type updateDocumentTool = InferUITool<ReturnType<typeof updateDocument>>;
-type requestSuggestionsTool = InferUITool<
-  ReturnType<typeof requestSuggestions>
->;
-type exploreCsvDataTool = InferUITool<ReturnType<typeof exploreCsvData>>;
-type checkDataAvailabilityTool = InferUITool<
-  ReturnType<typeof checkDataAvailability>
->;
+type requestSuggestionsTool = InferUITool<ReturnType<typeof requestSuggestions>>;
 
-// Data request tool types
-type getDataRequestGuidanceTool = InferUITool<
-  ReturnType<typeof getDataRequestGuidance>
->;
-type generateDataRequestSuggestionsTool = InferUITool<
-  ReturnType<typeof generateDataRequestSuggestions>
->;
-type findRelevantAgenciesTool = InferUITool<
-  ReturnType<typeof findRelevantAgencies>
->;
-type enhanceDataRequestTool = InferUITool<
-  ReturnType<typeof enhanceDataRequest>
->;
-type validateDataRequestTool = InferUITool<
-  ReturnType<typeof validateDataRequest>
->;
-type submitDataRequestTool = InferUITool<ReturnType<typeof submitDataRequest>>;
 
 export type ChatTools = {
   listDatasets: listDatasetsTool;
   searchDatasets: searchDatasetsTool;
   getDatasetDetails: getDatasetDetailsTool;
-  listOrganizations: listOrganizationsTool;
-  getCurrentDatasetsList: getCurrentDatasetsListTool;
-  autocompleteDatasets: autocompleteDatasetsTools;
-  getGroupDatasets: getGroupDatasetsTool;
-  getResourceDetails: getResourceDetailsTool;
-  getResourceViewDetails: getResourceViewDetailsTool;
-  listResourceViews: listResourceViewsTool;
-  searchResources: searchResourcesTool;
-  getPackageActivityList: getPackageActivityListTool;
-  getGroupActivityList: getGroupActivityListTool;
-  getOrganizationActivityList: getOrganizationActivityListTool;
-  getRecentlyChangedPackagesActivityList: getRecentlyChangedPackagesActivityListTool;
-  getActivityDetails: getActivityDetailsTool;
-  getActivityData: getActivityDataTool;
-  getActivityDiff: getActivityDiffTool;
+  exploreCsvData: exploreCsvDataTool;
+  createAnalysisPlan: createAnalysisPlanTool;
   createDocument: createDocumentTool;
   updateDocument: updateDocumentTool;
   requestSuggestions: requestSuggestionsTool;
-  exploreCsvData: exploreCsvDataTool;
-  checkDataAvailability: checkDataAvailabilityTool;
-  // Data request tools
-  getDataRequestGuidance: getDataRequestGuidanceTool;
-  generateDataRequestSuggestions: generateDataRequestSuggestionsTool;
-  findRelevantAgencies: findRelevantAgenciesTool;
-  enhanceDataRequest: enhanceDataRequestTool;
-  validateDataRequest: validateDataRequestTool;
-  submitDataRequest: submitDataRequestTool;
 };
 
 export type CustomUIDataTypes = {
   textDelta: string;
   codeDelta: string;
-  formDelta: {
-    field: string;
-    content: string;
-    oldValue?: string;
-    isComplete: boolean;
-    hasChange?: boolean;
-  };
-  formComplete: {
-    formData: any;
-    isComplete: boolean;
-  };
+  sheetDelta: string;
   suggestion: Suggestion;
   appendMessage: string;
   id: string;
@@ -173,56 +58,17 @@ export type CustomUIDataTypes = {
     keywords: string[];
   };
   datasetSearchResult: {};
-  // Data request stream types
-  formProgress: {
-    step: number;
-    formData: any;
-  };
-  requestSubmitted: {
-    request: any;
-  };
-  requestTypeSelected: {
-    requestType: string;
-  };
-  formSuggestions: {
-    suggestions: any[];
-    reasoning: string;
-    requestType: string;
-  };
-  agencySuggestions: {
-    agencies: any[];
-    reasoning: string;
-    confidence: number;
-    requestType: string;
-  };
-  requestEnhancement: {
-    enhancement: any;
-    requestType: string;
-  };
-  validationResult: {
-    validation: any;
-    requestType: string;
-  };
-  artifactCreated: {
-    kind: string;
-    documentId: string;
+  usage: AppUsage;
+  task: {
     title: string;
-    content: string;
-    isVisible: boolean;
-    status: string;
-    metadata: any;
-  };
-  requestGuidance: {
-    guidance: string;
-    features: string[];
-    nextSteps: string[];
-  };
-  guidance: {
-    type: string;
-    relevantLaw: string;
-    guidance: any;
-    question: string;
-    context: string;
+    items: Array<{
+      text: string;
+      file?: {
+        name: string;
+        icon: string;
+      };
+    }>;
+    status: "pending" | "in_progress" | "completed";
   };
 };
 

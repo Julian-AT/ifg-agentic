@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
-import { AnimatedShinyText } from "./magicui/animated-shiny-text";
+import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ToolAccordionProps {

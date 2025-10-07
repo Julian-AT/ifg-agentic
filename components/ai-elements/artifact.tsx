@@ -1,0 +1,160 @@
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import type { LucideIcon } from "lucide-react";
+
+// Artifact Container
+const Artifact = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+    <div
+        ref={ref}
+        className={cn(
+            "flex flex-col border border-border rounded-lg bg-card shadow-sm overflow-hidden",
+            className
+        )}
+        {...props}
+    />
+));
+Artifact.displayName = "Artifact";
+
+// Artifact Header
+const ArtifactHeader = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+    <div
+        ref={ref}
+        className={cn(
+            "flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3",
+            className
+        )}
+        {...props}
+    />
+));
+ArtifactHeader.displayName = "ArtifactHeader";
+
+// Artifact Title
+const ArtifactTitle = React.forwardRef<
+    HTMLParagraphElement,
+    React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+    <p
+        ref={ref}
+        className={cn("font-semibold text-base leading-tight", className)}
+        {...props}
+    />
+));
+ArtifactTitle.displayName = "ArtifactTitle";
+
+// Artifact Description
+const ArtifactDescription = React.forwardRef<
+    HTMLParagraphElement,
+    React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+    <p
+        ref={ref}
+        className={cn("text-xs text-muted-foreground", className)}
+        {...props}
+    />
+));
+ArtifactDescription.displayName = "ArtifactDescription";
+
+// Artifact Actions Container
+const ArtifactActions = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+    <div
+        ref={ref}
+        className={cn("flex items-center gap-1.5", className)}
+        {...props}
+    />
+));
+ArtifactActions.displayName = "ArtifactActions";
+
+// Artifact Action Button
+interface ArtifactActionProps extends React.ComponentProps<typeof Button> {
+    tooltip?: string;
+    label?: string;
+    icon?: LucideIcon;
+}
+
+const ArtifactAction = React.forwardRef<HTMLButtonElement, ArtifactActionProps>(
+    ({ tooltip, label, icon: Icon, className, children, ...props }, ref) => {
+        const button = (
+            <Button
+                ref={ref}
+                size="sm"
+                variant="ghost"
+                className={cn(
+                    "h-8 transition-colors dark:hover:bg-zinc-800",
+                    !label && "w-8 p-0",
+                    label && "px-3",
+                    className
+                )}
+                {...props}
+            >
+                {Icon && (
+                    <Icon className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                )}
+                {label && <span className="ml-2 text-xs">{label}</span>}
+                {children}
+            </Button>
+        );
+
+        if (tooltip) {
+            return (
+                <Tooltip>
+                    <TooltipTrigger asChild>{button}</TooltipTrigger>
+                    <TooltipContent side="bottom">{tooltip}</TooltipContent>
+                </Tooltip>
+            );
+        }
+
+        return button;
+    }
+);
+ArtifactAction.displayName = "ArtifactAction";
+
+// Artifact Close Button
+const ArtifactClose = React.forwardRef<
+    HTMLButtonElement,
+    React.ComponentProps<typeof Button>
+>(({ className, ...props }, ref) => (
+    <Button
+        ref={ref}
+        size="sm"
+        variant="ghost"
+        className={cn("h-8 w-8 p-0 dark:hover:bg-zinc-800", className)}
+        {...props}
+    />
+));
+ArtifactClose.displayName = "ArtifactClose";
+
+// Artifact Content
+const ArtifactContent = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+    <div
+        ref={ref}
+        className={cn("flex-1 overflow-auto", className)}
+        {...props}
+    />
+));
+ArtifactContent.displayName = "ArtifactContent";
+
+export {
+    Artifact,
+    ArtifactHeader,
+    ArtifactTitle,
+    ArtifactDescription,
+    ArtifactActions,
+    ArtifactAction,
+    ArtifactClose,
+    ArtifactContent,
+};
+

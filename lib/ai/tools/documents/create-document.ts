@@ -20,7 +20,7 @@ interface CreateDocumentProps {
 export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
   tool({
     description:
-      "Create executable Python code artifacts for computational tasks such as data visualization, AI/ML model creation, statistical analysis, or data processing. Use this tool for ALL Python code generation - NEVER write Python code in chat responses. CRITICAL: When working with CSV data, you MUST provide the dataUrl parameter with the exact URL from getResourceDetails tool output. DO NOT use this for displaying dataset information - use getDatasetDetails, getResourceDetails, and other data tools instead for information display.",
+      "Create executable Python code artifacts for computational tasks such as data visualization, AI/ML model creation, statistical analysis, or data processing. Use this tool for ALL Python code generation - NEVER write Python code in chat responses. CRITICAL: When working with CSV data, you MUST provide the dataUrl parameter with the exact access_url[0] from the dataset's distributions array. DO NOT use this for displaying dataset information - use getDatasetDetails and other data tools instead for information display.",
     inputSchema: z.object({
       title: z
         .string()
@@ -34,7 +34,7 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
         .url("Invalid URL format")
         .optional()
         .describe(
-          "The exact URL from getResourceDetails tool output when working with CSV or other data files. Required for data analysis tasks."
+          "The exact access_url[0] from the dataset's distributions array when working with CSV or other data files. Required for data analysis tasks."
         ),
       csvStructure: z
         .object({

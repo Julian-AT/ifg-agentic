@@ -2,7 +2,6 @@
 
 import { python } from "@codemirror/lang-python";
 import { EditorState, Transaction } from "@codemirror/state";
-import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { memo, useEffect, useRef } from "react";
@@ -25,7 +24,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
     if (containerRef.current && !editorRef.current) {
       const startState = EditorState.create({
         doc: content,
-        extensions: [basicSetup, python(), oneDark],
+        extensions: [basicSetup, python()],
       });
 
       editorRef.current = new EditorView({
@@ -63,7 +62,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
 
       const newState = EditorState.create({
         doc: editorRef.current.state.doc,
-        extensions: [basicSetup, python(), oneDark, updateListener],
+        extensions: [basicSetup, python(), updateListener],
         selection: currentSelection,
       });
 
@@ -92,7 +91,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
 
   return (
     <div
-      className="not-prose relative w-full pb-[calc(80dvh)] text-sm"
+      className="not-prose relative w-full pb-[calc(25dvh)] text-sm"
       ref={containerRef}
     />
   );

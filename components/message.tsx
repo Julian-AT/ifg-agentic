@@ -25,8 +25,20 @@ import { MergedDatasetDetails } from "./merged-dataset-details";
 import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { MessageContent } from "./elements/message";
 import { Response } from "./elements/response";
-import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "./elements/tool";
-import { Task, TaskContent, TaskItem, TaskItemFile, TaskTrigger } from "./elements/task";
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from "./elements/tool";
+import {
+  Task,
+  TaskContent,
+  TaskItem,
+  TaskItemFile,
+  TaskTrigger,
+} from "./elements/task";
 import { Database, FileSpreadsheet, Code, BarChart3 } from "lucide-react";
 
 // Helper function to find matching output part for an input part
@@ -147,7 +159,8 @@ const groupDatasetDetailsParts = (datasetParts: any[]): any[] => {
           p.state === "output-available"
       );
 
-      const dataset = matchingOutput?.output?.dataset || matchingOutput?.output?.data?.result;
+      const dataset =
+        matchingOutput?.output?.dataset || matchingOutput?.output?.data?.result;
 
       if (dataset) {
         groupedDatasets.push({
@@ -222,7 +235,7 @@ const PurePreviewMessage = ({
           )}
 
           <div
-            className={cn("flex flex-col gap-4 max-w-2xl", {
+            className={cn("flex flex-col gap-4 max-w-full", {
               "min-h-96": message.role === "assistant" && requiresScrollPadding,
             })}
           >
@@ -382,7 +395,6 @@ const PurePreviewMessage = ({
                 );
               }
 
-
               if (type === "tool-requestSuggestions") {
                 const { toolCallId, state } = part;
 
@@ -419,7 +431,11 @@ const PurePreviewMessage = ({
               // Handle exploreCsvData tool
               if (type === "tool-exploreCsvData" && "toolCallId" in part) {
                 const { toolCallId, state } = part as any;
-                const matchingOutput = findMatchingOutputPart(part, allParts, index);
+                const matchingOutput = findMatchingOutputPart(
+                  part,
+                  allParts,
+                  index
+                );
 
                 return (
                   <Tool defaultOpen={true} key={toolCallId}>
@@ -439,27 +455,44 @@ const PurePreviewMessage = ({
                             ) : (
                               <div className="space-y-3 text-sm">
                                 <div>
-                                  <strong>Dataset:</strong> {matchingOutput.output.datasetName || 'CSV Data'}
+                                  <strong>Dataset:</strong>{" "}
+                                  {matchingOutput.output.datasetName ||
+                                    "CSV Data"}
                                 </div>
                                 <div>
-                                  <strong>Structure:</strong> {matchingOutput.output.totalRows} rows × {matchingOutput.output.totalColumns} columns
+                                  <strong>Structure:</strong>{" "}
+                                  {matchingOutput.output.totalRows} rows ×{" "}
+                                  {matchingOutput.output.totalColumns} columns
                                 </div>
                                 <div>
                                   <strong>Columns:</strong>
                                   <div className="mt-2 space-y-1 pl-4">
-                                    {matchingOutput.output.columns?.slice(0, 10).map((col: any, idx: number) => (
-                                      <div key={idx} className="text-xs">
-                                        • <code className="bg-muted px-1 rounded">{col.name}</code> ({col.type})
-                                        {col.sampleValues?.length > 0 && (
-                                          <span className="text-muted-foreground ml-2">
-                                            e.g., {col.sampleValues.slice(0, 2).join(', ')}
-                                          </span>
-                                        )}
-                                      </div>
-                                    ))}
-                                    {matchingOutput.output.columns?.length > 10 && (
+                                    {matchingOutput.output.columns
+                                      ?.slice(0, 10)
+                                      .map((col: any, idx: number) => (
+                                        <div key={idx} className="text-xs">
+                                          •{" "}
+                                          <code className="bg-muted px-1 rounded">
+                                            {col.name}
+                                          </code>{" "}
+                                          ({col.type})
+                                          {col.sampleValues?.length > 0 && (
+                                            <span className="text-muted-foreground ml-2">
+                                              e.g.,{" "}
+                                              {col.sampleValues
+                                                .slice(0, 2)
+                                                .join(", ")}
+                                            </span>
+                                          )}
+                                        </div>
+                                      ))}
+                                    {matchingOutput.output.columns?.length >
+                                      10 && (
                                       <div className="text-xs text-muted-foreground">
-                                        ... and {matchingOutput.output.columns.length - 10} more columns
+                                        ... and{" "}
+                                        {matchingOutput.output.columns.length -
+                                          10}{" "}
+                                        more columns
                                       </div>
                                     )}
                                   </div>
@@ -495,12 +528,16 @@ const PurePreviewMessage = ({
                             <>
                               {" "}
                               <TaskItemFile>
-                                {iconMap[item.file.icon as keyof typeof iconMap] &&
+                                {iconMap[
+                                  item.file.icon as keyof typeof iconMap
+                                ] &&
                                   (() => {
-                                    const Icon = iconMap[item.file.icon as keyof typeof iconMap];
+                                    const Icon =
+                                      iconMap[
+                                        item.file.icon as keyof typeof iconMap
+                                      ];
                                     return <Icon className="size-4" />;
-                                  })()
-                                }
+                                  })()}
                                 <span>{item.file.name}</span>
                               </TaskItemFile>
                             </>

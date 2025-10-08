@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon, VercelIcon } from "./icons";
 import { useSidebar } from "./ui/sidebar";
 import { VisibilitySelector, type VisibilityType } from "./visibility-selector";
+import { Github } from "lucide-react";
 
 function PureChatHeader({
   chatId,
@@ -59,8 +60,8 @@ function PureChatHeader({
           rel="noreferrer"
           target="_noblank"
         >
-          <VercelIcon size={16} />
-          Deploy with Vercel
+          <Github size={16} />
+          GitHub Repo
         </Link>
       </Button>
     </header>

@@ -47,6 +47,27 @@ const OUTPUT_HANDLERS = {
 
         plt.show = custom_show
   `,
+  url_fetch: `
+    import pyodide.http
+    import pandas as pd
+    import io
+    
+    # Store original read_csv
+    _original_read_csv = pd.read_csv
+    
+    async def _async_read_csv(filepath_or_buffer, *args, **kwargs):
+        if isinstance(filepath_or_buffer, str) and (
+            filepath_or_buffer.startswith('http://') or 
+            filepath_or_buffer.startswith('https://')
+        ):
+            response = await pyodide.http.pyfetch(filepath_or_buffer)
+            content = await response.bytes()
+            filepath_or_buffer = io.BytesIO(content)
+        return _original_read_csv(filepath_or_buffer, *args, **kwargs)
+    
+    # Patch pandas read_csv to handle URLs
+    pd.read_csv = _async_read_csv
+  `,
   basic: `
     # Basic output capture setup
   `,
@@ -57,6 +78,15 @@ function detectRequiredHandlers(code: string): string[] {
 
   if (code.includes("matplotlib") || code.includes("plt.")) {
     handlers.push("matplotlib");
+  }
+
+  if (
+    code.includes("pd.read_csv") ||
+    code.includes("pandas.read_csv") ||
+    code.includes("http://") ||
+    code.includes("https://")
+  ) {
+    handlers.push("url_fetch");
   }
 
   return handlers;

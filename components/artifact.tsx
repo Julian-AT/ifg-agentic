@@ -38,10 +38,7 @@ import { useSidebar } from "./ui/sidebar";
 import { VersionFooter } from "./version-footer";
 import type { VisibilityType } from "./visibility-selector";
 
-export const artifactDefinitions = [
-  codeArtifact,
-  sheetArtifact,
-];
+export const artifactDefinitions = [codeArtifact, sheetArtifact];
 export type ArtifactKind = (typeof artifactDefinitions)[number]["kind"];
 
 export type UIArtifact = {
@@ -307,7 +304,7 @@ function PureArtifact({
                   damping: 30,
                 },
               }}
-              className="relative h-dvh w-[400px] shrink-0 bg-muted dark:bg-background"
+              className="relative h-dvh w-[500px] shrink-0 bg-muted dark:bg-background"
               exit={{
                 opacity: 0,
                 x: 0,
@@ -320,7 +317,7 @@ function PureArtifact({
                 {!isCurrentVersion && (
                   <motion.div
                     animate={{ opacity: 1 }}
-                    className="absolute top-0 left-0 z-50 h-dvh w-[400px] bg-red-500"
+                    className="absolute top-0 left-0 z-50 h-dvh w-[500px] bg-red-500"
                     exit={{ opacity: 0 }}
                     initial={{ opacity: 0 }}
                   />
@@ -364,37 +361,37 @@ function PureArtifact({
             animate={
               isMobile
                 ? {
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
-                  height: windowHeight,
-                  width: windowWidth ? windowWidth : "calc(100dvw)",
-                  borderRadius: 0,
-                  transition: {
-                    delay: 0,
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30,
-                    duration: 0.8,
-                  },
-                }
+                    opacity: 1,
+                    x: 0,
+                    y: 0,
+                    height: windowHeight,
+                    width: windowWidth ? windowWidth : "calc(100dvw)",
+                    borderRadius: 0,
+                    transition: {
+                      delay: 0,
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30,
+                      duration: 0.8,
+                    },
+                  }
                 : {
-                  opacity: 1,
-                  x: 400,
-                  y: 0,
-                  height: windowHeight,
-                  width: windowWidth
-                    ? windowWidth - 400
-                    : "calc(100dvw-400px)",
-                  borderRadius: 0,
-                  transition: {
-                    delay: 0,
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30,
-                    duration: 0.8,
-                  },
-                }
+                    opacity: 1,
+                    x: 500,
+                    y: 0,
+                    height: windowHeight,
+                    width: windowWidth
+                      ? windowWidth - 500
+                      : "calc(100dvw-500px)",
+                    borderRadius: 0,
+                    transition: {
+                      delay: 0,
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30,
+                      duration: 0.8,
+                    },
+                  }
             }
             className="fixed flex h-dvh flex-col overflow-hidden border-zinc-200 bg-card/95 backdrop-blur-sm md:border-l dark:border-zinc-800 dark:bg-zinc-950/95"
             exit={{
@@ -410,36 +407,38 @@ function PureArtifact({
             initial={
               isMobile
                 ? {
-                  opacity: 1,
-                  x: artifact.boundingBox.left,
-                  y: artifact.boundingBox.top,
-                  height: artifact.boundingBox.height,
-                  width: artifact.boundingBox.width,
-                  borderRadius: 50,
-                }
+                    opacity: 1,
+                    x: artifact.boundingBox.left,
+                    y: artifact.boundingBox.top,
+                    height: artifact.boundingBox.height,
+                    width: artifact.boundingBox.width,
+                    borderRadius: 50,
+                  }
                 : {
-                  opacity: 1,
-                  x: artifact.boundingBox.left,
-                  y: artifact.boundingBox.top,
-                  height: artifact.boundingBox.height,
-                  width: artifact.boundingBox.width,
-                  borderRadius: 50,
-                }
+                    opacity: 1,
+                    x: artifact.boundingBox.left,
+                    y: artifact.boundingBox.top,
+                    height: artifact.boundingBox.height,
+                    width: artifact.boundingBox.width,
+                    borderRadius: 50,
+                  }
             }
           >
             {/* Artifact Header - AI SDK Elements */}
             <ArtifactHeader>
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <ArtifactClose onClick={() => {
-                  setArtifact((currentArtifact) =>
-                    currentArtifact.status === "streaming"
-                      ? {
-                        ...currentArtifact,
-                        isVisible: false,
-                      }
-                      : { ...initialArtifactData, status: "idle" }
-                  );
-                }}>
+                <ArtifactClose
+                  onClick={() => {
+                    setArtifact((currentArtifact) =>
+                      currentArtifact.status === "streaming"
+                        ? {
+                            ...currentArtifact,
+                            isVisible: false,
+                          }
+                        : { ...initialArtifactData, status: "idle" }
+                    );
+                  }}
+                >
                   <X className="h-4 w-4 text-muted-foreground" />
                 </ArtifactClose>
 

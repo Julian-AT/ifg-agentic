@@ -30,6 +30,14 @@ export interface CreateDocumentCallbackProps {
     totalRows: number;
     totalColumns: number;
     datasetName?: string;
+    statistics?: {
+      delimiter?: string;
+      titleRowSkipped?: boolean;
+      hasHeader?: boolean;
+      emptyRows?: number;
+      duplicateHeaders?: string[];
+      encoding?: string;
+    };
   };
 }
 

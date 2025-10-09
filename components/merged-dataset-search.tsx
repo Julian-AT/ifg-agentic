@@ -6,6 +6,7 @@ import { SearchIcon, ChevronDown, ChevronRight, Search } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedShinyText } from "@/components/animated-shiny-text";
+import { cn } from "./multistep-form";
 
 interface DatasetSearchResult {
   id: string;
@@ -32,11 +33,13 @@ interface MergedSearchResult {
 interface MergedDatasetSearchProps {
   searches: MergedSearchResult[];
   isLoading: boolean;
+  isArtifactOpen: boolean;
 }
 
 export function MergedDatasetSearch({
   searches,
   isLoading,
+  isArtifactOpen,
 }: MergedDatasetSearchProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showAllResults, setShowAllResults] = useState(false);
@@ -157,9 +160,11 @@ export function MergedDatasetSearch({
     ? `${allResults.length} Datensätze gefunden (${queries.length} Suchen)`
     : `${allResults.length} Datensätze gefunden`;
 
+
+
   return (
     <motion.div
-      className="flex flex-col gap-3 min-w-full"
+      className={cn("flex flex-col gap-3 max-w-[400px]")}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}

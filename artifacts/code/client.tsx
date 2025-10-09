@@ -48,25 +48,33 @@ const OUTPUT_HANDLERS = {
         plt.show = custom_show
   `,
   url_fetch: `
-    import pyodide.http
     import pandas as pd
     import io
+    import js
     
     # Store original read_csv
     _original_read_csv = pd.read_csv
     
-    async def _async_read_csv(filepath_or_buffer, *args, **kwargs):
+    def _patched_read_csv(filepath_or_buffer, *args, **kwargs):
         if isinstance(filepath_or_buffer, str) and (
             filepath_or_buffer.startswith('http://') or 
             filepath_or_buffer.startswith('https://')
         ):
-            response = await pyodide.http.pyfetch(filepath_or_buffer)
-            content = await response.bytes()
-            filepath_or_buffer = io.BytesIO(content)
+            # Use CORS proxy for external URLs
+            url = filepath_or_buffer
+            proxied_url = f"https://corsproxy.io/?{url}"
+            
+            xhr = js.XMLHttpRequest.new()
+            xhr.open("GET", proxied_url, False)  # False = synchronous
+            xhr.send(None)
+            if xhr.status == 200:
+                filepath_or_buffer = io.StringIO(xhr.responseText)
+            else:
+                raise Exception(f"Failed to fetch {url}: HTTP {xhr.status}")
         return _original_read_csv(filepath_or_buffer, *args, **kwargs)
     
     # Patch pandas read_csv to handle URLs
-    pd.read_csv = _async_read_csv
+    pd.read_csv = _patched_read_csv
   `,
   basic: `
     # Basic output capture setup
@@ -112,8 +120,8 @@ export const codeArtifact = new Artifact<"code", Metadata>({
         content: streamPart.data,
         isVisible:
           draftArtifact.status === "streaming" &&
-          draftArtifact.content.length > 300 &&
-          draftArtifact.content.length < 310
+            draftArtifact.content.length > 300 &&
+            draftArtifact.content.length < 310
             ? true
             : draftArtifact.isVisible,
         status: "streaming",

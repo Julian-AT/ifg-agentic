@@ -188,9 +188,9 @@ Perform comprehensive validation of data request forms:
 - Success probability estimate
 
 **Validation Categories:**
-- ✅ **Valid**: Ready for submission
-- ⚠️ **Needs Improvement**: Minor issues to address
-- ❌ **Invalid**: Major problems requiring revision
+- **Valid**: Ready for submission
+- **Needs Improvement**: Minor issues to address
+- **Invalid**: Major problems requiring revision
 
 Provide specific, actionable feedback for each identified issue with clear improvement suggestions.`;
 

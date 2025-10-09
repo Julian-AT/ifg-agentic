@@ -1,10 +1,7 @@
 "use client";
 
-import { python } from "@codemirror/lang-python";
-import { EditorState, Transaction } from "@codemirror/state";
-import { EditorView } from "@codemirror/view";
-import { basicSetup } from "codemirror";
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useState } from "react";
+import { createHighlighter, type Highlighter } from "shiki";
 import type { Suggestion } from "@/lib/db/schema";
 
 type EditorProps = {
@@ -16,84 +13,65 @@ type EditorProps = {
   suggestions: Suggestion[];
 };
 
+let highlighterInstance: Highlighter | null = null;
+
 function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<EditorView | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const highlightRef = useRef<HTMLDivElement>(null);
+  const [highlightedCode, setHighlightedCode] = useState("");
 
   useEffect(() => {
-    if (containerRef.current && !editorRef.current) {
-      const startState = EditorState.create({
-        doc: content,
-        extensions: [basicSetup, python()],
-      });
+    let isCancelled = false;
 
-      editorRef.current = new EditorView({
-        state: startState,
-        parent: containerRef.current,
-      });
-    }
+    const highlightCode = async () => {
+      try {
+        if (!highlighterInstance) {
+          highlighterInstance = await createHighlighter({
+            themes: ["github-light", "github-dark"],
+            langs: ["python", "javascript", "typescript", "json", "bash"],
+          });
+        }
 
-    return () => {
-      if (editorRef.current) {
-        editorRef.current.destroy();
-        editorRef.current = null;
+        const html = highlighterInstance.codeToHtml(content || " ", {
+          lang: "python",
+          themes: {
+            light: "github-light",
+            dark: "github-dark",
+          },
+        });
+
+        if (!isCancelled) {
+          setHighlightedCode(html);
+        }
+      } catch (error) {
+        console.error("Error highlighting code:", error);
       }
     };
-    // NOTE: we only want to run this effect once
-    // eslint-disable-next-line
+
+    highlightCode();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [content]);
 
   useEffect(() => {
-    if (editorRef.current) {
-      const updateListener = EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          const transaction = update.transactions.find(
-            (tr) => !tr.annotation(Transaction.remote)
-          );
-
-          if (transaction) {
-            const newContent = update.state.doc.toString();
-            onSaveContent(newContent, true);
-          }
-        }
-      });
-
-      const currentSelection = editorRef.current.state.selection;
-
-      const newState = EditorState.create({
-        doc: editorRef.current.state.doc,
-        extensions: [basicSetup, python(), updateListener],
-        selection: currentSelection,
-      });
-
-      editorRef.current.setState(newState);
-    }
-  }, [onSaveContent]);
-
-  useEffect(() => {
-    if (editorRef.current && content) {
-      const currentContent = editorRef.current.state.doc.toString();
-
-      if (status === "streaming" || currentContent !== content) {
-        const transaction = editorRef.current.state.update({
-          changes: {
-            from: 0,
-            to: currentContent.length,
-            insert: content,
-          },
-          annotations: [Transaction.remote.of(true)],
-        });
-
-        editorRef.current.dispatch(transaction);
-      }
+    if (textareaRef.current && status === "streaming") {
+      textareaRef.current.value = content;
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
     }
   }, [content, status]);
 
   return (
-    <div
-      className="not-prose relative w-full pb-[calc(25dvh)] text-sm"
-      ref={containerRef}
-    />
+    <div className="not-prose relative w-full text-sm h-[90dvh] overflow-y-auto">
+      <div className="relative h-full rounded-lg border border-border bg-background">
+        <div
+          ref={highlightRef}
+          className="code-editor-highlight overflow-y-auto pointer-events-auto absolute inset-0 [&_pre]:m-0 [&_pre]:bg-transparent [&_pre]:p-4 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:leading-[1.5] [&_code]:font-mono [&_code]:text-sm [&_code]:leading-[1.5]"
+          dangerouslySetInnerHTML={{ __html: highlightedCode }}
+        />
+      </div>
+    </div>
   );
 }
 

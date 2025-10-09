@@ -23,6 +23,7 @@ interface CsvExplorationResult {
         hasHeader: boolean;
         emptyRows: number;
         duplicateHeaders: string[];
+        titleRowSkipped?: boolean;
     };
 }
 
@@ -38,7 +39,7 @@ interface DatasetToolsProps {
 export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
     tool({
         description:
-            "Analyze CSV file structure before writing code. CRITICAL: Use the access_url[0] from dataset.distributions array as the url parameter. This tool fetches the CSV, detects delimiter, infers column types, and returns sample data. You MUST call this before createDocument to know the exact column names and types.",
+            "Analyze CSV file structure before writing code. CRITICAL: Use the access_url[0] from dataset.distributions array as the url parameter. This tool fetches the CSV, detects delimiter, infers column types, and returns sample data. You MUST call this before createDocument to know the exact column names and types. NOTE: This tool automatically detects and skips title rows (e.g., when the actual headers are in row 2). When generating code, account for this - if a title row was detected, skip the first row when reading the CSV.",
         inputSchema: z.object({
             url: z
                 .string()
@@ -64,8 +65,9 @@ export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
             try {
                 console.log(`📊 Exploring CSV data from: ${url}`);
 
-                // Fetch the CSV data with proper error handling
-                const response = await fetch(url, {
+                const proxiedUrl = `https://corsproxy.io/?${url}`;
+
+                const response = await fetch(proxiedUrl, {
                     headers: {
                         'User-Agent': 'IFG-Agentic-Tool/1.0',
                         'Accept': 'text/csv,text/plain,*/*',
@@ -99,6 +101,7 @@ export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
                     rows: result.totalRows,
                     columns: result.totalColumns,
                     dataTypes: result.columns.map(c => c.type).join(', '),
+                    titleRowSkipped: result.statistics?.titleRowSkipped,
                 });
 
                 return result;
@@ -126,15 +129,33 @@ function analyzeCsvStructure(csvText: string, sampleSize: number) {
         throw new Error("CSV contains no data rows");
     }
 
+    // Detect if first row is a title row (skip it if so)
+    let headerRowIndex = 0;
+    if (nonEmptyLines.length >= 2) {
+        const firstRowParsed = parseCsvLine(nonEmptyLines[0], delimiter);
+        const secondRowParsed = parseCsvLine(nonEmptyLines[1], delimiter);
+
+        // Count non-empty values in each row
+        const firstRowNonEmpty = firstRowParsed.filter(v => v.trim() !== '').length;
+        const secondRowNonEmpty = secondRowParsed.filter(v => v.trim() !== '').length;
+
+        // If first row has significantly fewer values or only 1 value, it's likely a title
+        if (firstRowNonEmpty === 1 || (secondRowNonEmpty > firstRowNonEmpty * 2)) {
+            headerRowIndex = 1;
+            console.log(`📋 Detected title row, using row 2 as headers: "${nonEmptyLines[0].substring(0, 50)}..."`);
+        }
+    }
+
     // Parse header
-    const headerLine = nonEmptyLines[0];
+    const headerLine = nonEmptyLines[headerRowIndex];
     const headers = parseCsvLine(headerLine, delimiter);
 
     // Check for duplicate headers
     const duplicateHeaders = findDuplicates(headers);
 
-    // Parse sample data rows
-    const dataLines = nonEmptyLines.slice(1, Math.min(1 + sampleSize, nonEmptyLines.length));
+    // Parse sample data rows (skip header row)
+    const dataStartIndex = headerRowIndex + 1;
+    const dataLines = nonEmptyLines.slice(dataStartIndex, Math.min(dataStartIndex + sampleSize, nonEmptyLines.length));
     const sampleRows = dataLines.map(line => parseCsvLine(line, delimiter));
 
     // Ensure all rows have the same number of columns as headers
@@ -159,7 +180,7 @@ function analyzeCsvStructure(csvText: string, sampleSize: number) {
     });
 
     return {
-        totalRows: nonEmptyLines.length - 1, // excluding header
+        totalRows: nonEmptyLines.length - headerRowIndex - 1, // excluding title row(s) and header
         totalColumns: headers.length,
         columns,
         sampleData: {
@@ -171,6 +192,7 @@ function analyzeCsvStructure(csvText: string, sampleSize: number) {
             hasHeader: true,
             emptyRows,
             duplicateHeaders,
+            titleRowSkipped: headerRowIndex === 1,
             encoding: 'utf-8', // Default assumption
         },
     };

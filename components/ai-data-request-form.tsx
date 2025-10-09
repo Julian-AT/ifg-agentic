@@ -491,7 +491,7 @@ export function AIDataRequestForm({
                                 <Label>Dringlichkeit</Label>
                                 <RadioGroup
                                     value={formData.urgency}
-                                    onValueChange={(value) => updateFormData("urgency", value)}
+                                    onValueChange={(value: string) => updateFormData("urgency", value)}
                                     className="space-y-2"
                                 >
                                     {[
@@ -600,7 +600,7 @@ export function AIDataRequestForm({
                                 <Label>Bevorzugtes Antwortformat</Label>
                                 <RadioGroup
                                     value={formData.preferredFormat.startsWith("other:") ? "other" : formData.preferredFormat}
-                                    onValueChange={(value) => {
+                                    onValueChange={(value: string) => {
                                         if (value === "other") {
                                             updateFormData("preferredFormat", "other:");
                                         } else {
@@ -674,7 +674,7 @@ export function AIDataRequestForm({
                                     <Label>Beabsichtigte Nutzung</Label>
                                     <RadioGroup
                                         value={formData.intendedUse}
-                                        onValueChange={(value) => updateFormData("intendedUse", value)}
+                                        onValueChange={(value: string) => updateFormData("intendedUse", value)}
                                         className="space-y-2"
                                     >
                                         {[
@@ -837,7 +837,7 @@ export function AIDataRequestForm({
                                             <Checkbox
                                                 id={`req-${requirement}`}
                                                 checked={formData.technicalRequirements.includes(requirement.toLowerCase())}
-                                                onCheckedChange={(checked) => {
+                                                onCheckedChange={(checked: boolean) => {
                                                     const current = formData.technicalRequirements;
                                                     if (checked) {
                                                         updateFormData("technicalRequirements", [...current, requirement.toLowerCase()]);
@@ -872,7 +872,7 @@ export function AIDataRequestForm({
                                             <Checkbox
                                                 id={`contact-${preference}`}
                                                 checked={formData.contactPreferences.includes(preference.toLowerCase())}
-                                                onCheckedChange={(checked) => {
+                                                onCheckedChange={(checked: boolean) => {
                                                     const current = formData.contactPreferences;
                                                     if (checked) {
                                                         updateFormData("contactPreferences", [...current, preference.toLowerCase()]);

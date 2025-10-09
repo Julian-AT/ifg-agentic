@@ -12,33 +12,31 @@ import {
 } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
-import { codeArtifact } from "@/artifacts/code/client";
-import { sheetArtifact } from "@/artifacts/sheet/client";
-import { initialArtifactData, useArtifact } from "@/hooks/use-artifact";
+import { useArtifact } from "@/hooks/use-artifact";
 import type { Document, Vote } from "@/lib/db/schema";
 import type { Attachment, ChatMessage } from "@/lib/types";
 import { fetcher } from "@/lib/utils";
-import {
-  Artifact as ArtifactContainer,
-  ArtifactHeader,
-  ArtifactTitle,
-  ArtifactDescription,
-  ArtifactActions as ArtifactActionsContainer,
-  ArtifactAction,
-  ArtifactClose,
-  ArtifactContent,
-} from "./ai-elements/artifact";
 import { ArtifactActions } from "./artifact-actions";
 import { ArtifactCloseButton } from "./artifact-close-button";
 import { ArtifactMessages } from "./artifact-messages";
-import { X } from "lucide-react";
 import { MultimodalInput } from "./multimodal-input";
 import { Toolbar } from "./toolbar";
 import { useSidebar } from "./ui/sidebar";
 import { VersionFooter } from "./version-footer";
 import type { VisibilityType } from "./visibility-selector";
+import { codeArtifact } from "@/artifacts/code/client";
+import { sheetArtifact } from "@/artifacts/sheet/client";
+import { Button } from "./ui/button";
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { CodeXml, Eye, X, Maximize2, Minimize2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export const artifactDefinitions = [codeArtifact, sheetArtifact];
+export const artifactDefinitions = [
+  codeArtifact,
+  sheetArtifact
+];
 export type ArtifactKind = (typeof artifactDefinitions)[number]["kind"];
 
 export type UIArtifact = {
@@ -105,6 +103,7 @@ function PureArtifact({
   const [mode, setMode] = useState<"edit" | "diff">("edit");
   const [document, setDocument] = useState<Document | null>(null);
   const [currentVersionIndex, setCurrentVersionIndex] = useState(-1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const { open: isSidebarOpen } = useSidebar();
 
@@ -129,6 +128,7 @@ function PureArtifact({
 
   const { mutate } = useSWRConfig();
   const [isContentDirty, setIsContentDirty] = useState(false);
+  const pathname = usePathname();
 
   const handleContentChange = useCallback(
     (updatedContent: string) => {
@@ -252,8 +252,6 @@ function PureArtifact({
   );
 
   if (!artifactDefinition) {
-    console.log("Artifact definition not found!", artifact.kind);
-
     throw new Error("Artifact definition not found!");
   }
 
@@ -261,17 +259,17 @@ function PureArtifact({
     if (artifact.documentId !== "init" && artifactDefinition.initialize) {
       artifactDefinition.initialize({
         documentId: artifact.documentId,
-        setMetadata,
+        setMetadata
       });
     }
   }, [artifact.documentId, artifactDefinition, setMetadata]);
 
   return (
     <AnimatePresence>
-      {artifact.isVisible && (
+      {artifact.isVisible && pathname.startsWith("/chat") && (
         <motion.div
           animate={{ opacity: 1 }}
-          className="fixed top-0 left-0 z-50 flex h-dvh w-dvw flex-row bg-transparent"
+          className="fixed top-0 left-0 z-50 flex h-dvh w-dvw flex-row bg-background"
           data-testid="artifact"
           exit={{ opacity: 0, transition: { delay: 0.4 } }}
           initial={{ opacity: 1 }}
@@ -279,7 +277,7 @@ function PureArtifact({
           {!isMobile && (
             <motion.div
               animate={{ width: windowWidth, right: 0 }}
-              className="fixed h-dvh bg-background"
+              className="fixed h-dvh bg-transparent z-40"
               exit={{
                 width: isSidebarOpen ? windowWidth - 256 : windowWidth,
                 right: 0,
@@ -291,7 +289,7 @@ function PureArtifact({
             />
           )}
 
-          {!isMobile && (
+          {!isMobile && !isFullscreen && (
             <motion.div
               animate={{
                 opacity: 1,
@@ -304,7 +302,7 @@ function PureArtifact({
                   damping: 30,
                 },
               }}
-              className="relative h-dvh w-[500px] shrink-0 bg-muted dark:bg-background"
+              className="z-[70] relative h-dvh w-[500px] shrink-0 bg-transparent pl-3 pb-3 flex flex-col"
               exit={{
                 opacity: 0,
                 x: 0,
@@ -313,45 +311,58 @@ function PureArtifact({
               }}
               initial={{ opacity: 0, x: 10, scale: 1 }}
             >
-              <AnimatePresence>
-                {!isCurrentVersion && (
-                  <motion.div
-                    animate={{ opacity: 1 }}
-                    className="absolute top-0 left-0 z-50 h-dvh w-[500px] bg-red-500"
-                    exit={{ opacity: 0 }}
-                    initial={{ opacity: 0 }}
-                  />
-                )}
-              </AnimatePresence>
+              <div className="flex gap-2 py-2 items-center h-16 bg-transparent">
+                <Link href="/" className="cursor-pointer" onClick={() => setArtifact((currentArtifact) => ({ ...currentArtifact, isVisible: false }))}>
+                  <Image src="/assets/logo_datagvat.svg" alt="Logo" width={48} height={48} />
+                </Link>
+                <div className="flex flex-col">
+                  <span className="text-sm line-clamp-1 pr-12">{artifact.title}</span>
+                  <span className="text-xs text-muted-foreground">{isReadonly ? "Read-Only" : "Editierbar"}</span>
+                </div>
+              </div>
+              <div className="flex flex-1 shrink-0 border border-primary/10 rounded-xl bg-background/65 backdrop-blur-xl overflow-hidden max-h-full">
+                <AnimatePresence>
+                  {!isCurrentVersion && (
+                    <motion.div
+                      animate={{ opacity: 1 }}
+                      className="absolute top-0 left-0 z-50 h-dvh w-[500px] p-3 bg-background/50 backdrop-blur-lg"
+                      exit={{ opacity: 0 }}
+                      initial={{ opacity: 0 }}
+                    />
 
-              <div className="flex h-full flex-col items-center justify-between">
-                <ArtifactMessages
-                  artifactStatus={artifact.status}
-                  chatId={chatId}
-                  isReadonly={isReadonly}
-                  messages={messages}
-                  regenerate={regenerate}
-                  setMessages={setMessages}
-                  status={status}
-                  votes={votes}
-                />
+                  )}
+                </AnimatePresence>
 
-                <div className="relative flex w-full flex-row items-end gap-2 px-4 pb-4">
-                  <MultimodalInput
-                    attachments={attachments}
+                <div className="flex flex-1 flex-col items-center justify-between mx-auto w-full">
+                  <ArtifactMessages
+                    artifactStatus={artifact.status}
                     chatId={chatId}
-                    className="bg-background dark:bg-muted"
-                    input={input}
+                    isReadonly={isReadonly}
                     messages={messages}
-                    selectedModelId={selectedModelId}
-                    selectedVisibilityType={selectedVisibilityType}
-                    sendMessage={sendMessage}
-                    setAttachments={setAttachments}
-                    setInput={setInput}
+                    regenerate={regenerate}
                     setMessages={setMessages}
                     status={status}
-                    stop={stop}
+                    votes={votes}
+                    isArtifactOpen={artifact.isVisible}
                   />
+
+                  <div className="relative flex w-full flex-row items-end gap-2 px-4 pb-4">
+                    <MultimodalInput
+                      attachments={attachments}
+                      chatId={chatId}
+                      className="bg-transparent"
+                      input={input}
+                      messages={messages}
+                      selectedModelId={selectedModelId}
+                      selectedVisibilityType={selectedVisibilityType}
+                      sendMessage={sendMessage}
+                      setAttachments={setAttachments}
+                      setInput={setInput}
+                      setMessages={setMessages}
+                      status={status}
+                      stop={stop}
+                    />
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -361,120 +372,96 @@ function PureArtifact({
             animate={
               isMobile
                 ? {
-                    opacity: 1,
-                    x: 0,
-                    y: 0,
-                    height: windowHeight,
-                    width: windowWidth ? windowWidth : "calc(100dvw)",
-                    borderRadius: 0,
-                    transition: {
-                      delay: 0,
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 30,
-                      duration: 0.8,
-                    },
-                  }
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  height: windowHeight,
+                  width: windowWidth ? windowWidth : "calc(100dvw)",
+                  borderRadius: 0,
+                  transition: {
+                    delay: 0,
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30,
+                    duration: 0.8,
+                  },
+                }
                 : {
-                    opacity: 1,
-                    x: 500,
-                    y: 0,
-                    height: windowHeight,
-                    width: windowWidth
+                  opacity: 1,
+                  x: isFullscreen ? 0 : 500,
+                  y: 0,
+                  height: windowHeight,
+                  width: isFullscreen
+                    ? windowWidth
+                    : windowWidth
                       ? windowWidth - 500
                       : "calc(100dvw-500px)",
-                    borderRadius: 0,
-                    transition: {
-                      delay: 0,
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 30,
-                      duration: 0.8,
-                    },
-                  }
+                  borderRadius: 0,
+                  transition: {
+                    delay: 0,
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30,
+                    duration: 0.8,
+                  },
+                }
             }
-            className="fixed flex h-dvh flex-col overflow-hidden border-zinc-200 bg-card/95 backdrop-blur-sm md:border-l dark:border-zinc-800 dark:bg-zinc-950/95"
+            className="fixed flex h-dvh flex-col overflow-y-scroll border-zinc-200 bg-transparent dark:border-zinc-700 z-[70]"
             exit={{
               opacity: 0,
               scale: 0.5,
               transition: {
                 delay: 0.1,
                 type: "spring",
-                stiffness: 600,
+                stiffness: 500,
                 damping: 30,
               },
             }}
             initial={
               isMobile
                 ? {
-                    opacity: 1,
-                    x: artifact.boundingBox.left,
-                    y: artifact.boundingBox.top,
-                    height: artifact.boundingBox.height,
-                    width: artifact.boundingBox.width,
-                    borderRadius: 50,
-                  }
+                  opacity: 1,
+                  x: artifact.boundingBox.left,
+                  y: artifact.boundingBox.top,
+                  height: artifact.boundingBox.height,
+                  width: artifact.boundingBox.width,
+                  borderRadius: 50,
+                }
                 : {
-                    opacity: 1,
-                    x: artifact.boundingBox.left,
-                    y: artifact.boundingBox.top,
-                    height: artifact.boundingBox.height,
-                    width: artifact.boundingBox.width,
-                    borderRadius: 50,
-                  }
+                  opacity: 1,
+                  x: artifact.boundingBox.left,
+                  y: artifact.boundingBox.top,
+                  height: artifact.boundingBox.height,
+                  width: artifact.boundingBox.width,
+                  borderRadius: 50,
+                }
             }
           >
-            {/* Artifact Header - AI SDK Elements */}
-            <ArtifactHeader>
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <ArtifactClose
-                  onClick={() => {
-                    setArtifact((currentArtifact) =>
-                      currentArtifact.status === "streaming"
-                        ? {
-                            ...currentArtifact,
-                            isVisible: false,
-                          }
-                        : { ...initialArtifactData, status: "idle" }
-                    );
-                  }}
+            <div className="flex flex-row items-start justify-between px-3 h-14 pt-3 bg-transparent">
+              <div className="flex flex-row items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-lg h-8 w-8 border border-primary/10"
+                  onClick={() => setArtifact((currentArtifact) => ({ ...currentArtifact, isVisible: false }))}
                 >
-                  <X className="h-4 w-4 text-muted-foreground" />
-                </ArtifactClose>
-
-                <div className="flex flex-col min-w-0 flex-1">
-                  <ArtifactTitle>{artifact.title}</ArtifactTitle>
-
-                  {isContentDirty ? (
-                    <ArtifactDescription>Saving changes...</ArtifactDescription>
-                  ) : document ? (
-                    <ArtifactDescription>
-                      {`Updated ${formatDistance(
-                        new Date(document.createdAt),
-                        new Date(),
-                        {
-                          addSuffix: true,
-                        }
-                      )}`}
-                    </ArtifactDescription>
-                  ) : (
-                    <div className="mt-1 h-3 w-32 animate-pulse rounded-md bg-muted-foreground/20" />
-                  )}
-                </div>
+                  <X className="size-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-lg h-8 w-8 border border-primary/10"
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                >
+                  {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+                </Button>
               </div>
+              <div className="flex flex-row gap-2">
+                <ArtifactActions artifact={artifact} handleVersionChange={handleVersionChange} currentVersionIndex={currentVersionIndex} isCurrentVersion={isCurrentVersion} mode={mode} metadata={metadata} setMetadata={setMetadata} />
+              </div>
+            </div>
 
-              <ArtifactActions
-                artifact={artifact}
-                currentVersionIndex={currentVersionIndex}
-                handleVersionChange={handleVersionChange}
-                isCurrentVersion={isCurrentVersion}
-                metadata={metadata}
-                mode={mode}
-                setMetadata={setMetadata}
-              />
-            </ArtifactHeader>
-
-            <ArtifactContent className="h-full max-w-full! bg-background dark:bg-zinc-950">
+            <div className="max-w-full! items-center overflow-y-auto bg-transparent p-3 overflow-hidden rounded-xl">
               <artifactDefinition.content
                 content={
                   isCurrentVersion
@@ -508,7 +495,7 @@ function PureArtifact({
                   />
                 )}
               </AnimatePresence>
-            </ArtifactContent>
+            </div>
 
             <AnimatePresence>
               {!isCurrentVersion && (
@@ -520,6 +507,7 @@ function PureArtifact({
               )}
             </AnimatePresence>
           </motion.div>
+          <Image src="/images/bottom_gradient.png" alt="Background" width={1920} height={1080} className="absolute bottom-0 self-center z-[51]" />
         </motion.div>
       )}
     </AnimatePresence>

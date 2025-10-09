@@ -184,6 +184,7 @@ const PurePreviewMessage = ({
   regenerate,
   isReadonly,
   requiresScrollPadding,
+  isArtifactOpen,
 }: {
   chatId: string;
   message: ChatMessage;
@@ -193,6 +194,7 @@ const PurePreviewMessage = ({
   regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   isReadonly: boolean;
   requiresScrollPadding: boolean;
+  isArtifactOpen: boolean;
 }) => {
   const [mode, setMode] = useState<"view" | "edit">("view");
 
@@ -288,6 +290,7 @@ const PurePreviewMessage = ({
                         .join("-")}`}
                       searches={groupedSearches}
                       isLoading={!hasAnyOutput}
+                      isArtifactOpen={isArtifactOpen}
                     />
                   );
                 } else {
@@ -428,14 +431,10 @@ const PurePreviewMessage = ({
                 );
               }
 
-              // Handle exploreCsvData tool
               if (type === "tool-exploreCsvData" && "toolCallId" in part) {
                 const { toolCallId, state } = part as any;
-                const matchingOutput = findMatchingOutputPart(
-                  part,
-                  allParts,
-                  index
-                );
+                console.log(part);
+
 
                 return (
                   <Tool defaultOpen={true} key={toolCallId}>
@@ -444,70 +443,26 @@ const PurePreviewMessage = ({
                       {state === "input-available" && (
                         <ToolInput input={part.input} />
                       )}
-                      {matchingOutput && (
-                        <ToolOutput
-                          errorText={undefined}
-                          output={
-                            "error" in matchingOutput.output ? (
-                              <div className="rounded border p-2 text-red-500">
-                                Error: {String(matchingOutput.output.error)}
-                              </div>
-                            ) : (
-                              <div className="space-y-3 text-sm">
-                                <div>
-                                  <strong>Dataset:</strong>{" "}
-                                  {matchingOutput.output.datasetName ||
-                                    "CSV Data"}
-                                </div>
-                                <div>
-                                  <strong>Structure:</strong>{" "}
-                                  {matchingOutput.output.totalRows} rows ×{" "}
-                                  {matchingOutput.output.totalColumns} columns
-                                </div>
-                                <div>
-                                  <strong>Columns:</strong>
-                                  <div className="mt-2 space-y-1 pl-4">
-                                    {matchingOutput.output.columns
-                                      ?.slice(0, 10)
-                                      .map((col: any, idx: number) => (
-                                        <div key={idx} className="text-xs">
-                                          •{" "}
-                                          <code className="bg-muted px-1 rounded">
-                                            {col.name}
-                                          </code>{" "}
-                                          ({col.type})
-                                          {col.sampleValues?.length > 0 && (
-                                            <span className="text-muted-foreground ml-2">
-                                              e.g.,{" "}
-                                              {col.sampleValues
-                                                .slice(0, 2)
-                                                .join(", ")}
-                                            </span>
-                                          )}
-                                        </div>
-                                      ))}
-                                    {matchingOutput.output.columns?.length >
-                                      10 && (
-                                      <div className="text-xs text-muted-foreground">
-                                        ... and{" "}
-                                        {matchingOutput.output.columns.length -
-                                          10}{" "}
-                                        more columns
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                          }
-                        />
-                      )}
+                      <ToolOutput
+                        errorText={undefined}
+                        output={
+                          part.output && "error" in part.output ? (
+                            <div className="rounded border p-2 text-red-500">
+                              Error: {String(part.output.error)}
+                            </div>
+                          ) : (
+                            <div className="rounded-lg border bg-muted/30 p-3">
+                              <pre className="text-xs overflow-x-auto whitespace-pre-wrap font-mono">
+                                {JSON.stringify(part.output, null, 2)}
+                              </pre>
+                            </div>
+                          )}
+                      />
                     </ToolContent>
                   </Tool>
                 );
               }
 
-              // Handle data-task custom UI type
               if (type === "data-task" && "data" in part) {
                 const taskData = part.data as any;
                 const iconMap = {
@@ -534,7 +489,7 @@ const PurePreviewMessage = ({
                                   (() => {
                                     const Icon =
                                       iconMap[
-                                        item.file.icon as keyof typeof iconMap
+                                      item.file.icon as keyof typeof iconMap
                                       ];
                                     return <Icon className="size-4" />;
                                   })()}
@@ -549,17 +504,13 @@ const PurePreviewMessage = ({
                 );
               }
 
-              // Note: tool-searchDatasets is handled above in the merged search logic
 
-              // Handle ALL getDatasetDetails calls as one merged widget
               if (type === "tool-getDatasetDetails") {
-                // Check if this is the first getDatasetDetails part in the message
                 const firstDatasetIndex = allParts.findIndex(
                   (p) => p.type === "tool-getDatasetDetails"
                 );
 
                 if (index === firstDatasetIndex) {
-                  // This is the first getDatasetDetails part - collect ALL getDatasetDetails in this message
                   const allDatasetParts = allParts.filter(
                     (p) => p.type === "tool-getDatasetDetails"
                   );
@@ -577,7 +528,6 @@ const PurePreviewMessage = ({
                     />
                   );
                 } else {
-                  // Skip all other getDatasetDetails parts since they're handled above
                   return null;
                 }
               }

@@ -6,13 +6,48 @@ import { createDocumentHandler } from "@/lib/artifacts/server";
 
 export const sheetDocumentHandler = createDocumentHandler<"sheet">({
   kind: "sheet",
-  onCreateDocument: async ({ title, dataStream }) => {
+  onCreateDocument: async ({ title, dataStream, dataUrl, csvStructure }) => {
     let draftContent = "";
+
+    // Build enhanced prompt with data context
+    let enhancedPrompt = title;
+
+    if (dataUrl) {
+      enhancedPrompt += `\n\nData URL: ${dataUrl}`;
+    }
+
+    if (csvStructure) {
+      enhancedPrompt += `\n\nCSV Structure:`;
+      enhancedPrompt += `\n- Total Rows: ${csvStructure.totalRows}`;
+      enhancedPrompt += `\n- Total Columns: ${csvStructure.totalColumns}`;
+
+      if (csvStructure.statistics) {
+        enhancedPrompt += `\n- Delimiter: "${csvStructure.statistics.delimiter || ','}"`;
+        enhancedPrompt += `\n- Title Row Skipped: ${csvStructure.statistics.titleRowSkipped ? 'YES - Use skiprows=1 in pd.read_csv()' : 'NO'}`;
+        if (csvStructure.statistics.titleRowSkipped) {
+          enhancedPrompt += `\n  ⚠️ CRITICAL: Add skiprows=1 parameter to pd.read_csv() because a title row was detected`;
+        }
+      }
+
+      enhancedPrompt += `\n- Columns:`;
+      csvStructure.columns.forEach(col => {
+        enhancedPrompt += `\n  • ${col.name} (${col.type})`;
+        if (col.sampleValues?.length > 0) {
+          enhancedPrompt += ` - Examples: ${col.sampleValues.slice(0, 2).join(', ')}`;
+        }
+      });
+    }
+
+    console.log('📊 Creating sheet with context:', {
+      hasDataUrl: !!dataUrl,
+      hasStructure: !!csvStructure,
+      columnCount: csvStructure?.columns?.length
+    });
 
     const { fullStream } = streamObject({
       model: myProvider.languageModel("artifact-model"),
       system: sheetPrompt,
-      prompt: title,
+      prompt: enhancedPrompt,
       schema: z.object({
         csv: z.string().describe("CSV data"),
       }),

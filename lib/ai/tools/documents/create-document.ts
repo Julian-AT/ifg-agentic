@@ -48,10 +48,18 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
           totalRows: z.number(),
           totalColumns: z.number(),
           datasetName: z.string().optional(),
+          statistics: z.object({
+            delimiter: z.string().optional(),
+            titleRowSkipped: z.boolean().optional(),
+            hasHeader: z.boolean().optional(),
+            emptyRows: z.number().optional(),
+            duplicateHeaders: z.array(z.string()).optional(),
+            encoding: z.string().optional(),
+          }).optional(),
         })
         .optional()
         .describe(
-          "CSV data structure from exploreCsvData tool - use this to generate proper column-specific code"
+          "CSV data structure from exploreCsvData tool - use this to generate proper column-specific code. CRITICAL: Check statistics.titleRowSkipped and statistics.delimiter!"
         ),
     }),
     execute: async ({ title, kind, dataUrl, csvStructure }) => {

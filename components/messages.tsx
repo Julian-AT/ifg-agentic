@@ -31,6 +31,7 @@ function PureMessages({
   regenerate,
   isReadonly,
   selectedModelId,
+  isArtifactVisible
 }: MessagesProps) {
   const {
     containerRef: messagesContainerRef,
@@ -86,6 +87,7 @@ function PureMessages({
                   ? votes.find((vote) => vote.messageId === message.id)
                   : undefined
               }
+              isArtifactOpen={isArtifactVisible}
             />
           ))}
 

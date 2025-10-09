@@ -119,7 +119,7 @@ export const Context = ({ className, usage, ...props }: ContextProps) => {
           type="button"
           {...props}
         >
-          <span className="hidden font-medium text-muted-foreground border">
+          <span className="hidden font-medium text-muted-foreground">
             {usedPercent.toFixed(1)}%
           </span>
           <ContextIcon percent={usedPercent} />

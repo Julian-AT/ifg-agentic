@@ -33,13 +33,11 @@ interface MergedSearchResult {
 interface MergedDatasetSearchProps {
   searches: MergedSearchResult[];
   isLoading: boolean;
-  isArtifactOpen: boolean;
 }
 
 export function MergedDatasetSearch({
   searches,
   isLoading,
-  isArtifactOpen,
 }: MergedDatasetSearchProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showAllResults, setShowAllResults] = useState(false);

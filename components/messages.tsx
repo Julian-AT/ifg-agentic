@@ -87,7 +87,6 @@ function PureMessages({
                   ? votes.find((vote) => vote.messageId === message.id)
                   : undefined
               }
-              isArtifactOpen={isArtifactVisible}
             />
           ))}
 

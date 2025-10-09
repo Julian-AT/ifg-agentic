@@ -184,7 +184,6 @@ const PurePreviewMessage = ({
   regenerate,
   isReadonly,
   requiresScrollPadding,
-  isArtifactOpen,
 }: {
   chatId: string;
   message: ChatMessage;
@@ -194,7 +193,6 @@ const PurePreviewMessage = ({
   regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   isReadonly: boolean;
   requiresScrollPadding: boolean;
-  isArtifactOpen: boolean;
 }) => {
   const [mode, setMode] = useState<"view" | "edit">("view");
 
@@ -290,7 +288,6 @@ const PurePreviewMessage = ({
                         .join("-")}`}
                       searches={groupedSearches}
                       isLoading={!hasAnyOutput}
-                      isArtifactOpen={isArtifactOpen}
                     />
                   );
                 } else {

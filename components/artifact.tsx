@@ -89,6 +89,7 @@ function PureArtifact({
 }) {
   const { artifact, setArtifact, metadata, setMetadata } = useArtifact();
 
+
   const {
     data: documents,
     isLoading: isDocumentsFetching,
@@ -506,7 +507,6 @@ function PureArtifact({
               )}
             </AnimatePresence>
           </motion.div>
-          <Image src="/images/bottom_gradient.png" alt="Background" width={1920} height={1080} className="absolute bottom-0 self-center z-[51]" />
         </motion.div>
       )}
     </AnimatePresence>

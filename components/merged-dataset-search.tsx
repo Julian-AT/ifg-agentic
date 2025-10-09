@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link";
 import { Badge } from "./ui/badge";
 import { SparklesIcon } from "./icons";
@@ -7,6 +9,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { cn } from "./multistep-form";
+import { useArtifact } from "@/hooks/use-artifact";
 
 interface DatasetSearchResult {
   id: string;
@@ -41,6 +44,7 @@ export function MergedDatasetSearch({
 }: MergedDatasetSearchProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showAllResults, setShowAllResults] = useState(false);
+  const { artifact } = useArtifact();
 
   const allResults: DatasetSearchResult[] = [];
   const allKeywords: string[] = [];
@@ -162,7 +166,9 @@ export function MergedDatasetSearch({
 
   return (
     <motion.div
-      className={cn("flex flex-col gap-3 max-w-[400px]")}
+      className={cn("flex flex-col gap-3", {
+        "max-w-[400px]": artifact.isVisible,
+      })}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}

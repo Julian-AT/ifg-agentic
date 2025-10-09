@@ -40,6 +40,7 @@ import {
   TaskTrigger,
 } from "./elements/task";
 import { Database, FileSpreadsheet, Code, BarChart3 } from "lucide-react";
+import { useArtifact } from "@/hooks/use-artifact";
 
 // Helper function to find matching output part for an input part
 const findMatchingOutputPart = (
@@ -195,6 +196,7 @@ const PurePreviewMessage = ({
   requiresScrollPadding: boolean;
 }) => {
   const [mode, setMode] = useState<"view" | "edit">("view");
+  const { artifact } = useArtifact();
 
   const attachmentsFromMessage = message.parts.filter(
     (part) => part.type === "file"
@@ -434,7 +436,9 @@ const PurePreviewMessage = ({
 
 
                 return (
-                  <Tool defaultOpen={true} key={toolCallId}>
+                  <Tool defaultOpen={true} key={toolCallId} className={cn({
+                    "max-w-[400px]": artifact.isVisible,
+                  })}>
                     <ToolHeader state={state} type="tool-exploreCsvData" />
                     <ToolContent>
                       {state === "input-available" && (

@@ -32,10 +32,7 @@ interface DatasetToolsProps {
     dataStream: UIMessageStreamWriter<ChatMessage>;
 }
 
-/**
- * Enhanced CSV data exploration tool
- * Automatically analyzes CSV structure from Austrian datasets with intelligent type detection
- */
+
 export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
     tool({
         description:
@@ -63,8 +60,6 @@ export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
         }),
         execute: async ({ url, datasetName, sampleSize = 5, encoding = 'utf-8' }): Promise<CsvExplorationResult> => {
             try {
-                console.log(`📊 Exploring CSV data from: ${url}`);
-
                 const proxiedUrl = `https://corsproxy.io/?${url}`;
 
                 const response = await fetch(proxiedUrl, {
@@ -84,7 +79,6 @@ export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
                     throw new Error("CSV file is empty or could not be read");
                 }
 
-                // Analyze CSV structure
                 const analysisResult = analyzeCsvStructure(csvText, sampleSize);
 
                 const result: CsvExplorationResult = {
@@ -97,30 +91,17 @@ export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
                     statistics: analysisResult.statistics,
                 };
 
-                console.log(`✅ CSV exploration complete:`, {
-                    rows: result.totalRows,
-                    columns: result.totalColumns,
-                    dataTypes: result.columns.map(c => c.type).join(', '),
-                    titleRowSkipped: result.statistics?.titleRowSkipped,
-                });
-
                 return result;
 
             } catch (error) {
-                console.error("❌ Error exploring CSV:", error);
                 throw new Error(`Failed to explore CSV data: ${error instanceof Error ? error.message : 'Unknown error'}`);
             }
         },
     });
 
-/**
- * Analyze CSV structure with advanced parsing and type detection
- */
 function analyzeCsvStructure(csvText: string, sampleSize: number) {
-    // Detect delimiter
     const delimiter = detectDelimiter(csvText);
 
-    // Split into lines and filter empty ones
     const allLines = csvText.split('\n');
     const nonEmptyLines = allLines.filter(line => line.trim());
     const emptyRows = allLines.length - nonEmptyLines.length;
@@ -129,36 +110,28 @@ function analyzeCsvStructure(csvText: string, sampleSize: number) {
         throw new Error("CSV contains no data rows");
     }
 
-    // Detect if first row is a title row (skip it if so)
     let headerRowIndex = 0;
     if (nonEmptyLines.length >= 2) {
         const firstRowParsed = parseCsvLine(nonEmptyLines[0], delimiter);
         const secondRowParsed = parseCsvLine(nonEmptyLines[1], delimiter);
 
-        // Count non-empty values in each row
         const firstRowNonEmpty = firstRowParsed.filter(v => v.trim() !== '').length;
         const secondRowNonEmpty = secondRowParsed.filter(v => v.trim() !== '').length;
 
-        // If first row has significantly fewer values or only 1 value, it's likely a title
         if (firstRowNonEmpty === 1 || (secondRowNonEmpty > firstRowNonEmpty * 2)) {
             headerRowIndex = 1;
-            console.log(`📋 Detected title row, using row 2 as headers: "${nonEmptyLines[0].substring(0, 50)}..."`);
         }
     }
 
-    // Parse header
     const headerLine = nonEmptyLines[headerRowIndex];
     const headers = parseCsvLine(headerLine, delimiter);
 
-    // Check for duplicate headers
     const duplicateHeaders = findDuplicates(headers);
 
-    // Parse sample data rows (skip header row)
     const dataStartIndex = headerRowIndex + 1;
     const dataLines = nonEmptyLines.slice(dataStartIndex, Math.min(dataStartIndex + sampleSize, nonEmptyLines.length));
     const sampleRows = dataLines.map(line => parseCsvLine(line, delimiter));
 
-    // Ensure all rows have the same number of columns as headers
     const normalizedRows = sampleRows.map(row => {
         while (row.length < headers.length) {
             row.push('');
@@ -166,7 +139,6 @@ function analyzeCsvStructure(csvText: string, sampleSize: number) {
         return row.slice(0, headers.length);
     });
 
-    // Analyze column types
     const columns = headers.map((header, index) => {
         const columnData = normalizedRows
             .map(row => row[index])
@@ -180,12 +152,12 @@ function analyzeCsvStructure(csvText: string, sampleSize: number) {
     });
 
     return {
-        totalRows: nonEmptyLines.length - headerRowIndex - 1, // excluding title row(s) and header
+        totalRows: nonEmptyLines.length - headerRowIndex - 1,
         totalColumns: headers.length,
         columns,
         sampleData: {
             headers,
-            rows: normalizedRows.slice(0, 3), // Show only first 3 rows
+            rows: normalizedRows.slice(0, 3),
         },
         statistics: {
             delimiter,
@@ -193,14 +165,12 @@ function analyzeCsvStructure(csvText: string, sampleSize: number) {
             emptyRows,
             duplicateHeaders,
             titleRowSkipped: headerRowIndex === 1,
-            encoding: 'utf-8', // Default assumption
+            encoding: 'utf-8',
         },
     };
 }
 
-/**
- * Detect CSV delimiter
- */
+
 function detectDelimiter(csvText: string): string {
     const sample = csvText.split('\n').slice(0, 5).join('\n');
     const delimiters = [',', ';', '\t', '|'];
@@ -227,9 +197,6 @@ function detectDelimiter(csvText: string): string {
     return bestDelimiter;
 }
 
-/**
- * Parse a single CSV line respecting quotes
- */
 function parseCsvLine(line: string, delimiter: string): string[] {
     const result: string[] = [];
     let current = '';
@@ -241,16 +208,13 @@ function parseCsvLine(line: string, delimiter: string): string[] {
 
         if (char === '"') {
             if (inQuotes && line[i + 1] === '"') {
-                // Escaped quote
                 current += '"';
                 i += 2;
             } else {
-                // Toggle quote state
                 inQuotes = !inQuotes;
                 i++;
             }
         } else if (char === delimiter && !inQuotes) {
-            // End of field
             result.push(current.trim());
             current = '';
             i++;
@@ -260,15 +224,11 @@ function parseCsvLine(line: string, delimiter: string): string[] {
         }
     }
 
-    // Add the last field
     result.push(current.trim());
 
     return result;
 }
 
-/**
- * Find duplicate values in array
- */
 function findDuplicates(arr: string[]): string[] {
     const counts: Record<string, number> = {};
     arr.forEach(item => {
@@ -278,17 +238,12 @@ function findDuplicates(arr: string[]): string[] {
     return Object.keys(counts).filter(key => counts[key] > 1);
 }
 
-/**
- * Infer data type from sample values with enhanced logic
- */
 function inferDataType(values: string[]): string {
     if (values.length === 0) return 'string';
 
-    // Remove empty values for type analysis
     const nonEmptyValues = values.filter(val => val.trim() !== '');
     if (nonEmptyValues.length === 0) return 'string';
 
-    // Check for boolean values
     const booleanValues = nonEmptyValues.filter(val =>
         ['true', 'false', 'yes', 'no', 'ja', 'nein', '1', '0'].includes(val.toLowerCase())
     );
@@ -296,7 +251,6 @@ function inferDataType(values: string[]): string {
         return 'boolean';
     }
 
-    // Check for dates
     const dateValues = nonEmptyValues.filter(val => {
         const parsed = Date.parse(val);
         return !isNaN(parsed) && val.match(/\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}/);
@@ -305,26 +259,22 @@ function inferDataType(values: string[]): string {
         return 'date';
     }
 
-    // Check for numbers
     const numberValues = nonEmptyValues.filter(val => {
         const cleaned = val.replace(/[.,\s]/g, '.');
         return !isNaN(Number(cleaned)) && isFinite(Number(cleaned));
     });
 
     if (numberValues.length >= nonEmptyValues.length * 0.8) {
-        // Check if integers or floats
         const hasDecimals = numberValues.some(val =>
             val.includes('.') || val.includes(',')
         );
         return hasDecimals ? 'float' : 'integer';
     }
 
-    // Check for categorical data (limited unique values)
     const uniqueValues = [...new Set(nonEmptyValues)];
     if (uniqueValues.length <= Math.max(10, nonEmptyValues.length * 0.1)) {
         return 'categorical';
     }
 
-    // Default to string
     return 'string';
 }

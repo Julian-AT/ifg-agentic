@@ -44,7 +44,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
           setHighlightedCode(html);
         }
       } catch (error) {
-        console.error("Error highlighting code:", error);
+        // Error highlighting code
       }
     };
 

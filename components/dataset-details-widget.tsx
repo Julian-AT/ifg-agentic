@@ -51,8 +51,6 @@ interface DatasetDetailsWidgetProps {
 }
 
 export const DatasetDetailsWidget = ({ result }: DatasetDetailsWidgetProps) => {
-  console.log(result);
-
   const getLocalizedText = (textObj: { [key: string]: string } | undefined, fallback = "") => {
     if (!textObj) return fallback;
     return textObj.de || textObj.en || Object.values(textObj)[0] || fallback;

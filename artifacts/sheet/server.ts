@@ -38,12 +38,6 @@ export const sheetDocumentHandler = createDocumentHandler<"sheet">({
       });
     }
 
-    console.log('📊 Creating sheet with context:', {
-      hasDataUrl: !!dataUrl,
-      hasStructure: !!csvStructure,
-      columnCount: csvStructure?.columns?.length
-    });
-
     const { fullStream } = streamObject({
       model: myProvider.languageModel("artifact-model"),
       system: sheetPrompt,

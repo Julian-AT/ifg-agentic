@@ -8,10 +8,6 @@ interface AnalysisPlanProps {
     dataStream: UIMessageStreamWriter<ChatMessage>;
 }
 
-/**
- * Create and display an analysis plan using Task component
- * Shows the user what steps will be taken before executing them
- */
 export const createAnalysisPlan = ({ session, dataStream }: AnalysisPlanProps) =>
     tool({
         description:
@@ -33,9 +29,6 @@ export const createAnalysisPlan = ({ session, dataStream }: AnalysisPlanProps) =
                 .describe('Array of steps in the analysis plan'),
         }),
         execute: async ({ title, steps }) => {
-            console.log('📋 [TOOL] Creating analysis plan:', title);
-
-            // Write the task to the data stream
             dataStream.write({
                 type: 'data-task',
                 data: {

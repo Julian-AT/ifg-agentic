@@ -23,8 +23,6 @@ export const getDatasetDetails = ({ session, dataStream }: DatasetToolsProps) =>
                 ),
         }),
         execute: async ({ id }) => {
-            console.log('🔧 [TOOL] getDatasetDetails:', { id });
-
             const url = buildUrl(`api/hub/search/datasets/${id}`);
 
             const response = await fetch(url, {
@@ -47,17 +45,6 @@ export const getDatasetDetails = ({ session, dataStream }: DatasetToolsProps) =>
 
             const data = await response.json();
 
-            // Log distributions for debugging
-            console.log('✅ [TOOL] Dataset distributions:', data.distributions?.length || 0);
-            if (data.distributions?.length > 0) {
-                console.log('   First distribution:', {
-                    id: data.distributions[0].id,
-                    title: data.distributions[0].title,
-                    format: data.distributions[0].format?.id,
-                    access_url: data.distributions[0].access_url?.[0]
-                });
-            }
-
             dataStream.write({
                 type: 'data-datasetSearchResult',
                 data: {
@@ -65,7 +52,6 @@ export const getDatasetDetails = ({ session, dataStream }: DatasetToolsProps) =>
                 },
             });
 
-            // Return the full dataset with embedded distributions
             return {
                 success: true,
                 dataset: data,

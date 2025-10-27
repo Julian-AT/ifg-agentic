@@ -78,7 +78,7 @@ export function InlineCompletionInput({
                 }
             } catch (error) {
                 if (error instanceof Error && error.name !== "AbortError") {
-                    console.error("Completion error:", error);
+                    // Completion error
                 }
                 setCompletion("");
             } finally {

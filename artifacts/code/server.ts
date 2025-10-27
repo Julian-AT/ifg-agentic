@@ -38,12 +38,6 @@ export const codeDocumentHandler = createDocumentHandler<"code">({
       });
     }
 
-    console.log('📝 Creating code with context:', {
-      hasDataUrl: !!dataUrl,
-      hasStructure: !!csvStructure,
-      columnCount: csvStructure?.columns?.length
-    });
-
     const { fullStream } = streamObject({
       model: myProvider.languageModel("artifact-model"),
       system: codePrompt,

@@ -10,10 +10,6 @@ interface UpdateDocumentProps {
   dataStream: UIMessageStreamWriter<ChatMessage>;
 }
 
-/**
- * Enhanced document update tool
- * Updates existing documents with improved error handling and validation
- */
 export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
   tool({
     description:
@@ -30,13 +26,9 @@ export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
     }),
     execute: async ({ id, description }) => {
       try {
-        console.log(`📝 Updating document: ${id}`);
-
-        // Retrieve the document
         const document = await getDocumentById({ id });
 
         if (!document) {
-          console.error(`❌ Document not found: ${id}`);
           return {
             success: false,
             error: 'Document not found',
@@ -44,27 +36,20 @@ export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
           };
         }
 
-        console.log(`📄 Found document: ${document.title} (${document.kind})`);
-
-        // Clear previous content
         dataStream.write({
           type: 'data-clear',
           data: null,
           transient: true,
         });
 
-        // Find appropriate document handler
         const documentHandler = documentHandlersByArtifactKind.find(
           (handler) => handler.kind === document.kind,
         );
 
         if (!documentHandler) {
-          const error = `No document handler found for kind: ${document.kind}`;
-          console.error(`❌ ${error}`);
-          throw new Error(error);
+          throw new Error(`No document handler found for kind: ${document.kind}`);
         }
 
-        // Update the document with enhanced error handling
         try {
           await documentHandler.onUpdateDocument({
             document,
@@ -73,18 +58,14 @@ export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
             session,
           });
         } catch (handlerError) {
-          console.error(`❌ Document handler error for ${document.kind}:`, handlerError);
           throw new Error(`Failed to update ${document.kind} document: ${handlerError instanceof Error ? handlerError.message : 'Unknown error'}`);
         }
 
-        // Signal completion
         dataStream.write({
           type: 'data-finish',
           data: null,
           transient: true
         });
-
-        console.log(`✅ Document updated successfully: ${id}`);
 
         return {
           success: true,
@@ -100,8 +81,6 @@ export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
         };
 
       } catch (error) {
-        console.error('❌ Error updating document:', error);
-
         dataStream.write({
           type: 'error',
           errorText: error instanceof Error ? error.message : "Unknown error occurred",

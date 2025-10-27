@@ -59,8 +59,6 @@ export const listDatasets = ({ session, dataStream }: DatasetToolsProps) =>
                 .describe('Comma-separated list of fields to include in response'),
         }),
         execute: async ({ filter, limit, page, sort, facetOperator, facetGroupOperator, dataServices, includes }) => {
-            console.log('🔧 [TOOL] listDatasets:', { filter, limit, page, sort, facetOperator, facetGroupOperator, dataServices, includes });
-
             const url = buildUrl("api/hub/search/search", {
                 filter,
                 limit,

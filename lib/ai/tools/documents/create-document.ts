@@ -13,10 +13,6 @@ interface CreateDocumentProps {
   dataStream: UIMessageStreamWriter<ChatMessage>;
 }
 
-/**
- * Enhanced document creation tool
- * Creates executable artifacts with improved data handling and validation
- */
 export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
   tool({
     description:
@@ -64,19 +60,14 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
     }),
     execute: async ({ title, kind, dataUrl, csvStructure }) => {
       try {
-        console.log("📄 Creating document:", { title, kind, hasDataUrl: !!dataUrl });
-
-        // Generate unique document ID
         const id = generateUUID();
 
-        // Validate data requirements for data analysis tasks
         if (kind.includes('analysis') || kind.includes('visualization')) {
           if (!dataUrl && !csvStructure) {
-            console.warn("⚠️ Data analysis task without data URL or structure");
+            // Data analysis task without data URL or structure
           }
         }
 
-        // Stream document creation metadata
         dataStream.write({
           type: "data-kind",
           data: kind,
@@ -101,7 +92,6 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
           transient: true,
         });
 
-        // Find appropriate document handler
         const documentHandler = documentHandlersByArtifactKind.find(
           (handler) => handler.kind === kind
         );
@@ -110,7 +100,6 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
           throw new Error(`No document handler found for kind: ${kind}`);
         }
 
-        // Create the document with enhanced error handling
         try {
           await documentHandler.onCreateDocument({
             id,
@@ -121,18 +110,14 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
             csvStructure,
           });
         } catch (handlerError) {
-          console.error(`❌ Document handler error for ${kind}:`, handlerError);
           throw new Error(`Failed to create ${kind} document: ${handlerError instanceof Error ? handlerError.message : 'Unknown error'}`);
         }
 
-        // Signal completion
         dataStream.write({
           type: "data-finish",
           data: null,
           transient: true
         });
-
-        console.log(`✅ Document created successfully: ${id}`);
 
         return {
           success: true,
@@ -148,8 +133,6 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
         };
 
       } catch (error) {
-        console.error("❌ Error creating document:", error);
-
         dataStream.write({
           type: "error",
           errorText: error instanceof Error ? error.message : "Unknown error occurred",

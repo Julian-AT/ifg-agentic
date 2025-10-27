@@ -42,13 +42,11 @@ import {
 import { Database, FileSpreadsheet, Code, BarChart3 } from "lucide-react";
 import { useArtifact } from "@/hooks/use-artifact";
 
-// Helper function to find matching output part for an input part
 const findMatchingOutputPart = (
   inputPart: any,
   allParts: any[],
   inputIndex: number
 ): any | null => {
-  // Look for the next part with same tool type and toolCallId but output-available state
   for (let i = inputIndex + 1; i < allParts.length; i++) {
     const part = allParts[i];
     if (
@@ -62,7 +60,6 @@ const findMatchingOutputPart = (
   return null;
 };
 
-// Helper function to check if this part is an output that should be skipped (already handled by input)
 const shouldSkipOutputPart = (
   currentPart: any,
   allParts: any[],
@@ -70,7 +67,6 @@ const shouldSkipOutputPart = (
 ): boolean => {
   if (currentPart.state !== "output-available") return false;
 
-  // Look for previous input part with same tool type and toolCallId
   for (let i = currentIndex - 1; i >= 0; i--) {
     const part = allParts[i];
     if (
@@ -78,13 +74,12 @@ const shouldSkipOutputPart = (
       part.toolCallId === currentPart.toolCallId &&
       part.state === "input-available"
     ) {
-      return true; // Skip this output, it was already handled by the input
+      return true;
     }
   }
   return false;
 };
 
-// Helper function to find consecutive searchDatasets calls and group them
 const findConsecutiveSearchDatasets = (
   allParts: any[],
   startIndex: number
@@ -92,15 +87,12 @@ const findConsecutiveSearchDatasets = (
   const searchParts: any[] = [];
   let currentIndex = startIndex;
 
-  // Start with the current part if it's a searchDatasets
   if (allParts[currentIndex]?.type === "tool-searchDatasets") {
     searchParts.push(allParts[currentIndex]);
 
-    // Look for consecutive searchDatasets parts
     for (let i = currentIndex + 1; i < allParts.length; i++) {
       const part = allParts[i];
 
-      // Stop if we hit a non-searchDatasets tool or a text part
       if (part.type !== "tool-searchDatasets") {
         break;
       }
@@ -113,7 +105,6 @@ const findConsecutiveSearchDatasets = (
   return { searchParts, endIndex: currentIndex };
 };
 
-// Helper function to group search parts into complete searches (input + output pairs)
 const groupSearchParts = (searchParts: any[]): any[] => {
   const groupedSearches: any[] = [];
 
@@ -122,7 +113,6 @@ const groupSearchParts = (searchParts: any[]): any[] => {
       ("state" in part && part.state === "input-available") ||
       part.state === "output-available"
     ) {
-      // Find matching output
       const matchingOutput = searchParts.find(
         (p) =>
           p.type === part.type &&
@@ -142,7 +132,6 @@ const groupSearchParts = (searchParts: any[]): any[] => {
   return groupedSearches;
 };
 
-// Helper function to group dataset details parts
 const groupDatasetDetailsParts = (datasetParts: any[]): any[] => {
   const groupedDatasets: any[] = [];
 
@@ -151,7 +140,6 @@ const groupDatasetDetailsParts = (datasetParts: any[]): any[] => {
       ("state" in part && part.state === "input-available") ||
       part.state === "output-available"
     ) {
-      // Find matching output
       const matchingOutput = datasetParts.find(
         (p) =>
           p.type === part.type &&
@@ -432,8 +420,6 @@ const PurePreviewMessage = ({
 
               if (type === "tool-exploreCsvData" && "toolCallId" in part) {
                 const { toolCallId, state } = part as any;
-                console.log(part);
-
 
                 return (
                   <Tool defaultOpen={true} key={toolCallId} className={cn({

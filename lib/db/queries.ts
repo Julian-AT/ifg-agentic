@@ -69,9 +69,6 @@ export async function createGuestUser() {
       email: user.email,
     });
   } catch (_error) {
-    console.log("error", _error);
-
-
     throw new ChatSDKError(
       "bad_request:database",
       "Failed to create guest user"
@@ -484,7 +481,7 @@ export async function updateChatLastContextById({
       .set({ lastContext: context })
       .where(eq(chat.id, chatId));
   } catch (error) {
-    console.warn("Failed to update lastContext for chat", chatId, error);
+    // Failed to update lastContext for chat
     return;
   }
 }

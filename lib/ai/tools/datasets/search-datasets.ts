@@ -72,8 +72,6 @@ export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
                 .describe('Comma-separated list of fields to include in response'),
         }),
         execute: async ({ filter, limit, page, sort, facetOperator, facetGroupOperator, dataServices, includes, q, facets }) => {
-            console.log('🔧 [TOOL] listDatasets:', { filter, limit, page, sort, facetOperator, facetGroupOperator, dataServices, includes, q, facets });
-
             const facetsString = facets ? JSON.stringify(facets) : "";
 
             const url = buildUrl("api/hub/search/search", {

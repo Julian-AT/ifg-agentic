@@ -74,8 +74,6 @@ export function MergedDatasetSearch({
     }
   });
 
-  console.log(searches);
-
 
   const originalQuery =
     searches.find((s) => s.input?.q && s.input.q !== "data.gv.at")?.input.q ||

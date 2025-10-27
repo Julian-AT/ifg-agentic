@@ -57,11 +57,11 @@ const getTokenlensCatalog = cache(
         "TokenLens: catalog fetch failed, using default catalog",
         err
       );
-      return; // tokenlens helpers will fall back to defaultCatalog
+      return;
     }
   },
   ["tokenlens-catalog"],
-  { revalidate: 24 * 60 * 60 } // 24 hours
+  { revalidate: 24 * 60 * 60 }
 );
 
 export function getStreamContext() {

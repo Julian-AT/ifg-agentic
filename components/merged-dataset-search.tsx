@@ -96,24 +96,24 @@ export function MergedDatasetSearch({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <div className="flex flex-row gap-2 items-center">
-          <Search className="w-4 h-4" />
+        <div className="flex flex-row items-center gap-2">
+          <Search className="h-4 w-4" />
           <ShinyText text={`Suche nach ${originalQuery}...`} />
         </div>
 
         {allKeywords.length > 0 && (
           <motion.div
-            className="flex flex-col gap-2 bg-card/60 p-2 rounded-lg"
+            className="flex flex-col gap-2 rounded-lg bg-card/60 p-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
-            <div className="flex flex-row gap-2 flex-wrap">
+            <div className="flex flex-row flex-wrap gap-2">
               {allKeywords.slice(0, 3).map((keyword: string) => (
                 <Badge
                   key={keyword}
                   variant="secondary"
-                  className="flex flex-row gap-2 text-sm items-center bg-card/60 border border-border"
+                  className="flex flex-row items-center gap-2 border border-border bg-card/60 text-sm"
                 >
                   <SearchIcon size={14} />
                   <span>{keyword}</span>
@@ -122,7 +122,7 @@ export function MergedDatasetSearch({
               {allKeywords.length > 3 && (
                 <Badge
                   variant="secondary"
-                  className="bg-card/60 border border-border"
+                  className="border border-border bg-card/60"
                 >
                   +{allKeywords.length - 3}
                 </Badge>
@@ -132,7 +132,7 @@ export function MergedDatasetSearch({
         )}
 
         <motion.div
-          className="bg-card/60 p-2 rounded-lg border gap-2 flex flex-col"
+          className="flex flex-col gap-2 rounded-lg border bg-card/60 p-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.3 }}
@@ -141,13 +141,13 @@ export function MergedDatasetSearch({
             (skeletonId, index) => (
               <motion.div
                 key={skeletonId}
-                className="flex flex-row gap-1 items-center"
+                className="flex flex-row items-center gap-1"
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + index * 0.1, duration: 0.2 }}
               >
-                <Skeleton className="w-6 h-6 rounded-full mr-1" />
-                <Skeleton className="h-4 flex-1 max-w-48" />
+                <Skeleton className="mr-1 h-6 w-6 rounded-full" />
+                <Skeleton className="h-4 max-w-48 flex-1" />
                 <Skeleton className="h-4 w-20" />
               </motion.div>
             )
@@ -175,16 +175,16 @@ export function MergedDatasetSearch({
       <motion.button
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="flex flex-row gap-2 items-center text-muted-foreground hover:text-foreground transition-colors text-left group cursor-pointer"
+        className="group flex cursor-pointer flex-row items-center gap-2 text-left text-muted-foreground transition-colors hover:text-foreground"
         whileTap={{ scale: 0.99 }}
       >
         <motion.div
           animate={{ rotate: isCollapsed ? 0 : 90 }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="h-4 w-4" />
         </motion.div>
-        <Search className="w-4 h-4" />
+        <Search className="h-4 w-4" />
         {completedText}
       </motion.button>
 
@@ -203,7 +203,7 @@ export function MergedDatasetSearch({
               transition={{ delay: 0.1, duration: 0.2 }}
               className="flex flex-col gap-3"
             >
-              <div className="flex flex-row gap-2 items-center text-muted-foreground text-sm">
+              <div className="flex flex-row items-center gap-2 text-muted-foreground text-sm">
                 <SparklesIcon size={14} />
                 <span>
                   {isMultipleSearches
@@ -215,12 +215,12 @@ export function MergedDatasetSearch({
 
               {/* Keywords */}
               {allKeywords.length > 0 && (
-                <div className="flex flex-row gap-2 flex-wrap">
+                <div className="flex flex-row flex-wrap gap-2">
                   {allKeywords.map((keyword: string) => (
                     <Badge
                       key={keyword}
                       variant="secondary"
-                      className="flex flex-row gap-2 text-sm items-center bg-card/60 border border-border"
+                      className="flex flex-row items-center gap-2 border border-border bg-card/60 text-sm"
                     >
                       <SearchIcon size={14} />
                       <span>{keyword}</span>
@@ -230,7 +230,7 @@ export function MergedDatasetSearch({
               )}
 
               {/* Results */}
-              <div className="p-2 rounded-lg border gap-2 flex flex-col bg-card/60 border-border">
+              <div className="flex flex-col gap-2 rounded-lg border border-border bg-card/60 p-2">
                 {allResults.length > 0 ? (
                   <>
                     <AnimatePresence>
@@ -248,7 +248,7 @@ export function MergedDatasetSearch({
                             }}
                           >
                             <Link
-                              className="flex flex-row gap-1 hover:bg-card/80 p-1 rounded transition-colors"
+                              className="flex flex-row gap-1 rounded p-1 transition-colors hover:bg-card/80"
                               href={`https://www.data.gv.at/katalog/dataset/${result.id}`}
                               target="_blank"
                             >
@@ -266,9 +266,9 @@ export function MergedDatasetSearch({
                                     : "https://www.data.gv.at/assets/datagvat-logo-b60376ea.svg"
                                 }
                                 alt={"logo"}
-                                className="w-6 h-6 rounded-full bg-secondary border p-0.5 mr-1"
+                                className="mr-1 h-6 w-6 rounded-full border bg-secondary p-0.5"
                               />
-                              <span className="text-secondary-foreground font-medium max-w-1/2 truncate">
+                              <span className="max-w-1/2 truncate font-medium text-secondary-foreground">
                                 {result.title.de}
                               </span>
                               <span className="text-muted-foreground">
@@ -293,7 +293,7 @@ export function MergedDatasetSearch({
                       <motion.button
                         type="button"
                         onClick={() => setShowAllResults(!showAllResults)}
-                        className="flex items-center justify-center gap-2 px-2 py-1 text-sm text-muted-foreground hover:text-foreground transition-colors border-t border-border/50 mt-1"
+                        className="mt-1 flex items-center justify-center gap-2 border-border/50 border-t px-2 py-1 text-muted-foreground text-sm transition-colors hover:text-foreground"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{
@@ -306,7 +306,7 @@ export function MergedDatasetSearch({
                           animate={{ rotate: showAllResults ? 180 : 0 }}
                           transition={{ duration: 0.2 }}
                         >
-                          <ChevronDown className="w-4 h-4" />
+                          <ChevronDown className="h-4 w-4" />
                         </motion.div>
                         {showAllResults
                           ? "Weniger anzeigen"
@@ -316,7 +316,7 @@ export function MergedDatasetSearch({
                     )}
                   </>
                 ) : (
-                  <div className="text-muted-foreground w-full text-center py-4">
+                  <div className="w-full py-4 text-center text-muted-foreground">
                     Keine Treffer gefunden
                   </div>
                 )}

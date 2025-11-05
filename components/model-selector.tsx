@@ -65,7 +65,7 @@ export function ModelSelector({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="min-w-[280px] max-w-[90vw] sm:min-w-[300px] max-h-[500px]"
+        className="max-h-[500px] min-w-[280px] max-w-[90vw] sm:min-w-[300px]"
       >
         {availableChatModels.map((chatModel) => {
           const { model } = chatModel;

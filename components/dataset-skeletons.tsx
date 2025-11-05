@@ -2,11 +2,11 @@ import { Skeleton } from "./ui/skeleton";
 
 export const DatasetDetailsSkeleton = () => {
   return (
-    <div className="flex flex-col gap-3 p-3 rounded-lg border bg-card/60">
+    <div className="flex flex-col gap-3 rounded-lg border bg-card/60 p-3">
       {/* Header */}
-      <div className="flex flex-row gap-2 items-start">
-        <Skeleton className="w-8 h-8 rounded-sm" />
-        <div className="flex flex-col flex-1 min-w-0 gap-1">
+      <div className="flex flex-row items-start gap-2">
+        <Skeleton className="h-8 w-8 rounded-sm" />
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <Skeleton className="h-3 w-20" />
           <Skeleton className="h-4 w-full max-w-xs" />
         </div>
@@ -24,13 +24,13 @@ export const DatasetDetailsSkeleton = () => {
       </div>
 
       {/* Metadata Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         {["resources", "created", "modified", "license"].map((cardType, i) => (
           <div
             key={`dataset-card-${cardType}`}
-            className="bg-background/50 rounded p-2 border border-border/50"
+            className="rounded border border-border/50 bg-background/50 p-2"
           >
-            <Skeleton className="h-3 w-full mb-1" />
+            <Skeleton className="mb-1 h-3 w-full" />
             <Skeleton className="h-4 w-8" />
           </div>
         ))}
@@ -41,11 +41,11 @@ export const DatasetDetailsSkeleton = () => {
 
 export const ResourceDetailsSkeleton = () => {
   return (
-    <div className="flex flex-col gap-4 bg-card/60 border border-border p-4 rounded-lg">
+    <div className="flex flex-col gap-4 rounded-lg border border-border bg-card/60 p-4">
       {/* Header */}
-      <div className="flex flex-row gap-3 items-start">
-        <Skeleton className="w-10 h-10 rounded-lg" />
-        <div className="flex flex-col flex-1 min-w-0 gap-2">
+      <div className="flex flex-row items-start gap-3">
+        <Skeleton className="h-10 w-10 rounded-lg" />
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
           <Skeleton className="h-5 w-full max-w-sm" />
           <Skeleton className="h-3 w-full max-w-xs" />
         </div>
@@ -68,7 +68,7 @@ export const ResourceDetailsSkeleton = () => {
 
       {/* Technical Details Section */}
       <div className="border-t pt-3">
-        <Skeleton className="h-3 w-32 mb-2" />
+        <Skeleton className="mb-2 h-3 w-32" />
         <div className="flex flex-wrap gap-2">
           <Skeleton className="h-5 w-24 rounded" />
         </div>
@@ -77,7 +77,7 @@ export const ResourceDetailsSkeleton = () => {
       {/* Download Link */}
       <div className="border-t pt-3">
         <div className="flex items-center gap-2">
-          <Skeleton className="w-4 h-4" />
+          <Skeleton className="h-4 w-4" />
           <Skeleton className="h-3 w-32" />
         </div>
       </div>

@@ -12,7 +12,7 @@ const Artifact = React.forwardRef<
     <div
         ref={ref}
         className={cn(
-            "flex flex-col border border-border rounded-lg bg-card shadow-sm overflow-hidden",
+            "flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm",
             className
         )}
         {...props}
@@ -28,7 +28,7 @@ const ArtifactHeader = React.forwardRef<
     <div
         ref={ref}
         className={cn(
-            "flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3",
+            "flex items-center justify-between gap-4 border-border border-b bg-card px-4 py-3",
             className
         )}
         {...props}
@@ -56,7 +56,7 @@ const ArtifactDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <p
         ref={ref}
-        className={cn("text-xs text-muted-foreground", className)}
+        className={cn("text-muted-foreground text-xs", className)}
         {...props}
     />
 ));

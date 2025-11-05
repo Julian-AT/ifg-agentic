@@ -35,27 +35,27 @@ export function DatasetSearchMessage({
   return (
     <div
       key={toolCallId}
-      className="overflow-hidden sm:max-w-md md:max-w-full min-w-full w-full max-w-fit"
+      className="w-full min-w-full max-w-fit overflow-hidden sm:max-w-md md:max-w-full"
     >
-      <div className="flex flex-row gap-2 items-center">
+      <div className="flex flex-row items-center gap-2">
         <span className="text-muted-foreground">
           <SparklesIcon size={14} />
         </span>
         <span className="text-muted-foreground">Suche nachtest </span>
-        <span className="font-medium flex-1 max-w-max truncate">{input.q}</span>
+        <span className="max-w-max flex-1 truncate font-medium">{input.q}</span>
         <span className="text-muted-foreground"> · </span>
         <span className="text-muted-foreground">
           {output.result.results.length} Treffer
         </span>{" "}
       </div>
       {input.keywords && input.keywords.length > 0 && (
-        <div className="pb-5 pt-2 flex flex-col gap-2">
-          <div className="flex flex-row gap-2 flex-wrap">
+        <div className="flex flex-col gap-2 pt-2 pb-5">
+          <div className="flex flex-row flex-wrap gap-2">
             {input.keywords?.map((keyword: string) => (
               <Badge
                 key={keyword}
                 variant="secondary"
-                className="flex flex-row gap-2 text-sm items-center bg-card/60 border border-border"
+                className="flex flex-row items-center gap-2 border border-border bg-card/60 text-sm"
               >
                 <SearchIcon size={14} />
                 <span>{keyword}</span>
@@ -65,7 +65,7 @@ export function DatasetSearchMessage({
         </div>
       )}
       <div className="flex flex-col gap-2">
-        <div className="p-2 rounded-lg border gap-2 flex flex-col bg-card/60 border-border min-w-full">
+        <div className="flex min-w-full flex-col gap-2 rounded-lg border border-border bg-card/60 p-2">
           {output?.result?.results && output.result.results.length > 0 ? (
             output.result.results.map((result: DatasetSearchResult) => (
               <Link
@@ -77,9 +77,9 @@ export function DatasetSearchMessage({
                 <img
                   src={"https://www.data.gv.at/favicon.ico"}
                   alt={"logo"}
-                  className="w-6 h-6 rounded-full bg-secondary border p-1 mr-1"
+                  className="mr-1 h-6 w-6 rounded-full border bg-secondary p-1"
                 />
-                <span className="text-secondary-foreground font-medium max-w-1/2 truncate">
+                <span className="max-w-1/2 truncate font-medium text-secondary-foreground">
                   {result.title}
                 </span>
                 <span className="text-muted-foreground">
@@ -90,7 +90,7 @@ export function DatasetSearchMessage({
               </Link>
             ))
           ) : (
-            <div className="text-muted-foreground w-full text-center">
+            <div className="w-full text-center text-muted-foreground">
               Keine Treffer gefunden
             </div>
           )}
@@ -109,28 +109,28 @@ export function DatasetSearchSkeleton({
 }: DatasetSearchSkeletonProps) {
   return (
     <div key={toolCallId} className="text-muted-foreground">
-      <div className="flex flex-row gap-2 items-center">
+      <div className="flex flex-row items-center gap-2">
         <span className="text-muted-foreground">
           <SparklesIcon size={14} />
         </span>
         <Skeleton className="h-4 w-32" />
       </div>
-      <div className="py-5 flex flex-col gap-2">
+      <div className="flex flex-col gap-2 py-5">
         <Skeleton className="h-4 w-24" />
         <div className="flex flex-row gap-2">
-          <Skeleton className="h-6 rounded-full w-20" />
-          <Skeleton className="h-6 rounded-full w-16" />
+          <Skeleton className="h-6 w-20 rounded-full" />
+          <Skeleton className="h-6 w-16 rounded-full" />
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <div className="bg-card p-2 rounded-lg border gap-2 flex flex-col">
+        <div className="flex flex-col gap-2 rounded-lg border bg-card p-2">
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={`skeleton-${toolCallId}-${index + 1}`}
-              className="flex flex-row gap-1 items-center"
+              className="flex flex-row items-center gap-1"
             >
-              <Skeleton className="w-6 h-6 rounded-full mr-1" />
-              <Skeleton className="h-4 flex-1 max-w-48" />
+              <Skeleton className="mr-1 h-6 w-6 rounded-full" />
+              <Skeleton className="h-4 max-w-48 flex-1" />
               <Skeleton className="h-4 w-20" />
             </div>
           ))}

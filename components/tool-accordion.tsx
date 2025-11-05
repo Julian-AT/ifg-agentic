@@ -32,7 +32,7 @@ export const ToolAccordion = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row items-center gap-2">
           {icon}
           <ShinyText text={loadingText} />
         </div>
@@ -57,7 +57,7 @@ export const ToolAccordion = ({
       <motion.button
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="flex flex-row gap-2 items-center text-muted-foreground hover:text-foreground transition-colors text-left group"
+        className="group flex flex-row items-center gap-2 text-left text-muted-foreground transition-colors hover:text-foreground"
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
       >
@@ -65,7 +65,7 @@ export const ToolAccordion = ({
           animate={{ rotate: isCollapsed ? 0 : 90 }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="h-4 w-4" />
         </motion.div>
         {icon}
         {completedText}

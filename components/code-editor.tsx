@@ -63,11 +63,11 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
   }, [content, status]);
 
   return (
-    <div className="not-prose relative w-full text-sm h-[90dvh] overflow-y-auto">
+    <div className="not-prose relative h-[90dvh] w-full overflow-y-auto text-sm">
       <div className="relative h-full rounded-lg border border-border bg-background">
         <div
           ref={highlightRef}
-          className="code-editor-highlight overflow-y-auto pointer-events-auto absolute inset-0 [&_pre]:m-0 [&_pre]:bg-transparent [&_pre]:p-4 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:leading-[1.5] [&_code]:font-mono [&_code]:text-sm [&_code]:leading-[1.5]"
+          className="code-editor-highlight pointer-events-auto absolute inset-0 overflow-y-auto [&_code]:font-mono [&_code]:text-sm [&_code]:leading-[1.5] [&_pre]:m-0 [&_pre]:bg-transparent [&_pre]:p-4 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:leading-[1.5]"
           dangerouslySetInnerHTML={{ __html: highlightedCode }}
         />
       </div>

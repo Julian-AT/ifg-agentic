@@ -41,21 +41,21 @@ export function DataNotFoundAction({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-          <div className="bg-white rounded-lg p-3 border border-blue-200">
-            <div className="font-semibold text-blue-900 mb-1">📄 IFG</div>
+        <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
+          <div className="rounded-lg border border-blue-200 bg-white p-3">
+            <div className="mb-1 font-semibold text-blue-900">📄 IFG</div>
             <div className="text-blue-700 text-xs">
               Allgemeine Informationen und Dokumente
             </div>
           </div>
-          <div className="bg-white rounded-lg p-3 border border-blue-200">
-            <div className="font-semibold text-blue-900 mb-1">🔄 IWG</div>
+          <div className="rounded-lg border border-blue-200 bg-white p-3">
+            <div className="mb-1 font-semibold text-blue-900">🔄 IWG</div>
             <div className="text-blue-700 text-xs">
               Daten für kommerzielle Nutzung
             </div>
           </div>
-          <div className="bg-white rounded-lg p-3 border border-blue-200">
-            <div className="font-semibold text-blue-900 mb-1">🔬 DZG</div>
+          <div className="rounded-lg border border-blue-200 bg-white p-3">
+            <div className="mb-1 font-semibold text-blue-900">🔬 DZG</div>
             <div className="text-blue-700 text-xs">
               Forschungsdaten für Wissenschaft
             </div>
@@ -66,7 +66,7 @@ export function DataNotFoundAction({
           {onCreateDataRequest ? (
             <Button
               onClick={handleCreateRequest}
-              className="w-full gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-full gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
               size="lg"
             >
               <Sparkles className="h-4 w-4" />
@@ -86,17 +86,17 @@ export function DataNotFoundAction({
           )}
 
           <div className="flex items-center justify-center gap-2 pt-2">
-            <div className="flex items-center gap-1 text-xs text-blue-600">
+            <div className="flex items-center gap-1 text-blue-600 text-xs">
               <Sparkles className="h-3 w-3" />
               <span>KI-unterstützt</span>
             </div>
-            <div className="w-1 h-1 rounded-full bg-blue-400" />
-            <div className="flex items-center gap-1 text-xs text-blue-600">
+            <div className="h-1 w-1 rounded-full bg-blue-400" />
+            <div className="flex items-center gap-1 text-blue-600 text-xs">
               <FileText className="h-3 w-3" />
               <span>Rechtlich konform</span>
             </div>
-            <div className="w-1 h-1 rounded-full bg-blue-400" />
-            <div className="flex items-center gap-1 text-xs text-blue-600">
+            <div className="h-1 w-1 rounded-full bg-blue-400" />
+            <div className="flex items-center gap-1 text-blue-600 text-xs">
               <Info className="h-3 w-3" />
               <span>Automatische Behördenerkennung</span>
             </div>
@@ -115,9 +115,9 @@ export function DataNotFoundAction({
         </div>
 
         {searchQuery && (
-          <div className="text-xs text-blue-700 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-3 border border-amber-200">
+          <div className="rounded-lg border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-3 text-blue-700 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <div className="h-2 w-2 animate-pulse rounded-full bg-amber-500" />
               <strong>Smart-Tipp:</strong>
             </div>
             <div className="mt-1">

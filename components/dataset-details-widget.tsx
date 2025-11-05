@@ -74,19 +74,19 @@ export const DatasetDetailsWidget = ({ result }: DatasetDetailsWidgetProps) => {
       href={`https://www.data.gv.at/katalog/dataset/${result.id}`}
       target="_blank"
     >
-      <div className="flex flex-col gap-3 p-3 rounded-lg border bg-card/60 hover:bg-card/70 transition-colors">
+      <div className="flex flex-col gap-3 rounded-lg border bg-card/60 p-3 transition-colors hover:bg-card/70">
         {/* Header */}
-        <div className="flex flex-row gap-2 items-start">
+        <div className="flex flex-row items-start gap-2">
           <img
             src={"https://www.data.gv.at/assets/datagvat-logo-b60376ea.svg"}
             alt={"data.gv.at logo"}
-            className="w-8 h-8 aspect-square rounded-sm p-0.5 mt-0.5"
+            className="mt-0.5 aspect-square h-8 w-8 rounded-sm p-0.5"
           />
-          <div className="flex flex-col flex-1 min-w-0">
-            <div className="text-xs text-muted-foreground">
+          <div className="flex min-w-0 flex-1 flex-col">
+            <div className="text-muted-foreground text-xs">
               {result.publisher?.name || getLocalizedText(result.catalog?.title) || "data.gv.at"}
             </div>
-            <h3 className="font-medium leading-tight text-sm">
+            <h3 className="font-medium text-sm leading-tight">
               {getLocalizedText(result.title)}
             </h3>
           </div>
@@ -94,7 +94,7 @@ export const DatasetDetailsWidget = ({ result }: DatasetDetailsWidgetProps) => {
 
         {/* Description */}
         {result.description && (
-          <div className="text-xs text-muted-foreground line-clamp-2">
+          <div className="line-clamp-2 text-muted-foreground text-xs">
             {getLocalizedText(result.description)}
           </div>
         )}
@@ -105,13 +105,13 @@ export const DatasetDetailsWidget = ({ result }: DatasetDetailsWidgetProps) => {
             {result.keywords.slice(0, 4).map((keyword) => (
               <span
                 key={`${result.id}-${keyword.id}`}
-                className="text-xs bg-secondary px-2 py-0.5 rounded text-muted-foreground"
+                className="rounded bg-secondary px-2 py-0.5 text-muted-foreground text-xs"
               >
                 {keyword.label}
               </span>
             ))}
             {result.keywords.length > 4 && (
-              <span className="text-xs bg-secondary px-2 py-0.5 rounded text-muted-foreground">
+              <span className="rounded bg-secondary px-2 py-0.5 text-muted-foreground text-xs">
                 +{result.keywords.length - 4}
               </span>
             )}
@@ -119,46 +119,46 @@ export const DatasetDetailsWidget = ({ result }: DatasetDetailsWidgetProps) => {
         )}
 
         {/* Metadata Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {result.distributions && result.distributions.length > 0 && (
-            <div className="bg-background/50 rounded p-2 border border-border/50">
-              <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+            <div className="rounded border border-border/50 bg-background/50 p-2">
+              <div className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
                 Ressourcen
               </div>
-              <div className="text-sm font-semibold">
+              <div className="font-semibold text-sm">
                 {result.distributions.length}
               </div>
             </div>
           )}
 
           {result.issued && (
-            <div className="bg-background/50 rounded p-2 border border-border/50">
-              <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+            <div className="rounded border border-border/50 bg-background/50 p-2">
+              <div className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
                 Erstellt
               </div>
-              <div className="text-xs font-medium">
+              <div className="font-medium text-xs">
                 {formatDate(result.issued)}
               </div>
             </div>
           )}
 
           {result.modified && (
-            <div className="bg-background/50 rounded p-2 border border-border/50">
-              <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+            <div className="rounded border border-border/50 bg-background/50 p-2">
+              <div className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
                 Aktualisiert
               </div>
-              <div className="text-xs font-medium">
+              <div className="font-medium text-xs">
                 {formatDate(result.modified)}
               </div>
             </div>
           )}
 
           {result.temporal && result.temporal.length > 0 && (
-            <div className="bg-background/50 rounded p-2 border border-border/50">
-              <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+            <div className="rounded border border-border/50 bg-background/50 p-2">
+              <div className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
                 Zeitraum
               </div>
-              <div className="text-xs font-medium">
+              <div className="font-medium text-xs">
                 {formatDate(result.temporal[0].gte)} - {formatDate(result.temporal[0].lte)}
               </div>
             </div>
@@ -168,7 +168,7 @@ export const DatasetDetailsWidget = ({ result }: DatasetDetailsWidgetProps) => {
         {/* HVD Badge */}
         {result.is_hvd && (
           <div className="flex">
-            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
+            <span className="rounded-full bg-blue-100 px-2 py-1 font-medium text-blue-800 text-xs">
               High-Value Dataset
             </span>
           </div>

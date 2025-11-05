@@ -8,8 +8,8 @@ import type { searchDatasets } from "./ai/tools/datasets";
 import type { getDatasetDetails } from "./ai/tools/datasets/get-dataset-details";
 import type { exploreCsvData } from "./ai/tools/datasets/explore-csv-data";
 import type { createAnalysisPlan } from "./ai/tools/analysis";
-import { createDocument, requestSuggestions, updateDocument } from "./ai/tools";
-import { AppUsage } from "./usage";
+import type { createDocument, requestSuggestions, updateDocument } from "./ai/tools";
+import type { AppUsage } from "./usage";
 
 
 export type DataPart = { type: "append-message"; message: string };

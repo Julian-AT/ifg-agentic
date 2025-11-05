@@ -424,7 +424,7 @@ function PureModelSelectorCompact({
       value={selectedModel?.model}
     >
       <PromptInputModelSelectTrigger
-        className="flex cursor-pointer h-8 items-center gap-2 rounded-lg border-0 bg-background px-2 text-foreground shadow-none transition-colors hover:bg-accent focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="flex h-8 cursor-pointer items-center gap-2 rounded-lg border-0 bg-background px-2 text-foreground shadow-none transition-colors hover:bg-accent focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         type="button"
       >
         {selectedModel?.modelImage ? (
@@ -437,7 +437,7 @@ function PureModelSelectorCompact({
         </span>
         <ChevronDownIcon size={16} />
       </PromptInputModelSelectTrigger>
-      <PromptInputModelSelectContent className="min-w-[260px] max-h-[500px] overflow-y-auto">
+      <PromptInputModelSelectContent className="max-h-[500px] min-w-[260px] overflow-y-auto">
         {chatModels.map((model) => (
           <PromptInputModelSelectItem key={model.model} value={model.model}>
             <div className="flex items-center gap-2">

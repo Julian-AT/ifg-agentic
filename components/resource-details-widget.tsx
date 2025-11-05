@@ -23,16 +23,16 @@ export const ResourceDetailsWidget = ({
   result,
 }: ResourceDetailsWidgetProps) => {
   return (
-    <div className="flex flex-col gap-4 bg-card/60 border border-border p-4 rounded-lg">
+    <div className="flex flex-col gap-4 rounded-lg border border-border bg-card/60 p-4">
       {/* Header */}
-      <div className="flex flex-row gap-3 items-start">
-        <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-white font-semibold text-sm shrink-0">
+      <div className="flex flex-row items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary font-semibold text-sm text-white">
           {result.format || "FILE"}
         </div>
-        <div className="flex flex-col flex-1 min-w-0">
-          <h3 className="font-semibold leading-tight text-lg">{result.name}</h3>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <h3 className="font-semibold text-lg leading-tight">{result.name}</h3>
           {result.url && (
-            <p className="text-sm text-muted-foreground line-clamp-2 max-w-1/2 truncate">
+            <p className="line-clamp-2 max-w-1/2 truncate text-muted-foreground text-sm">
               {result.url}
             </p>
           )}
@@ -42,14 +42,14 @@ export const ResourceDetailsWidget = ({
       {/* Main Resource Details */}
       <div className="flex flex-wrap gap-4 text-sm">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <span className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
             Format:
           </span>
           <span className="font-medium">{result.format || "Unbekannt"}</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <span className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
             Status:
           </span>
           <span
@@ -63,7 +63,7 @@ export const ResourceDetailsWidget = ({
 
         {result.size && (
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
               Größe:
             </span>
             <span className="font-medium">
@@ -74,7 +74,7 @@ export const ResourceDetailsWidget = ({
 
         {result.language && (
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
               Sprache:
             </span>
             <span className="font-medium">{result.language}</span>
@@ -83,7 +83,7 @@ export const ResourceDetailsWidget = ({
 
         {result.created && (
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
               Erstellt:
             </span>
             <span className="font-medium">
@@ -94,7 +94,7 @@ export const ResourceDetailsWidget = ({
 
         {result.last_modified && (
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
               Geändert:
             </span>
             <span className="font-medium">
@@ -107,12 +107,12 @@ export const ResourceDetailsWidget = ({
       {/* Technical Details */}
       {(result.mimetype || result.characterSet || result.datastore_active) && (
         <div className="border-t pt-3">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
+          <span className="mb-2 block font-medium text-muted-foreground text-xs uppercase tracking-wide">
             Technische Details
           </span>
           <div className="flex flex-wrap gap-2">
             {result.datastore_active && (
-              <Badge variant="outline" className="text-xs text-green-600">
+              <Badge variant="outline" className="text-green-600 text-xs">
                 Datastore aktiv
               </Badge>
             )}
@@ -126,10 +126,10 @@ export const ResourceDetailsWidget = ({
           <Link
             href={result.url}
             target="_blank"
-            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors"
+            className="inline-flex items-center gap-2 font-medium text-muted-foreground text-sm transition-colors"
           >
             <svg
-              className="w-4 h-4"
+              className="h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

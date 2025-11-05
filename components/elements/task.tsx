@@ -66,7 +66,7 @@ export const TaskTrigger = ({
     {children ?? (
       <div className="flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-foreground">
         <ChevronRightIcon className="size-4 transition-transform group-data-[state=open]:rotate-90" />
-        <SearchIcon className="size-4 " />
+        <SearchIcon className="size-4" />
         <p>{title}</p>
       </div>
     )}

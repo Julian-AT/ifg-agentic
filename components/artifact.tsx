@@ -278,7 +278,7 @@ function PureArtifact({
           {!isMobile && (
             <motion.div
               animate={{ width: windowWidth, right: 0 }}
-              className="fixed h-dvh bg-transparent z-40"
+              className="fixed z-40 h-dvh bg-transparent"
               exit={{
                 width: isSidebarOpen ? windowWidth - 256 : windowWidth,
                 right: 0,
@@ -303,7 +303,7 @@ function PureArtifact({
                   damping: 30,
                 },
               }}
-              className="z-[70] relative h-dvh w-[500px] shrink-0 bg-transparent pl-3 pb-3 flex flex-col"
+              className="relative z-[70] flex h-dvh w-[500px] shrink-0 flex-col bg-transparent pb-3 pl-3"
               exit={{
                 opacity: 0,
                 x: 0,
@@ -312,21 +312,21 @@ function PureArtifact({
               }}
               initial={{ opacity: 0, x: 10, scale: 1 }}
             >
-              <div className="flex gap-2 py-2 items-center h-16 bg-transparent">
+              <div className="flex h-16 items-center gap-2 bg-transparent py-2">
                 <Link href="/" className="cursor-pointer" onClick={() => setArtifact((currentArtifact) => ({ ...currentArtifact, isVisible: false }))}>
                   <Image src="/assets/logo_datagvat.svg" alt="Logo" width={48} height={48} />
                 </Link>
                 <div className="flex flex-col">
-                  <span className="text-sm line-clamp-1 pr-12">{artifact.title}</span>
-                  <span className="text-xs text-muted-foreground">{isReadonly ? "Read-Only" : "Editierbar"}</span>
+                  <span className="line-clamp-1 pr-12 text-sm">{artifact.title}</span>
+                  <span className="text-muted-foreground text-xs">{isReadonly ? "Read-Only" : "Editierbar"}</span>
                 </div>
               </div>
-              <div className="flex flex-1 shrink-0 border border-primary/10 rounded-xl bg-background/65 backdrop-blur-xl overflow-hidden max-h-full">
+              <div className="flex max-h-full flex-1 shrink-0 overflow-hidden rounded-xl border border-primary/10 bg-background/65 backdrop-blur-xl">
                 <AnimatePresence>
                   {!isCurrentVersion && (
                     <motion.div
                       animate={{ opacity: 1 }}
-                      className="absolute top-0 left-0 z-50 h-dvh w-[500px] p-3 bg-background/50 backdrop-blur-lg"
+                      className="absolute top-0 left-0 z-50 h-dvh w-[500px] bg-background/50 p-3 backdrop-blur-lg"
                       exit={{ opacity: 0 }}
                       initial={{ opacity: 0 }}
                     />
@@ -334,7 +334,7 @@ function PureArtifact({
                   )}
                 </AnimatePresence>
 
-                <div className="flex flex-1 flex-col items-center justify-between mx-auto w-full">
+                <div className="mx-auto flex w-full flex-1 flex-col items-center justify-between">
                   <ArtifactMessages
                     artifactStatus={artifact.status}
                     chatId={chatId}
@@ -406,7 +406,7 @@ function PureArtifact({
                   },
                 }
             }
-            className="fixed flex h-dvh flex-col overflow-y-scroll border-zinc-200 bg-transparent dark:border-zinc-700 z-[70]"
+            className="fixed z-[70] flex h-dvh flex-col overflow-y-scroll border-zinc-200 bg-transparent dark:border-zinc-700"
             exit={{
               opacity: 0,
               scale: 0.5,
@@ -437,12 +437,12 @@ function PureArtifact({
                 }
             }
           >
-            <div className="flex flex-row items-start justify-between px-3 h-14 pt-3 bg-transparent">
+            <div className="flex h-14 flex-row items-start justify-between bg-transparent px-3 pt-3">
               <div className="flex flex-row items-center gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="rounded-lg h-8 w-8 border border-primary/10"
+                  className="h-8 w-8 rounded-lg border border-primary/10"
                   onClick={() => setArtifact((currentArtifact) => ({ ...currentArtifact, isVisible: false }))}
                 >
                   <X className="size-4" />
@@ -450,7 +450,7 @@ function PureArtifact({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="rounded-lg h-8 w-8 border border-primary/10"
+                  className="h-8 w-8 rounded-lg border border-primary/10"
                   onClick={() => setIsFullscreen(!isFullscreen)}
                 >
                   {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
@@ -461,7 +461,7 @@ function PureArtifact({
               </div>
             </div>
 
-            <div className="max-w-full! items-center overflow-y-auto bg-transparent p-3 overflow-hidden rounded-xl">
+            <div className="max-w-full! items-center overflow-hidden overflow-y-auto rounded-xl bg-transparent p-3">
               <artifactDefinition.content
                 content={
                   isCurrentVersion

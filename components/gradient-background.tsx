@@ -19,7 +19,7 @@ const GradientBackground = ({ active }: GradientBackgroundProps) => {
   return (
     <div className="fixed inset-0 z-10 h-dvh w-dvw overflow-hidden">
       <div
-        className="absolute inset-0 bg-repeat bg-auto hidden dark:block"
+        className="absolute inset-0 hidden bg-auto bg-repeat dark:block"
         style={{ backgroundImage: "url(/grain.png)" }}
       />
       <motion.div
@@ -51,7 +51,7 @@ const GradientBackground = ({ active }: GradientBackgroundProps) => {
           src="/gradient.png"
           alt="Gradient"
           fill
-          className="object-cover opacity-60 dark:block hidden"
+          className="hidden object-cover opacity-60 dark:block"
           priority
           onLoad={handleImageLoad}
         />

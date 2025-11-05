@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronRight, Database } from "lucide-react";
-import { DatasetDetailsWidget, DatasetResult } from "./dataset-details-widget";
+import { DatasetDetailsWidget, type DatasetResult } from "./dataset-details-widget";
 import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { DatasetDetailsSkeleton } from "./dataset-skeletons";
 import { ShinyText } from "./shiny-text";
@@ -38,8 +38,8 @@ export function MergedDatasetDetails({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <div className="flex flex-row gap-2 items-center">
-          <Database className="w-4 h-4" />
+        <div className="flex flex-row items-center gap-2">
+          <Database className="h-4 w-4" />
           <ShinyText text="Lade Datensatz-Details..." />
         </div>
         <motion.div
@@ -78,16 +78,16 @@ export function MergedDatasetDetails({
       <motion.button
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="flex flex-row gap-2 items-center text-muted-foreground hover:text-foreground transition-colors text-left group cursor-pointer"
+        className="group flex cursor-pointer flex-row items-center gap-2 text-left text-muted-foreground transition-colors hover:text-foreground"
         whileTap={{ scale: 0.99 }}
       >
         <motion.div
           animate={{ rotate: isCollapsed ? 0 : 90 }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="h-4 w-4" />
         </motion.div>
-        <Database className="w-4 h-4" />
+        <Database className="h-4 w-4" />
         {completedText}
       </motion.button>
 
@@ -128,7 +128,7 @@ export function MergedDatasetDetails({
                 <motion.button
                   type="button"
                   onClick={() => setShowAllDatasets(!showAllDatasets)}
-                  className="flex items-center justify-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border/50 rounded-lg bg-card/60 hover:bg-card/40"
+                  className="flex items-center justify-center gap-2 rounded-lg border border-border/50 bg-card/60 px-3 py-2 text-muted-foreground text-sm transition-colors hover:bg-card/40 hover:text-foreground"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: displayedDatasets.length * 0.05 + 0.2 }}
@@ -139,7 +139,7 @@ export function MergedDatasetDetails({
                     animate={{ rotate: showAllDatasets ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className="h-4 w-4" />
                   </motion.div>
                   {showAllDatasets
                     ? "Weniger Datensätze anzeigen"

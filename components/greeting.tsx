@@ -5,7 +5,7 @@ export const Greeting = () => {
   return (
     <div
       key="overview"
-      className="max-w-3xl mx-auto text-center w-full flex flex-col justify-center gap-4 overflow-hidden h-[90%]"
+      className="mx-auto flex h-[90%] w-full max-w-3xl flex-col justify-center gap-4 overflow-hidden text-center"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
@@ -26,7 +26,7 @@ export const Greeting = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.5 }}
-        className="mb-2 flex items-center mx-auto gap-1 text-2xl font-medium leading-none text-foreground sm:text-3xl md:mb-2.5 md:gap-0 md:text-5xl"
+        className="mx-auto mb-2 flex items-center gap-1 font-medium text-2xl text-foreground leading-none sm:text-3xl md:mb-2.5 md:gap-0 md:text-5xl"
       >
         Erkunde Österreichs Daten
       </motion.div>
@@ -35,7 +35,7 @@ export const Greeting = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.6 }}
-        className="mb-6 max-w-3/4 mx-auto text-center text-lg leading-tight text-foreground/65 md:max-w-full md:text-xl"
+        className="mx-auto mb-6 max-w-3/4 text-center text-foreground/65 text-lg leading-tight md:max-w-full md:text-xl"
       >
         Suche, Entdecke und Visualisiere Daten von data.gv.at
       </motion.div>

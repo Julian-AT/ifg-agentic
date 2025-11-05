@@ -17,7 +17,7 @@ export const sheetDocumentHandler = createDocumentHandler<"sheet">({
     }
 
     if (csvStructure) {
-      enhancedPrompt += `\n\nCSV Structure:`;
+      enhancedPrompt += "\n\nCSV Structure:";
       enhancedPrompt += `\n- Total Rows: ${csvStructure.totalRows}`;
       enhancedPrompt += `\n- Total Columns: ${csvStructure.totalColumns}`;
 
@@ -25,11 +25,11 @@ export const sheetDocumentHandler = createDocumentHandler<"sheet">({
         enhancedPrompt += `\n- Delimiter: "${csvStructure.statistics.delimiter || ','}"`;
         enhancedPrompt += `\n- Title Row Skipped: ${csvStructure.statistics.titleRowSkipped ? 'YES - Use skiprows=1 in pd.read_csv()' : 'NO'}`;
         if (csvStructure.statistics.titleRowSkipped) {
-          enhancedPrompt += `\n  ⚠️ CRITICAL: Add skiprows=1 parameter to pd.read_csv() because a title row was detected`;
+          enhancedPrompt += "\n  ⚠️ CRITICAL: Add skiprows=1 parameter to pd.read_csv() because a title row was detected";
         }
       }
 
-      enhancedPrompt += `\n- Columns:`;
+      enhancedPrompt += "\n- Columns:";
       csvStructure.columns.forEach(col => {
         enhancedPrompt += `\n  • ${col.name} (${col.type})`;
         if (col.sampleValues?.length > 0) {

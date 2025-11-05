@@ -219,15 +219,15 @@ export function getContextualPrompt(
 
 // Pre-defined enhancement prompts for common scenarios
 export const ENHANCEMENT_SCENARIOS = {
-  research: `Focus on academic and research applications. Emphasize scientific methodology, research ethics, data handling protocols, and publication plans. Consider institutional affiliations and research approval processes.`,
+  research: "Focus on academic and research applications. Emphasize scientific methodology, research ethics, data handling protocols, and publication plans. Consider institutional affiliations and research approval processes.",
 
-  commercial: `Focus on business and commercial applications. Emphasize business model viability, market analysis, data security measures, and revenue implications. Consider competitive sensitivity and commercial confidentiality.`,
+  commercial: "Focus on business and commercial applications. Emphasize business model viability, market analysis, data security measures, and revenue implications. Consider competitive sensitivity and commercial confidentiality.",
 
-  journalism: `Focus on journalistic and media applications. Emphasize public interest, transparency, investigative needs, and editorial purposes. Consider press freedom and public right to know.`,
+  journalism: "Focus on journalistic and media applications. Emphasize public interest, transparency, investigative needs, and editorial purposes. Consider press freedom and public right to know.",
 
-  citizen: `Focus on individual citizen requests. Emphasize personal interest, democratic participation, transparency rights, and civic engagement. Consider accessibility and comprehension levels.`,
+  citizen: "Focus on individual citizen requests. Emphasize personal interest, democratic participation, transparency rights, and civic engagement. Consider accessibility and comprehension levels.",
 
-  ngo: `Focus on non-profit and advocacy applications. Emphasize public benefit, social impact, organizational mission alignment, and community service. Consider resource constraints and volunteer capacity.`,
+  ngo: "Focus on non-profit and advocacy applications. Emphasize public benefit, social impact, organizational mission alignment, and community service. Consider resource constraints and volunteer capacity.",
 };
 
 // Prompt templates for specific field suggestions

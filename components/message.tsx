@@ -173,14 +173,14 @@ const PurePreviewMessage = ({
     <AnimatePresence>
       <motion.div
         data-testid={`message-${message.role}`}
-        className="w-full mx-auto max-w-3xl px-4 group/message"
+        className="group/message mx-auto w-full max-w-3xl px-4"
         initial={{ y: 5, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         data-role={message.role}
       >
         <div
           className={cn(
-            "flex gap-4 w-full group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl",
+            "flex w-full gap-4 group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl",
             {
               "w-full": mode === "edit",
               "group-data-[role=user]/message:w-fit": mode !== "edit",
@@ -188,12 +188,12 @@ const PurePreviewMessage = ({
           )}
         >
           {message.role === "assistant" && (
-            <div className="size-9 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-border">
               <div className="translate-y-px">
                 <Image
                   src="/assets/logo_datagvat.png"
                   alt="Logo"
-                  className="w-9 h-9 p-1.5 bg-card/60	rounded-full"
+                  className="h-9 w-9 rounded-full bg-card/60 p-1.5"
                   width={32}
                   height={32}
                 />
@@ -202,13 +202,13 @@ const PurePreviewMessage = ({
           )}
 
           <div
-            className={cn("flex flex-col gap-4 max-w-full", {
+            className={cn("flex max-w-full flex-col gap-4", {
               "min-h-96": message.role === "assistant" && requiresScrollPadding,
             })}
           >
             {attachmentsFromMessage.length > 0 && (
               <div
-                data-testid={`message-attachments`}
+                data-testid={"message-attachments"}
                 className="flex flex-row justify-end gap-2"
               >
                 {attachmentsFromMessage.map((attachment) => (
@@ -257,9 +257,8 @@ const PurePreviewMessage = ({
                       isLoading={!hasAnyOutput}
                     />
                   );
-                } else {
-                  return null;
                 }
+                  return null;
               }
 
               if (type === "reasoning") {
@@ -304,7 +303,7 @@ const PurePreviewMessage = ({
 
                 if (mode === "edit") {
                   return (
-                    <div key={key} className="flex flex-row gap-2 items-start">
+                    <div key={key} className="flex flex-row items-start gap-2">
                       <div className="size-8" />
 
                       <MessageEditor
@@ -405,15 +404,15 @@ const PurePreviewMessage = ({
 
                 if (state === "input-available") {
                   return (
-                    <div className="flex flex-row gap-2 items-center text-muted-foreground">
-                      <FileText className="w-4 h-4" />
+                    <div className="flex flex-row items-center gap-2 text-muted-foreground">
+                      <FileText className="h-4 w-4" />
                       <ShinyText text="Analysiere CSV-Daten..." />
                     </div>
                   );
                 }
                 return (
-                  <div className="flex flex-row gap-2 items-center text-muted-foreground">
-                    <FileText className="w-4 h-4" />
+                  <div className="flex flex-row items-center gap-2 text-muted-foreground">
+                    <FileText className="h-4 w-4" />
                     CSV-Daten analysiert
                   </div>
                 );
@@ -483,9 +482,8 @@ const PurePreviewMessage = ({
                       isLoading={!hasAnyOutput}
                     />
                   );
-                } else {
-                  return null;
                 }
+                  return null;
               }
             })}
 
@@ -525,32 +523,32 @@ export const ThinkingMessage = () => {
   return (
     <motion.div
       data-testid="message-assistant-loading"
-      className="w-full mx-auto max-w-3xl px-4 group/message min-h-96"
+      className="group/message mx-auto min-h-96 w-full max-w-3xl px-4"
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1, transition: { delay: 1 } }}
       data-role={role}
     >
       <div
         className={cx(
-          "flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl",
+          "flex w-full gap-4 rounded-xl group-data-[role=user]/message:ml-auto group-data-[role=user]/message:w-fit group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:px-3 group-data-[role=user]/message:py-2",
           {
             "group-data-[role=user]/message:bg-card/60": true,
           }
         )}
       >
-        <div className="size-9 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-border">
           <div className="translate-y-px">
             <Image
               src="/assets/logo_datagvat.png"
               alt="Logo"
-              className="w-9 h-9 p-1.5 bg-card/60	rounded-full"
+              className="h-9 w-9 rounded-full bg-card/60 p-1.5"
               width={32}
               height={32}
             />
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 w-full">
+        <div className="flex w-full flex-col gap-2">
           <div className="flex flex-col gap-4 text-muted-foreground">
             Ich denke nach...
           </div>

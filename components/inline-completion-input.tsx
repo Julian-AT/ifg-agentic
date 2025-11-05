@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import type React from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -153,22 +154,22 @@ export function InlineCompletionInput({
 
     return (
         <div className="space-y-2">
-            <Label htmlFor={id} className="text-sm font-medium">
+            <Label htmlFor={id} className="font-medium text-sm">
                 {label} {required && <span className="text-red-500">*</span>}
             </Label>
 
             <div className="relative">
                 <div
                     className={cn(
-                        "absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-sm overflow-hidden",
-                        "text-transparent p-2 px-3 border border-transparent"
+                        "pointer-events-none absolute inset-0 overflow-hidden whitespace-pre-wrap break-words text-sm",
+                        "border border-transparent p-2 px-3 text-transparent"
                     )}
                 >
                     {value}
                     {completion && (
                         <span className="text-muted-foreground/60">
                             {completion}
-                            <span className="text-xs ml-1 text-muted-foreground/40 border border-muted-foreground/40 rounded-md px-1">TAB</span>
+                            <span className="ml-1 rounded-md border border-muted-foreground/40 px-1 text-muted-foreground/40 text-xs">TAB</span>
                         </span>
                     )}
                 </div>
@@ -194,7 +195,7 @@ export function InlineCompletionInput({
             </div>
 
             {error && (
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-red-600 text-sm">{error}</p>
             )}
         </div>
     );

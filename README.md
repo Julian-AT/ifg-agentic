@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/thumbnail.png" alt="IFG Agentic" width="80%" height="80%" style="border-radius: 10px; box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);">
+<img src="public/thumbnail.png" alt="IFG Agentic" width="100%" height="100%" style="border-radius: 10px; box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);">
 
 <a name="readme-top"></a>
 
@@ -36,8 +36,6 @@ Entdecke, Analysiere und Visualisiere österreichische Datensätze von **[data.g
 
 <div align="right">
 
-[&nwarr; Back to top](#readme-top)
-
 </div>
 
 ## Tech Stack
@@ -58,8 +56,6 @@ Entdecke, Analysiere und Visualisiere österreichische Datensätze von **[data.g
 - **[Biome][biome_url]** – Fast Linter und Formatter
 
 <div align="right">
-
-[&nwarr; Back to top](#readme-top)
 
 </div>
 

@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { Session } from "next-auth";
 import type { ChatMessage } from "@/lib/types";
 
-interface CsvExplorationResult {
+type CsvExplorationResult = {
     datasetName: string;
     url: string;
     totalRows: number;
@@ -25,15 +25,15 @@ interface CsvExplorationResult {
         duplicateHeaders: string[];
         titleRowSkipped?: boolean;
     };
-}
+};
 
-interface DatasetToolsProps {
+type DatasetToolsProps = {
     session: Session;
     dataStream: UIMessageStreamWriter<ChatMessage>;
-}
+};
 
 
-export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
+export const exploreCsvData = ({ session: _session, dataStream: _dataStream }: DatasetToolsProps) =>
     tool({
         description:
             "Analyze CSV file structure before writing code. CRITICAL: Use the access_url[0] from dataset.distributions array as the url parameter. This tool fetches the CSV, detects delimiter, infers column types, and returns sample data. You MUST call this before createDocument to know the exact column names and types. NOTE: This tool automatically detects and skips title rows (e.g., when the actual headers are in row 2). When generating code, account for this - if a title row was detected, skip the first row when reading the CSV.",
@@ -58,7 +58,7 @@ export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
                 .optional()
                 .describe("Text encoding to use (e.g., 'utf-8', 'iso-8859-1', default: utf-8)"),
         }),
-        execute: async ({ url, datasetName, sampleSize = 5, encoding = 'utf-8' }): Promise<CsvExplorationResult> => {
+        execute: async ({ url, datasetName, sampleSize = 5, encoding: _encoding = 'utf-8' }): Promise<CsvExplorationResult> => {
             try {
                 const proxiedUrl = `https://corsproxy.io/?${url}`;
 
@@ -180,7 +180,7 @@ function detectDelimiter(csvText: string): string {
 
     for (const delimiter of delimiters) {
         const lines = sample.split('\n').filter(line => line.trim());
-        if (lines.length < 2) continue;
+        if (lines.length < 2) { continue; }
 
         const counts = lines.map(line => (line.match(new RegExp(`\\${delimiter}`, 'g')) || []).length);
         const avgCount = counts.reduce((sum, count) => sum + count, 0) / counts.length;
@@ -231,18 +231,20 @@ function parseCsvLine(line: string, delimiter: string): string[] {
 
 function findDuplicates(arr: string[]): string[] {
     const counts: Record<string, number> = {};
-    arr.forEach(item => {
+    for (const item of arr) {
         counts[item] = (counts[item] || 0) + 1;
-    });
+    }
 
     return Object.keys(counts).filter(key => counts[key] > 1);
 }
 
+const DATE_PATTERN_REGEX = /\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}/;
+
 function inferDataType(values: string[]): string {
-    if (values.length === 0) return 'string';
+    if (values.length === 0) { return 'string'; }
 
     const nonEmptyValues = values.filter(val => val.trim() !== '');
-    if (nonEmptyValues.length === 0) return 'string';
+    if (nonEmptyValues.length === 0) { return 'string'; }
 
     const booleanValues = nonEmptyValues.filter(val =>
         ['true', 'false', 'yes', 'no', 'ja', 'nein', '1', '0'].includes(val.toLowerCase())
@@ -253,7 +255,7 @@ function inferDataType(values: string[]): string {
 
     const dateValues = nonEmptyValues.filter(val => {
         const parsed = Date.parse(val);
-        return !isNaN(parsed) && val.match(/\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}/);
+        return !Number.isNaN(parsed) && val.match(DATE_PATTERN_REGEX);
     });
     if (dateValues.length >= nonEmptyValues.length * 0.8) {
         return 'date';
@@ -261,7 +263,7 @@ function inferDataType(values: string[]): string {
 
     const numberValues = nonEmptyValues.filter(val => {
         const cleaned = val.replace(/[.,\s]/g, '.');
-        return !isNaN(Number(cleaned)) && isFinite(Number(cleaned));
+        return !Number.isNaN(Number(cleaned)) && Number.isFinite(Number(cleaned));
     });
 
     if (numberValues.length >= nonEmptyValues.length * 0.8) {

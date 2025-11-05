@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,11 +11,11 @@ import {
 import { FileText, Search, ExternalLink, Sparkles, Info } from "lucide-react";
 import Link from "next/link";
 
-interface DataNotFoundActionProps {
+type DataNotFoundActionProps = {
   searchQuery?: string;
   className?: string;
   onCreateDataRequest?: (query: string) => void;
-}
+};
 
 export function DataNotFoundAction({
   searchQuery = "",

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDownIcon, ChevronRightIcon, SearchIcon } from "lucide-react";
+import { ChevronRightIcon, SearchIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import {
   Collapsible,

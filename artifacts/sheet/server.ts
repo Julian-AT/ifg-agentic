@@ -30,12 +30,12 @@ export const sheetDocumentHandler = createDocumentHandler<"sheet">({
       }
 
       enhancedPrompt += "\n- Columns:";
-      csvStructure.columns.forEach(col => {
+      for (const col of csvStructure.columns) {
         enhancedPrompt += `\n  • ${col.name} (${col.type})`;
         if (col.sampleValues?.length > 0) {
           enhancedPrompt += ` - Examples: ${col.sampleValues.slice(0, 2).join(', ')}`;
         }
-      });
+      }
     }
 
     const { fullStream } = streamObject({

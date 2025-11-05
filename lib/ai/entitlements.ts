@@ -1,10 +1,10 @@
 import type { UserType } from '@/app/(auth)/auth';
 import { chatModels, type ChatModel } from './models';
 
-interface Entitlements {
+type Entitlements = {
   maxMessagesPerDay: number;
-  availableChatModelIds: Array<ChatModel['model']>;
-}
+  availableChatModelIds: ChatModel['model'][];
+};
 
 export const entitlementsByUserType: Record<UserType, Entitlements> = {
   /*

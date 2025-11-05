@@ -255,12 +255,12 @@ export const regularPrompt = `
 // SPECIALIZED PROMPTS
 // ============================================================================
 
-export interface RequestHints {
+export type RequestHints = {
   latitude: Geo["latitude"];
   longitude: Geo["longitude"];
   city: Geo["city"];
   country: Geo["country"];
-}
+};
 
 export const getRequestPromptFromHints = (requestHints: RequestHints) => `\
 ## REQUEST CONTEXT
@@ -270,7 +270,7 @@ export const getRequestPromptFromHints = (requestHints: RequestHints) => `\
 `;
 
 export const systemPrompt = ({
-  selectedChatModel,
+  selectedChatModel: _selectedChatModel,
   requestHints,
 }: {
   selectedChatModel: string;

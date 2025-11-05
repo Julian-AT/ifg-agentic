@@ -3,7 +3,7 @@
 
 export type RequestType = "IFG" | "IWG" | "DZG";
 
-export interface BaseRequestData {
+export type BaseRequestData = {
   id: string;
   type: RequestType;
   title: string;
@@ -16,9 +16,9 @@ export interface BaseRequestData {
   assignedAgency?: Agency;
   relatedDatasets?: string[];
   internalNotes?: string;
-}
+};
 
-export interface RequesterInfo {
+export type RequesterInfo = {
   name: string;
   email: string;
   organization?: string;
@@ -26,24 +26,24 @@ export interface RequesterInfo {
   phone?: string;
   isCommercialUse?: boolean;
   requestReason?: string;
-}
+};
 
-export interface Address {
+export type Address = {
   street: string;
   city: string;
   postalCode: string;
   country: string;
-}
+};
 
-export interface Timeline {
+export type Timeline = {
   submittedAt: Date;
   deadline: Date; // 4 weeks from submission as per law
   expectedResponse?: Date;
   reminderSent?: Date[];
   escalationLevel: number;
-}
+};
 
-export interface RequestStatus {
+export type RequestStatus = {
   current:
   | "draft"
   | "submitted"
@@ -55,16 +55,16 @@ export interface RequestStatus {
   | "overdue";
   history: StatusChange[];
   publiclyVisible: boolean;
-}
+};
 
-export interface StatusChange {
+export type StatusChange = {
   status: string;
   timestamp: Date;
   note?: string;
   changedBy: string;
-}
+};
 
-export interface Agency {
+export type Agency = {
   id: string;
   name: string;
   type: "federal" | "state" | "municipal" | "other";
@@ -76,7 +76,7 @@ export interface Agency {
   competencies: string[];
   elakIntegration: boolean;
   averageResponseTime?: number; // in days
-}
+};
 
 // IFG (Information Freedom Act) - General access to public information
 export interface IFGRequest extends BaseRequestData {
@@ -88,14 +88,14 @@ export interface IFGRequest extends BaseRequestData {
   exemptionConcerns?: ExemptionConcern[];
 }
 
-export interface ExemptionConcern {
+export type ExemptionConcern = {
   type:
   | "privacy"
   | "business_secrets"
   | "state_security"
   | "ongoing_proceedings";
   description: string;
-}
+};
 
 // IWG (Information Reuse Act) - Open Data and commercial use
 export interface IWGRequest extends BaseRequestData {
@@ -114,25 +114,25 @@ export interface IWGRequest extends BaseRequestData {
   feeAcceptance: FeeAcceptance;
 }
 
-export interface TechnicalRequirements {
+export type TechnicalRequirements = {
   apiAccess: boolean;
   bulkDownload: boolean;
   machineReadable: boolean;
   metadata: boolean;
   documentation: boolean;
-}
+};
 
-export interface ExistingDataCheck {
+export type ExistingDataCheck = {
   dataGovAtSearched: boolean;
   openDataPortalsChecked: string[];
   relatedRequestsReviewed: boolean;
-}
+};
 
-export interface FeeAcceptance {
+export type FeeAcceptance = {
   willingToPay: boolean;
   maxAmount?: number;
   paymentMethod?: string;
-}
+};
 
 // DZG (Data Access Act) - Protected data for research/innovation
 export interface DZGRequest extends BaseRequestData {
@@ -146,7 +146,7 @@ export interface DZGRequest extends BaseRequestData {
   publicationPlans?: PublicationPlans;
 }
 
-export interface ResearchPurpose {
+export type ResearchPurpose = {
   field:
   | "health"
   | "environment"
@@ -158,25 +158,25 @@ export interface ResearchPurpose {
   publicBenefit: string;
   methodology: string;
   expectedOutcomes: string;
-}
+};
 
-export interface DataSubject {
+export type DataSubject = {
   category: "individuals" | "businesses" | "organizations";
   sensitivityLevel: "public" | "internal" | "confidential" | "secret";
   dataTypes: string[];
   timeframe: DateRange;
-}
+};
 
-export interface PrivacyMeasures {
+export type PrivacyMeasures = {
   anonymization: boolean;
   pseudonymization: boolean;
   aggregation: boolean;
   accessControls: string[];
   storageLocation: "local" | "cloud_eu" | "cloud_non_eu";
   encryptionLevel: string;
-}
+};
 
-export interface InstitutionalAffiliation {
+export type InstitutionalAffiliation = {
   institution: string;
   department: string;
   role: string;
@@ -187,35 +187,35 @@ export interface InstitutionalAffiliation {
   | "private_company"
   | "ngo"
   | "government";
-}
+};
 
-export interface EthicsApproval {
+export type EthicsApproval = {
   obtained: boolean;
   committee: string;
   approvalNumber?: string;
   approvalDate?: Date;
   conditions?: string[];
-}
+};
 
-export interface DataRetention {
+export type DataRetention = {
   period: number; // in years
   disposalMethod: string;
   backupPolicy: string;
-}
+};
 
-export interface PublicationPlans {
+export type PublicationPlans = {
   planned: boolean;
   journals?: string[];
   timeline?: string;
   openAccess: boolean;
   dataSharing: boolean;
-}
+};
 
 // Common types
-export interface DateRange {
+export type DateRange = {
   start?: Date;
   end?: Date;
-}
+};
 
 export type ResponseFormat =
   | "pdf"
@@ -236,23 +236,23 @@ export type DataFormat =
   | "custom";
 
 // AI Suggestion types
-export interface FormSuggestion {
+export type FormSuggestion = {
   field: string;
   suggestion: string;
   confidence: number;
   reasoning: string;
   alternatives?: string[];
-}
+};
 
-export interface AgencySuggestion {
+export type AgencySuggestion = {
   agency: Agency;
   relevanceScore: number;
   reasoning: string;
   competencyMatch: string[];
-}
+};
 
 // Form state management
-export interface FormState {
+export type FormState = {
   currentStep: number;
   totalSteps: number;
   data: Partial<BaseRequestData>;
@@ -262,10 +262,10 @@ export interface FormState {
   isSubmitting: boolean;
   autoSaveEnabled: boolean;
   lastSaved?: Date;
-}
+};
 
 // Request validation schemas
-export interface ValidationRule {
+export type ValidationRule = {
   field: string;
   required: boolean;
   minLength?: number;
@@ -273,23 +273,23 @@ export interface ValidationRule {
   pattern?: string;
   customValidator?: (value: any) => boolean;
   errorMessage: string;
-}
+};
 
-export interface RequestSchema {
+export type RequestSchema = {
   type: RequestType;
   steps: FormStep[];
   validationRules: ValidationRule[];
-}
+};
 
-export interface FormStep {
+export type FormStep = {
   id: string;
   title: string;
   description: string;
   fields: FormField[];
   conditionalLogic?: ConditionalLogic[];
-}
+};
 
-export interface FormField {
+export type FormField = {
   id: string;
   type:
   | "text"
@@ -309,9 +309,9 @@ export interface FormField {
   validation?: Partial<ValidationRule>;
   aiSuggestionEnabled: boolean;
   dependsOn?: string;
-}
+};
 
-export interface ConditionalLogic {
+export type ConditionalLogic = {
   if: {
     field: string;
     operator:
@@ -326,10 +326,10 @@ export interface ConditionalLogic {
     action: "show" | "hide" | "require" | "optional";
     targets: string[];
   };
-}
+};
 
 // Analytics and monitoring
-export interface RequestAnalytics {
+export type RequestAnalytics = {
   totalRequests: number;
   requestsByType: Record<RequestType, number>;
   averageProcessingTime: number;
@@ -337,7 +337,7 @@ export interface RequestAnalytics {
   topAgencies: Array<{ agency: string; count: number }>;
   commonRejectionReasons: Array<{ reason: string; count: number }>;
   userSatisfactionScore: number;
-}
+};
 
 // Additional types for UI components
 export type DataRequestFormData = Partial<IFGRequest & IWGRequest & DZGRequest> & {

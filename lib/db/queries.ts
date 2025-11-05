@@ -35,7 +35,7 @@ import {
 import { generateHashedPassword } from "./utils";
 
 
-const client = postgres(process.env.DATABASE_URL!);
+const client = postgres(process.env.DATABASE_URL ?? '');
 const db = drizzle(client);
 
 export async function getUser(email: string): Promise<User[]> {
@@ -480,7 +480,7 @@ export async function updateChatLastContextById({
       .update(chat)
       .set({ lastContext: context })
       .where(eq(chat.id, chatId));
-  } catch (error) {
+  } catch (_error) {
     // Failed to update lastContext for chat
     return;
   }

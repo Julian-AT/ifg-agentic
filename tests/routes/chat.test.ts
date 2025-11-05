@@ -3,7 +3,7 @@ import { expect, test } from '../fixtures';
 import { TEST_PROMPTS } from '../prompts/routes';
 import { getMessageByErrorCode } from '@/lib/errors';
 
-const chatIdsCreatedByAda: Array<string> = [];
+const chatIdsCreatedByAda: string[] = [];
 
 // Helper function to normalize stream data for comparison
 function normalizeStreamData(lines: string[]): string[] {

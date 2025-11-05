@@ -1,5 +1,4 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
-import { formatDistance } from "date-fns";
 import equal from "fast-deep-equal";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -17,7 +16,6 @@ import type { Document, Vote } from "@/lib/db/schema";
 import type { Attachment, ChatMessage } from "@/lib/types";
 import { fetcher } from "@/lib/utils";
 import { ArtifactActions } from "./artifact-actions";
-import { ArtifactCloseButton } from "./artifact-close-button";
 import { ArtifactMessages } from "./artifact-messages";
 import { MultimodalInput } from "./multimodal-input";
 import { Toolbar } from "./toolbar";
@@ -27,8 +25,7 @@ import type { VisibilityType } from "./visibility-selector";
 import { codeArtifact } from "@/artifacts/code/client";
 import { sheetArtifact } from "@/artifacts/sheet/client";
 import { Button } from "./ui/button";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { CodeXml, Eye, X, Maximize2, Minimize2 } from "lucide-react";
+import { X, Maximize2, Minimize2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -128,7 +125,7 @@ function PureArtifact({
   }, [mutateDocuments]);
 
   const { mutate } = useSWRConfig();
-  const [isContentDirty, setIsContentDirty] = useState(false);
+  const [_isContentDirty, setIsContentDirty] = useState(false);
   const pathname = usePathname();
 
   const handleContentChange = useCallback(

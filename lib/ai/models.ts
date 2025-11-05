@@ -1,6 +1,6 @@
 export const DEFAULT_CHAT_MODEL: string = "google/gemini-2.5-pro";
 
-export interface ChatModel {
+export type ChatModel = {
   model: string;
   context: string;
   modelImage: string;
@@ -15,9 +15,9 @@ export interface ChatModel {
     provider: string;
     icon: string;
   }[];
-}
+};
 
-export const chatModels: Array<ChatModel> = [
+export const chatModels: ChatModel[] = [
   {
     "model": "anthropic/claude-haiku-4.5",
     "modelImage": "https://vercel.com/vc-ap-vercel-marketing/_next/image?url=https%3A%2F%2F7nyt0uhk7sse4zvn.public.blob.vercel-storage.com%2Fdocs-assets%2Fstatic%2Fdocs%2Fai-gateway%2Flogos%2Fanthropic.png&w=64&q=75",

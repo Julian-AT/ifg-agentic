@@ -3,26 +3,28 @@ import path from 'node:path';
 import { chatModels } from '@/lib/ai/models';
 import { expect, type Page } from '@playwright/test';
 
-export class ChatPage {
-  constructor(private page: Page) { }
+const CHAT_URL_REGEX = /^http:\/\/localhost:3000\/chat\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-  public get sendButton() {
+export class ChatPage {
+  constructor(private readonly page: Page) { }
+
+  get sendButton() {
     return this.page.getByTestId('send-button');
   }
 
-  public get stopButton() {
+  get stopButton() {
     return this.page.getByTestId('stop-button');
   }
 
-  public get multimodalInput() {
+  get multimodalInput() {
     return this.page.getByTestId('multimodal-input');
   }
 
-  public get scrollContainer() {
+  get scrollContainer() {
     return this.page.locator('.overflow-y-scroll');
   }
 
-  public get scrollToBottomButton() {
+  get scrollToBottomButton() {
     return this.page.getByTestId('scroll-to-bottom-button');
   }
 
@@ -30,7 +32,7 @@ export class ChatPage {
     await this.page.goto('/');
   }
 
-  public getCurrentURL(): string {
+  getCurrentURL(): string {
     return this.page.url();
   }
 
@@ -41,25 +43,23 @@ export class ChatPage {
   }
 
   async isGenerationComplete() {
-    const response = await this.page.waitForResponse((response) =>
-      response.url().includes('/api/chat'),
+    const response = await this.page.waitForResponse((res) =>
+      res.url().includes('/api/chat'),
     );
 
     await response.finished();
   }
 
   async isVoteComplete() {
-    const response = await this.page.waitForResponse((response) =>
-      response.url().includes('/api/vote'),
+    const response = await this.page.waitForResponse((res) =>
+      res.url().includes('/api/vote'),
     );
 
     await response.finished();
   }
 
   async hasChatIdInUrl() {
-    await expect(this.page).toHaveURL(
-      /^http:\/\/localhost:3000\/chat\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-    );
+    await expect(this.page).toHaveURL(CHAT_URL_REGEX);
   }
 
   async sendUserMessageFromSuggestion() {
@@ -96,14 +96,14 @@ export class ChatPage {
     await this.page.getByTestId('attachments-button').click();
   }
 
-  public async getSelectedModel() {
+  async getSelectedModel() {
     const modelId = await this.page.getByTestId('model-selector').innerText();
     return modelId;
   }
 
-  public async chooseModelFromSelector(chatModelId: string) {
+  async chooseModelFromSelector(chatModelId: string) {
     const chatModel = chatModels.find(
-      (chatModel) => chatModel.model === chatModelId,
+      (model) => model.model === chatModelId,
     );
 
     if (!chatModel) {
@@ -115,14 +115,14 @@ export class ChatPage {
     expect(await this.getSelectedModel()).toBe(chatModel.model);
   }
 
-  public async getSelectedVisibility() {
+  async getSelectedVisibility() {
     const visibilityId = await this.page
       .getByTestId('visibility-selector')
       .innerText();
     return visibilityId;
   }
 
-  public async chooseVisibilityFromSelector(
+  async chooseVisibilityFromSelector(
     chatVisibility: 'public' | 'private',
   ) {
     await this.page.getByTestId('visibility-selector').click();
@@ -136,7 +136,7 @@ export class ChatPage {
     const messageElements = await this.page
       .getByTestId('message-assistant')
       .all();
-    const lastMessageElement = messageElements[messageElements.length - 1];
+    const lastMessageElement = messageElements.at(-1);
 
     const content = await lastMessageElement
       .getByTestId('message-content')
@@ -221,24 +221,24 @@ export class ChatPage {
     await sidebarToggleButton.click();
   }
 
-  public async isScrolledToBottom(): Promise<boolean> {
+  isScrolledToBottom(): Promise<boolean> {
     return this.scrollContainer.evaluate(
       (el) => Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) < 1,
     );
   }
 
-  public async waitForScrollToBottom(timeout = 5000): Promise<void> {
+  async waitForScrollToBottom(timeout = 5000): Promise<void> {
     const start = Date.now();
 
     while (Date.now() - start < timeout) {
-      if (await this.isScrolledToBottom()) return;
+      if (await this.isScrolledToBottom()) { return; }
       await this.page.waitForTimeout(100);
     }
 
     throw new Error(`Timed out waiting for scroll bottom after ${timeout}ms`);
   }
 
-  public async sendMultipleMessages(
+  async sendMultipleMessages(
     count: number,
     makeMessage: (i: number) => string,
   ) {
@@ -248,7 +248,7 @@ export class ChatPage {
     }
   }
 
-  public async scrollToTop(): Promise<void> {
+  async scrollToTop(): Promise<void> {
     await this.scrollContainer.evaluate((element) => {
       element.scrollTop = 0;
     });

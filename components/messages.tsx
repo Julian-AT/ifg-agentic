@@ -31,7 +31,7 @@ function PureMessages({
   regenerate,
   isReadonly,
   selectedModelId,
-  isArtifactVisible
+  isArtifactVisible: _isArtifactVisible
 }: MessagesProps) {
   const {
     containerRef: messagesContainerRef,
@@ -94,7 +94,6 @@ function PureMessages({
             messages.length > 0 &&
             messages.at(-1)?.role === "user" &&
             selectedModelId !== "google/gemini-2.5-pro-reasoning" && <ThinkingMessage />}
-
           <div
             className="min-h-[24px] min-w-[24px] shrink-0"
             ref={messagesEndRef}

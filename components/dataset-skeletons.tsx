@@ -25,7 +25,7 @@ export const DatasetDetailsSkeleton = () => {
 
       {/* Metadata Cards */}
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-        {["resources", "created", "modified", "license"].map((cardType, i) => (
+        {["resources", "created", "modified", "license"].map((cardType, _i) => (
           <div
             key={`dataset-card-${cardType}`}
             className="rounded border border-border/50 bg-background/50 p-2"

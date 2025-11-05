@@ -4,13 +4,13 @@ import type { Session } from 'next-auth';
 import type { ChatMessage } from '@/lib/types';
 import { buildUrl } from '../config';
 
-interface DatasetToolsProps {
+type DatasetToolsProps = {
     session: Session;
     dataStream: UIMessageStreamWriter<ChatMessage>;
-}
+};
 
 
-export const getDatasetDetails = ({ session, dataStream }: DatasetToolsProps) =>
+export const getDatasetDetails = ({ session: _session, dataStream }: DatasetToolsProps) =>
     tool({
         description:
             'Get complete details of a specific dataset including metadata and available data files (distributions). This displays a UI card to the user and returns the full dataset object with an embedded "distributions" array. Each distribution contains "id", "title", "format", and "access_url" (array) fields. Use access_url[0] to get the downloadable CSV URL.',

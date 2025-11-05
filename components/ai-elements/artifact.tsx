@@ -1,13 +1,13 @@
-import * as React from "react";
+import { forwardRef, type HTMLAttributes, type ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { LucideIcon } from "lucide-react";
 
 // Artifact Container
-const Artifact = React.forwardRef<
+const Artifact = forwardRef<
     HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
+    HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
@@ -21,9 +21,9 @@ const Artifact = React.forwardRef<
 Artifact.displayName = "Artifact";
 
 // Artifact Header
-const ArtifactHeader = React.forwardRef<
+const ArtifactHeader = forwardRef<
     HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
+    HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
@@ -37,9 +37,9 @@ const ArtifactHeader = React.forwardRef<
 ArtifactHeader.displayName = "ArtifactHeader";
 
 // Artifact Title
-const ArtifactTitle = React.forwardRef<
+const ArtifactTitle = forwardRef<
     HTMLParagraphElement,
-    React.HTMLAttributes<HTMLParagraphElement>
+    HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
     <p
         ref={ref}
@@ -50,9 +50,9 @@ const ArtifactTitle = React.forwardRef<
 ArtifactTitle.displayName = "ArtifactTitle";
 
 // Artifact Description
-const ArtifactDescription = React.forwardRef<
+const ArtifactDescription = forwardRef<
     HTMLParagraphElement,
-    React.HTMLAttributes<HTMLParagraphElement>
+    HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
     <p
         ref={ref}
@@ -63,9 +63,9 @@ const ArtifactDescription = React.forwardRef<
 ArtifactDescription.displayName = "ArtifactDescription";
 
 // Artifact Actions Container
-const ArtifactActions = React.forwardRef<
+const ArtifactActions = forwardRef<
     HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
+    HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
@@ -76,13 +76,13 @@ const ArtifactActions = React.forwardRef<
 ArtifactActions.displayName = "ArtifactActions";
 
 // Artifact Action Button
-interface ArtifactActionProps extends React.ComponentProps<typeof Button> {
+interface ArtifactActionProps extends ComponentProps<typeof Button> {
     tooltip?: string;
     label?: string;
     icon?: LucideIcon;
 }
 
-const ArtifactAction = React.forwardRef<HTMLButtonElement, ArtifactActionProps>(
+const ArtifactAction = forwardRef<HTMLButtonElement, ArtifactActionProps>(
     ({ tooltip, label, icon: Icon, className, children, ...props }, ref) => {
         const button = (
             <Button
@@ -120,9 +120,9 @@ const ArtifactAction = React.forwardRef<HTMLButtonElement, ArtifactActionProps>(
 ArtifactAction.displayName = "ArtifactAction";
 
 // Artifact Close Button
-const ArtifactClose = React.forwardRef<
+const ArtifactClose = forwardRef<
     HTMLButtonElement,
-    React.ComponentProps<typeof Button>
+    ComponentProps<typeof Button>
 >(({ className, ...props }, ref) => (
     <Button
         ref={ref}
@@ -135,9 +135,9 @@ const ArtifactClose = React.forwardRef<
 ArtifactClose.displayName = "ArtifactClose";
 
 // Artifact Content
-const ArtifactContent = React.forwardRef<
+const ArtifactContent = forwardRef<
     HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
+    HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}

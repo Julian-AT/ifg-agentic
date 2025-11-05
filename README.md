@@ -21,20 +21,18 @@ Entdecke, Analysiere und Visualisiere österreichische Datensätze von **[data.g
 
 </div>
 
-## ✨ Features
+## Features
 
-- **Zero Setup** – Keine Python-Installation erforderlich, läuft vollständig im Browser via [Pyodide][pyodide_url].
-- **Multi-Model AI** – Unterstützt [Google Gemini][gemini_url], [OpenAI GPT][openai_url] und [xAI Grok][xai_url] out-of-the-box.
+
+- **Zero Setup** – Nur Browser benötigt, Python läuft via [Pyodide][pyodide_url].
+- **Multi-Model AI** – Support für 100+ Modelle.
 - **Natural Language Search** – Durchsuche den [data.gv.at][datagvat_url] Katalog mit natürlicher Sprache.
 - **Automatische CSV-Analyse** – Erkennt Delimiter, Encoding und Datentypen automatisch.
 - **Code-Generierung** – Generiert ausführbaren Python-Code (pandas/matplotlib) für Analysen und Visualisierungen.
-- **Anti-Hallucination System** – Built-in Safeguards verhindern, dass die AI erfundene Daten verwendet.
-- **Austrian Data Conventions** – Versteht DD.MM.YYYY Datumsformate und Komma-Dezimaltrennzeichen.
-- **Browser-Based Execution** – Code läuft direkt im Browser ohne Backend-Dependencies.
-- **Interactive Spreadsheets** – Zeigt Daten in editierbaren Grid-Views an.
-- **Flexible Authentication** – Guest-Zugriff oder registrierte Accounts mit verschiedenen Berechtigungen.
-- **Live Reload** – Development-Modus mit automatischem Reload für Frontend und Backend.
-- **Production Ready** – Inklusive Dockerfile und Docker Compose für einfaches Deployment.
+- **Safeguards** – Safeguards verhindern, dass die AI erfundene Daten verwendet.
+- **Datumsformat** – Versteht DD.MM.YYYY Datumsformate und Komma-Dezimaltrennzeichen.
+- **Browser only** – Code läuft direkt im Browser ohne Backend-Dependencies.
+- **Tabellenansicht** – Zeigt Daten in editierbaren Tabellen an.
 
 <div align="right">
 
@@ -42,71 +40,7 @@ Entdecke, Analysiere und Visualisiere österreichische Datensätze von **[data.g
 
 </div>
 
-## ⚡️ Quick Start
-
-> [!NOTE]
-> Stelle sicher, dass **Node.js 18.17+**, **pnpm 9.12.3+** und eine **PostgreSQL** Datenbank verfügbar sind.
-
-Clone das Repository und installiere Dependencies:
-
-```bash
-git clone https://github.com/julian-at/ifg-agentic.git
-cd ifg-agentic
-pnpm install
-```
-
-Erstelle `.env.local` und konfiguriere die Environment Variables:
-
-```env
-# Database
-POSTGRES_URL=postgresql://user:password@localhost:5432/ifg_agentic
-
-# Authentication
-AUTH_SECRET=your-secret-key-here
-
-# AI Models (mindestens einer erforderlich)
-OPENAI_API_KEY=sk-...
-GOOGLE_GENERATIVE_AI_API_KEY=...
-XAI_API_KEY=xai-...
-
-# Optional
-REDIS_URL=redis://localhost:6379
-```
-
-Setup Database und starte den Dev-Server:
-
-```bash
-pnpm db:migrate
-pnpm dev
-```
-
-Öffne [http://localhost:3000](http://localhost:3000) – fertig! 🎉
-
-<div align="right">
-
-[&nwarr; Back to top](#readme-top)
-
-</div>
-
-### 📦 Alternative Installation via Docker
-
-Für schnelles Setup mit Docker:
-
-```bash
-docker-compose up -d
-```
-
-Die Anwendung läuft dann auf [http://localhost:3000](http://localhost:3000).
-
-<div align="right">
-
-[&nwarr; Back to top](#readme-top)
-
-</div>
-
-## 🛠️ Tech Stack
-
-Das Projekt nutzt einen modernen Web-Stack:
+## Tech Stack
 
 - **[Next.js 15][nextjs_url]** – React Framework mit App Router und Server Components
 - **[TypeScript][typescript_url]** – Type-safe JavaScript
@@ -129,42 +63,9 @@ Das Projekt nutzt einen modernen Web-Stack:
 
 </div>
 
-## 🏆 Contributing
-
-Contributions sind willkommen! Bitte beachte:
-
-- **Issues:** [Bug Reports & Feature Requests][issues_url]
-- **Pull Requests:** Code Improvements & Bug Fixes
-- **Guidelines:** TypeScript Strict Mode, Biome Formatting, Tests schreiben
-
-### Development Guidelines
-
-- Follow TypeScript strict type checking
-- Use Biome for code formatting (`pnpm format`)
-- Write tests for new features
-- Ensure all tests pass before submitting
-
-<div align="right">
-
-[&nwarr; Back to top](#readme-top)
-
-</div>
-
-## ⚠️ License
-
-[IFG Agentic][repo_url] ist Free und Open-Source Software unter der [MIT License][license_url].
-
-<div align="right">
-
-[&nwarr; Back to top](#readme-top)
-
-</div>
-
----
-
 <div align="center">
 
-Made for Austrian Open Data Transparency 🇦🇹
+Made for Open-Data Transparency 🇦🇹
 
 Built with [Vercel AI SDK][vercel_ai_url] • Powered by [data.gv.at][datagvat_url]
 

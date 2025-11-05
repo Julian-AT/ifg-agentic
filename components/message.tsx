@@ -12,17 +12,13 @@ import { MessageReasoning } from "./message-reasoning";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { ChatMessage } from "@/lib/types";
 import { useDataStream } from "./data-stream-provider";
-import { DocumentToolCall, DocumentToolResult } from "./document";
+import { DocumentToolResult } from "./document";
 import { DocumentPreview } from "./document-preview";
 
 import Image from "next/image";
-import { FileText, Download } from "lucide-react";
-import { ResourceDetailsSkeleton } from "./dataset-skeletons";
-import { ResourceDetailsWidget } from "./resource-details-widget";
-import { ToolAccordion } from "./tool-accordion";
+import { FileText, } from "lucide-react";
 import { MergedDatasetSearch } from "./merged-dataset-search";
 import { MergedDatasetDetails } from "./merged-dataset-details";
-import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { MessageContent } from "./elements/message";
 import { Response } from "./elements/response";
 import {
@@ -43,7 +39,7 @@ import { Database, FileSpreadsheet, Code, BarChart3 } from "lucide-react";
 import { useArtifact } from "@/hooks/use-artifact";
 import { ShinyText } from "./shiny-text";
 
-const findMatchingOutputPart = (
+const _findMatchingOutputPart = (
   inputPart: any,
   allParts: any[],
   inputIndex: number
@@ -66,7 +62,7 @@ const shouldSkipOutputPart = (
   allParts: any[],
   currentIndex: number
 ): boolean => {
-  if (currentPart.state !== "output-available") return false;
+  if (currentPart.state !== "output-available") { return false; }
 
   for (let i = currentIndex - 1; i >= 0; i--) {
     const part = allParts[i];
@@ -161,7 +157,7 @@ const PurePreviewMessage = ({
   requiresScrollPadding: boolean;
 }) => {
   const [mode, setMode] = useState<"view" | "edit">("view");
-  const { artifact } = useArtifact();
+  const { artifact: _artifact } = useArtifact();
 
   const attachmentsFromMessage = message.parts.filter(
     (part) => part.type === "file"
@@ -258,7 +254,7 @@ const PurePreviewMessage = ({
                     />
                   );
                 }
-                  return null;
+                return null;
               }
 
               if (type === "reasoning") {
@@ -400,7 +396,7 @@ const PurePreviewMessage = ({
               }
 
               if (type === "tool-exploreCsvData" && "toolCallId" in part) {
-                const { toolCallId, state } = part as any;
+                const { toolCallId: _toolCallId, state } = part as any;
 
                 if (state === "input-available") {
                   return (
@@ -483,7 +479,7 @@ const PurePreviewMessage = ({
                     />
                   );
                 }
-                  return null;
+                return null;
               }
             })}
 
@@ -506,12 +502,13 @@ const PurePreviewMessage = ({
 export const PreviewMessage = memo(
   PurePreviewMessage,
   (prevProps, nextProps) => {
-    if (prevProps.isLoading !== nextProps.isLoading) return false;
-    if (prevProps.message.id !== nextProps.message.id) return false;
-    if (prevProps.requiresScrollPadding !== nextProps.requiresScrollPadding)
+    if (prevProps.isLoading !== nextProps.isLoading) { return false; }
+    if (prevProps.message.id !== nextProps.message.id) { return false; }
+    if (prevProps.requiresScrollPadding !== nextProps.requiresScrollPadding) {
       return false;
-    if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
-    if (!equal(prevProps.vote, nextProps.vote)) return false;
+    }
+    if (!equal(prevProps.message.parts, nextProps.message.parts)) { return false; }
+    if (!equal(prevProps.vote, nextProps.vote)) { return false; }
 
     return false;
   }

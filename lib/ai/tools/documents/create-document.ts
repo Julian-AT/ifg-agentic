@@ -8,10 +8,10 @@ import {
 } from "@/lib/artifacts/server";
 import type { ChatMessage } from "@/lib/types";
 
-interface CreateDocumentProps {
+type CreateDocumentProps = {
   session: Session;
   dataStream: UIMessageStreamWriter<ChatMessage>;
-}
+};
 
 export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
   tool({

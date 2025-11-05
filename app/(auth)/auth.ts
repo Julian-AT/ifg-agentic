@@ -16,11 +16,11 @@ declare module 'next-auth' {
     } & DefaultSession['user'];
   }
 
-  interface User {
+  type User = {
     id?: string;
     email?: string | null;
     type: UserType;
-  }
+  };
 }
 
 declare module 'next-auth/jwt' {
@@ -57,7 +57,7 @@ export const {
 
         const passwordsMatch = await compare(password, user.password);
 
-        if (!passwordsMatch) return null;
+        if (!passwordsMatch) { return null; }
 
         return { ...user, type: 'regular' };
       },
@@ -72,7 +72,7 @@ export const {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    jwt({ token, user }) {
       if (user) {
         token.id = user.id as string;
         token.type = user.type;
@@ -80,7 +80,7 @@ export const {
 
       return token;
     },
-    async session({ session, token }) {
+    session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
         session.user.type = token.type;

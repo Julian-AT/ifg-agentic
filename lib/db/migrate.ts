@@ -20,6 +20,6 @@ const runMigrate = async () => {
   process.exit(0);
 };
 
-runMigrate().catch((err) => {
+runMigrate().catch((_err) => {
   process.exit(1);
 });

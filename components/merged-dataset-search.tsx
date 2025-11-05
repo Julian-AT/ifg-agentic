@@ -7,37 +7,36 @@ import { Skeleton } from "./ui/skeleton";
 import { SearchIcon, ChevronDown, ChevronRight, Search } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { cn } from "./multistep-form";
 import { useArtifact } from "@/hooks/use-artifact";
 import { ShinyText } from "./shiny-text";
 
-interface DatasetSearchResult {
+type DatasetSearchResult = {
   id: string;
   title: { de: string };
   publisher?: { homepage?: string };
-}
+};
 
-interface DatasetSearchOutput {
+type DatasetSearchOutput = {
   data: DatasetSearchResult[];
   count: number;
-}
+};
 
-interface DatasetSearchInput {
+type DatasetSearchInput = {
   q: string;
   keywords?: string[];
-}
+};
 
-interface MergedSearchResult {
+type MergedSearchResult = {
   toolCallId: string;
   input: DatasetSearchInput;
   output: DatasetSearchOutput;
-}
+};
 
-interface MergedDatasetSearchProps {
+type MergedDatasetSearchProps = {
   searches: MergedSearchResult[];
   isLoading: boolean;
-}
+};
 
 export function MergedDatasetSearch({
   searches,
@@ -50,30 +49,30 @@ export function MergedDatasetSearch({
   const allResults: DatasetSearchResult[] = [];
   const allKeywords: string[] = [];
   const queries: string[] = [];
-  let totalCount = 0;
+  let _totalCount = 0;
 
-  searches.forEach((search) => {
+  for (const search of searches) {
     if (search.output?.data) {
-      search.output.data.forEach((result) => {
+      for (const result of search.output.data) {
         if (!allResults.find((existing) => existing.id === result.id)) {
           allResults.push(result);
         }
-      });
-      totalCount += search.output.count || 0;
+      }
+      _totalCount += search.output.count || 0;
     }
 
     if (search.input?.keywords) {
-      search.input.keywords.forEach((keyword) => {
+      for (const keyword of search.input.keywords) {
         if (!allKeywords.includes(keyword)) {
           allKeywords.push(keyword);
         }
-      });
+      }
     }
 
     if (search.input?.q && !queries.includes(search.input.q)) {
       queries.push(search.input.q);
     }
-  });
+  }
 
 
   const originalQuery =

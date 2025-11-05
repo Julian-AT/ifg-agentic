@@ -15,7 +15,7 @@ type EditorProps = {
 
 let highlighterInstance: Highlighter | null = null;
 
-function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
+function PureCodeEditor({ content, onSaveContent: _onSaveContent, status }: EditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
   const [highlightedCode, setHighlightedCode] = useState("");
@@ -43,7 +43,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
         if (!isCancelled) {
           setHighlightedCode(html);
         }
-      } catch (error) {
+      } catch (_error) {
         // Error highlighting code
       }
     };

@@ -1,11 +1,11 @@
 'use client';
 
-interface CodeBlockProps {
+type CodeBlockProps = {
   node: any;
   inline: boolean;
   className: string;
   children: any;
-}
+};
 
 export function CodeBlock({
   node,

@@ -3,12 +3,12 @@ import { z } from "zod";
 import type { Session } from "next-auth";
 import type { ChatMessage } from "@/lib/types";
 
-interface AnalysisPlanProps {
+type AnalysisPlanProps = {
     session: Session;
     dataStream: UIMessageStreamWriter<ChatMessage>;
-}
+};
 
-export const createAnalysisPlan = ({ session, dataStream }: AnalysisPlanProps) =>
+export const createAnalysisPlan = ({ session: _session, dataStream }: AnalysisPlanProps) =>
     tool({
         description:
             'Create a visual task plan for data analysis. Use this at the START of any data analysis request to show the user the steps you will take. This displays a collapsible task list with status indicators.',
@@ -28,7 +28,7 @@ export const createAnalysisPlan = ({ session, dataStream }: AnalysisPlanProps) =
                 )
                 .describe('Array of steps in the analysis plan'),
         }),
-        execute: async ({ title, steps }) => {
+        execute: ({ title, steps }) => {
             dataStream.write({
                 type: 'data-task',
                 data: {

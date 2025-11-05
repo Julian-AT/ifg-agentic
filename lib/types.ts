@@ -78,8 +78,8 @@ export type ChatMessage = UIMessage<
   ChatTools
 >;
 
-export interface Attachment {
+export type Attachment = {
   name: string;
   url: string;
   contentType: string;
-}
+};

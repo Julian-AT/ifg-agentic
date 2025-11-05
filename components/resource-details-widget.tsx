@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Badge } from "./ui/badge";
 
-interface ResourceResult {
+type ResourceResult = {
   name: string;
   url?: string;
   format?: string;
@@ -13,11 +13,11 @@ interface ResourceResult {
   mimetype?: string;
   characterSet?: string;
   datastore_active?: boolean;
-}
+};
 
-interface ResourceDetailsWidgetProps {
+type ResourceDetailsWidgetProps = {
   result: ResourceResult;
-}
+};
 
 export const ResourceDetailsWidget = ({
   result,

@@ -8,21 +8,21 @@ import { Badge } from "@/components/ui/badge";
 import { CheckIcon, XIcon, EyeIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface FormDiff {
+type FormDiff = {
     field: string;
     oldValue: string;
     newValue: string;
     label: string;
-}
+};
 
-interface FormDiffViewProps {
+type FormDiffViewProps = {
     diffs: FormDiff[];
     onAccept: (field: string) => void;
     onReject: (field: string) => void;
     onAcceptAll: () => void;
     onRejectAll: () => void;
     className?: string;
-}
+};
 
 export function FormDiffView({
     diffs,
@@ -32,7 +32,7 @@ export function FormDiffView({
     onRejectAll,
     className,
 }: FormDiffViewProps) {
-    if (diffs.length === 0) return null;
+    if (diffs.length === 0) { return null; }
 
     return (
         <motion.div
@@ -97,11 +97,11 @@ export function FormDiffView({
     );
 }
 
-interface DiffItemProps {
+type DiffItemProps = {
     diff: FormDiff;
     onAccept: () => void;
     onReject: () => void;
-}
+};
 
 function DiffItem({ diff, onAccept, onReject }: DiffItemProps) {
     return (
@@ -167,15 +167,17 @@ function DiffItem({ diff, onAccept, onReject }: DiffItemProps) {
     );
 }
 
-interface DiffTextProps {
+type DiffTextProps = {
     oldText: string;
     newText: string;
-}
+};
+
+const WHITESPACE_REGEX = /\s+/;
 
 function DiffText({ oldText, newText }: DiffTextProps) {
     // Simple word-level diff visualization
-    const oldWords = oldText ? oldText.split(/\s+/) : [];
-    const newWords = newText ? newText.split(/\s+/) : [];
+    const oldWords = oldText ? oldText.split(WHITESPACE_REGEX) : [];
+    const newWords = newText ? newText.split(WHITESPACE_REGEX) : [];
 
     // Basic diff algorithm (can be enhanced with proper diff library)
     const maxLength = Math.max(oldWords.length, newWords.length);

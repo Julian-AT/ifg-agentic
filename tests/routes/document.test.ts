@@ -3,7 +3,7 @@ import { generateUUID } from '@/lib/utils';
 import { expect, test } from '../fixtures';
 import { getMessageByErrorCode } from '@/lib/errors';
 
-const documentsCreatedByAda: Array<Document> = [];
+const documentsCreatedByAda: Document[] = [];
 
 test.describe
   .serial('/api/document', () => {

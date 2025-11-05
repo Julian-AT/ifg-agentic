@@ -1,18 +1,17 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
-import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShinyText } from "./shiny-text";
 
-interface ToolAccordionProps {
+type ToolAccordionProps = {
   icon: ReactNode;
   loadingText: string;
   completedText: string;
   isLoading: boolean;
   children: ReactNode;
   toolCallId: string;
-}
+};
 
 export const ToolAccordion = ({
   icon,
@@ -20,7 +19,7 @@ export const ToolAccordion = ({
   completedText,
   isLoading,
   children,
-  toolCallId,
+  toolCallId: _toolCallId,
 }: ToolAccordionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 

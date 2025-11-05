@@ -1,38 +1,38 @@
 import Link from "next/link";
 
-interface Keyword {
+type Keyword = {
   id: string;
   label: string;
   language: string;
-}
+};
 
-interface Catalog {
+type Catalog = {
   id: string;
   title: { [key: string]: string };
   modified?: string;
   issued?: string;
-}
+};
 
-interface Publisher {
+type Publisher = {
   type: string;
   name: string;
-}
+};
 
-interface Distribution {
+type Distribution = {
   id: string;
   title: { [key: string]: string };
   license?: {
     resource: string;
   };
   access_url?: string[];
-}
+};
 
-interface Temporal {
+type Temporal = {
   gte: string;
   lte: string;
-}
+};
 
-export interface DatasetResult {
+export type DatasetResult = {
   id: string;
   title: { [key: string]: string };
   description?: { [key: string]: string };
@@ -44,20 +44,20 @@ export interface DatasetResult {
   temporal?: Temporal[];
   catalog?: Catalog;
   is_hvd?: boolean;
-}
+};
 
-interface DatasetDetailsWidgetProps {
+type DatasetDetailsWidgetProps = {
   result: DatasetResult;
-}
+};
 
 export const DatasetDetailsWidget = ({ result }: DatasetDetailsWidgetProps) => {
   const getLocalizedText = (textObj: { [key: string]: string } | undefined, fallback = "") => {
-    if (!textObj) return fallback;
+    if (!textObj) { return fallback; }
     return textObj.de || textObj.en || Object.values(textObj)[0] || fallback;
   };
 
   const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return null;
+    if (!dateString) { return null; }
     try {
       return new Date(dateString).toLocaleDateString("de-AT", {
         day: "2-digit",

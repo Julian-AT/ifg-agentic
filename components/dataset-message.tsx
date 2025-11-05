@@ -4,28 +4,28 @@ import { SparklesIcon } from "./icons";
 import { Skeleton } from "./ui/skeleton";
 import { SearchIcon } from "lucide-react";
 
-interface DatasetSearchResult {
+type DatasetSearchResult = {
   id: string;
   title: string;
   publisher_link?: string;
-}
+};
 
-interface DatasetSearchOutput {
+type DatasetSearchOutput = {
   result: {
     results: DatasetSearchResult[];
   };
-}
+};
 
-interface DatasetSearchInput {
+type DatasetSearchInput = {
   q: string;
   keywords?: string[];
-}
+};
 
-interface DatasetSearchMessageProps {
+type DatasetSearchMessageProps = {
   toolCallId: string;
   input: DatasetSearchInput;
   output: DatasetSearchOutput;
-}
+};
 
 export function DatasetSearchMessage({
   toolCallId,
@@ -100,9 +100,9 @@ export function DatasetSearchMessage({
   );
 }
 
-interface DatasetSearchSkeletonProps {
+type DatasetSearchSkeletonProps = {
   toolCallId: string;
-}
+};
 
 export function DatasetSearchSkeleton({
   toolCallId,

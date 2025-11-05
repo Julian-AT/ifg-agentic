@@ -4,12 +4,12 @@ import type { Session } from 'next-auth';
 import type { ChatMessage } from '@/lib/types';
 import { buildUrl } from '../config';
 
-interface DatasetToolsProps {
+type DatasetToolsProps = {
     session: Session;
     dataStream: UIMessageStreamWriter<ChatMessage>;
-}
+};
 
-export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
+export const searchDatasets = ({ session: _session, dataStream: _dataStream }: DatasetToolsProps) =>
     tool({
         description:
             'Search for datasets in the catalog by query. Returns dataset IDs and basic metadata. CRITICAL: After calling this, you MUST immediately call getDatasetDetails for each relevant dataset ID to display UI cards to the user. DO NOT describe the search results in text - use getDatasetDetails to show them properly.',

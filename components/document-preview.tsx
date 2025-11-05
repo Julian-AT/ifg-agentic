@@ -17,10 +17,8 @@ import type { ArtifactKind, UIArtifact } from "./artifact";
 import { CodeEditor } from "./code-editor";
 import { DocumentToolCall, DocumentToolResult } from "./document";
 import { InlineDocumentSkeleton } from "./document-skeleton";
-import { FileIcon, FullscreenIcon, ImageIcon, LoaderIcon } from "./icons";
-import { ImageEditor } from "./image-editor";
+import { FileIcon, FullscreenIcon, LoaderIcon } from "./icons";
 import { SpreadsheetEditor } from "./sheet-editor";
-import { Editor } from "./text-editor";
 
 type DocumentPreviewProps = {
   isReadonly: boolean;
@@ -118,7 +116,7 @@ export function DocumentPreview({
   );
 }
 
-const LoadingSkeleton = ({ artifactKind }: { artifactKind: ArtifactKind }) => (
+const LoadingSkeleton = ({ artifactKind: _artifactKind }: { artifactKind: ArtifactKind }) => (
   <div className="w-full">
     <div className="flex h-[57px] flex-row items-center justify-between gap-2 rounded-t-2xl border border-b-0 p-4 dark:border-zinc-700 dark:bg-muted">
       <div className="flex flex-row items-center gap-3">
@@ -199,7 +197,7 @@ const HitboxLayer = memo(PureHitboxLayer, (prevProps, nextProps) => {
 
 const PureDocumentHeader = ({
   title,
-  kind,
+  kind: _kind,
   isStreaming,
 }: {
   title: string;

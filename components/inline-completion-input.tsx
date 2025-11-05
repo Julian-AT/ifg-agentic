@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-interface InlineCompletionInputProps {
+type InlineCompletionInputProps = {
     id: string;
     label: string;
     value: string;
@@ -25,7 +25,7 @@ interface InlineCompletionInputProps {
         formData?: Record<string, any>;
         originalPrompt?: string;
     };
-}
+};
 
 export function InlineCompletionInput({
     id,
@@ -70,15 +70,15 @@ export function InlineCompletionInput({
                     signal: controller.signal,
                 });
 
-                if (!response.ok) throw new Error("Failed to fetch completion");
+                if (!response.ok) { throw new Error("Failed to fetch completion"); }
 
                 const data = await response.json();
 
                 if (!controller.signal.aborted && data.completion) {
                     setCompletion(data.completion.trim());
                 }
-            } catch (error) {
-                if (error instanceof Error && error.name !== "AbortError") {
+            } catch (err) {
+                if (err instanceof Error && err.name !== "AbortError") {
                     // Completion error
                 }
                 setCompletion("");
@@ -150,7 +150,7 @@ export function InlineCompletionInput({
     };
 
     const InputComponent = type === "textarea" ? Textarea : Input;
-    const displayValue = value + (completion ? completion : "");
+    const _displayValue = value + (completion ? completion : "");
 
     return (
         <div className="space-y-2">

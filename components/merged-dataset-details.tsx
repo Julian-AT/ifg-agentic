@@ -2,20 +2,19 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronRight, Database } from "lucide-react";
 import { DatasetDetailsWidget, type DatasetResult } from "./dataset-details-widget";
-import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { DatasetDetailsSkeleton } from "./dataset-skeletons";
 import { ShinyText } from "./shiny-text";
 
-interface MergedDatasetResult {
+type MergedDatasetResult = {
   toolCallId: string;
   datasetId: string;
   result: DatasetResult;
-}
+};
 
-interface MergedDatasetDetailsProps {
+type MergedDatasetDetailsProps = {
   datasets: MergedDatasetResult[];
   isLoading: boolean;
-}
+};
 
 export function MergedDatasetDetails({
   datasets,

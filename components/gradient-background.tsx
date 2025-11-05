@@ -1,11 +1,11 @@
-import { cn } from "@/lib/utils";
+
 import Image from "next/image";
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 
-interface GradientBackgroundProps {
+type GradientBackgroundProps = {
   active: boolean;
-}
+};
 
 const GradientBackground = ({ active }: GradientBackgroundProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -14,7 +14,7 @@ const GradientBackground = ({ active }: GradientBackgroundProps) => {
     setImageLoaded(true);
   };
 
-  if (!active) return null;
+  if (!active) { return null; }
 
   return (
     <div className="fixed inset-0 z-10 h-dvh w-dvw overflow-hidden">

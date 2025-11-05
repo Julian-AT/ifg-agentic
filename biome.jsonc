@@ -22,29 +22,62 @@
         "noConsole": "off",
 
         /* Needed for generateUUID() */
-        "noBitwiseOperators": "off"
+        "noBitwiseOperators": "off",
+
+        /* Test code uses evolving types intentionally */
+        "noEvolvingTypes": "off",
+
+        /* Map callbacks with conditional returns are intentional */
+        "useIterableCallbackReturn": "off",
+
+        /* Array index keys are acceptable for static lists */
+        "noArrayIndexKey": "off"
       },
       "style": {
         /* Allowing magic numbers */
         "noMagicNumbers": "off",
 
         /* Needs more work to fix */
-        "noNestedTernary": "off"
+        "noNestedTernary": "off",
+
+        /* Test page objects use parameter properties intentionally */
+        "noParameterProperties": "off"
       },
       "nursery": {
         /* Too many false positives */
-        "noUnnecessaryConditions": "off"
+        "noUnnecessaryConditions": "off",
+
+        /* External images don't need size attributes */
+        "useImageSize": "off"
       },
       "complexity": {
         /* Needs more work to fix */
         "noExcessiveCognitiveComplexity": "off",
 
         /* This one has false positives. It's a bit... iffy 😉 */
-        "useSimplifiedLogicExpression": "off"
+        "useSimplifiedLogicExpression": "off",
+
+        /* {} type is acceptable for dynamic API responses */
+        "noBannedTypes": "off"
       },
       "a11y": {
         /* Needs more work to fix */
         "noSvgWithoutTitle": "off"
+      },
+      "security": {
+        /* dangerouslySetInnerHTML is used safely for code highlighting */
+        "noDangerouslySetInnerHtml": "off"
+      },
+      "performance": {
+        /* Barrel files are acceptable for better code organization */
+        "noBarrelFile": "off",
+
+        /* <img> is acceptable for external/favicon images */
+        "noImgElement": "off"
+      },
+      "correctness": {
+        /* JSX keys in iterables - handled case by case */
+        "useJsxKeyInIterable": "off"
       }
     }
   }

@@ -20,7 +20,7 @@ export type UserContext = {
 export async function createAuthenticatedContext({
   browser,
   name,
-  chatModel = 'google/gemini-2.5-pro',
+  chatModel: _chatModel = 'google/gemini-2.5-pro',
 }: {
   browser: Browser;
   name: string;

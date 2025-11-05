@@ -1,19 +1,21 @@
 <div align="center">
 
-<img src="public/thumbnail.png" alt="IFG Agentic" width="80%" height="80%" style="border-radius: 10px; box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);">
+![IFG Agentic](public/thumbnail.png)
 
 <a name="readme-top"></a>
 
 # IFG Agentic
 
-Entdecke, Analysiere und Visualisiere österreichische Datensätze von **[data.gv.at][datagvat_url]**<br/>– komplett im Browser.
+AI-powered assistant for discovering, analyzing and visualizing<br/>**Austrian Open Data** datasets from **[data.gv.at][datagvat_url]**<br/>– entirely in your browser with **Python** code generation.
 
 [![Next.js][nextjs_badge]][nextjs_url]
 [![TypeScript][typescript_badge]][typescript_url]
 [![React][react_badge]][react_url]
 [![License][license_badge]][license_url]
 
-[Deutsche Version](#readme-top) · [English Version][readme_en_url]
+**&searr;&nbsp;&nbsp;Documentation & Quick Links&nbsp;&nbsp;&swarr;**
+
+[Deutsche Version][readme_de_url] · [English Version](#readme-top)
 
 [![Repository][repo_badge]][repo_url]
 [![Issues][issues_badge]][issues_url]
@@ -23,18 +25,18 @@ Entdecke, Analysiere und Visualisiere österreichische Datensätze von **[data.g
 
 ## ✨ Features
 
-- **Zero Setup** – Keine Python-Installation erforderlich, läuft vollständig im Browser via [Pyodide][pyodide_url].
-- **Multi-Model AI** – Unterstützt [Google Gemini][gemini_url], [OpenAI GPT][openai_url] und [xAI Grok][xai_url] out-of-the-box.
-- **Natural Language Search** – Durchsuche den [data.gv.at][datagvat_url] Katalog mit natürlicher Sprache.
-- **Automatische CSV-Analyse** – Erkennt Delimiter, Encoding und Datentypen automatisch.
-- **Code-Generierung** – Generiert ausführbaren Python-Code (pandas/matplotlib) für Analysen und Visualisierungen.
-- **Anti-Hallucination System** – Built-in Safeguards verhindern, dass die AI erfundene Daten verwendet.
-- **Austrian Data Conventions** – Versteht DD.MM.YYYY Datumsformate und Komma-Dezimaltrennzeichen.
-- **Browser-Based Execution** – Code läuft direkt im Browser ohne Backend-Dependencies.
-- **Interactive Spreadsheets** – Zeigt Daten in editierbaren Grid-Views an.
-- **Flexible Authentication** – Guest-Zugriff oder registrierte Accounts mit verschiedenen Berechtigungen.
-- **Live Reload** – Development-Modus mit automatischem Reload für Frontend und Backend.
-- **Production Ready** – Inklusive Dockerfile und Docker Compose für einfaches Deployment.
+- **Zero Setup** – No Python installation required, runs entirely in browser via [Pyodide][pyodide_url].
+- **Multi-Model AI** – Supports [Google Gemini][gemini_url], [OpenAI GPT][openai_url] and [xAI Grok][xai_url] out-of-the-box.
+- **Natural Language Search** – Search the [data.gv.at][datagvat_url] catalog with natural language.
+- **Automatic CSV Analysis** – Detects delimiters, encoding and data types automatically.
+- **Code Generation** – Generates executable Python code (pandas/matplotlib) for analysis and visualization.
+- **Anti-Hallucination System** – Built-in safeguards prevent AI from using fabricated data.
+- **Austrian Data Conventions** – Understands DD.MM.YYYY date formats and comma decimal separators.
+- **Browser-Based Execution** – Code runs directly in browser without backend dependencies.
+- **Interactive Spreadsheets** – Displays data in editable grid views.
+- **Flexible Authentication** – Guest access or registered accounts with different permissions.
+- **Live Reload** – Development mode with automatic reload for frontend and backend.
+- **Production Ready** – Includes Dockerfile and Docker Compose for easy deployment.
 
 <div align="right">
 
@@ -45,9 +47,9 @@ Entdecke, Analysiere und Visualisiere österreichische Datensätze von **[data.g
 ## ⚡️ Quick Start
 
 > [!NOTE]
-> Stelle sicher, dass **Node.js 18.17+**, **pnpm 9.12.3+** und eine **PostgreSQL** Datenbank verfügbar sind.
+> Make sure **Node.js 18.17+**, **pnpm 9.12.3+** and a **PostgreSQL** database are available.
 
-Clone das Repository und installiere Dependencies:
+Clone the repository and install dependencies:
 
 ```bash
 git clone https://github.com/julian-at/ifg-agentic.git
@@ -55,7 +57,7 @@ cd ifg-agentic
 pnpm install
 ```
 
-Erstelle `.env.local` und konfiguriere die Environment Variables:
+Create `.env.local` and configure environment variables:
 
 ```env
 # Database
@@ -64,7 +66,7 @@ POSTGRES_URL=postgresql://user:password@localhost:5432/ifg_agentic
 # Authentication
 AUTH_SECRET=your-secret-key-here
 
-# AI Models (mindestens einer erforderlich)
+# AI Models (at least one required)
 OPENAI_API_KEY=sk-...
 GOOGLE_GENERATIVE_AI_API_KEY=...
 XAI_API_KEY=xai-...
@@ -73,14 +75,14 @@ XAI_API_KEY=xai-...
 REDIS_URL=redis://localhost:6379
 ```
 
-Setup Database und starte den Dev-Server:
+Setup database and start dev server:
 
 ```bash
 pnpm db:migrate
 pnpm dev
 ```
 
-Öffne [http://localhost:3000](http://localhost:3000) – fertig! 🎉
+Open [http://localhost:3000](http://localhost:3000) – done! 🎉
 
 <div align="right">
 
@@ -90,13 +92,13 @@ pnpm dev
 
 ### 📦 Alternative Installation via Docker
 
-Für schnelles Setup mit Docker:
+For quick setup with Docker:
 
 ```bash
 docker-compose up -d
 ```
 
-Die Anwendung läuft dann auf [http://localhost:3000](http://localhost:3000).
+The application will run on [http://localhost:3000](http://localhost:3000).
 
 <div align="right">
 
@@ -106,22 +108,22 @@ Die Anwendung läuft dann auf [http://localhost:3000](http://localhost:3000).
 
 ## 🛠️ Tech Stack
 
-Das Projekt nutzt einen modernen Web-Stack:
+The project uses a modern web stack:
 
-- **[Next.js 15][nextjs_url]** – React Framework mit App Router und Server Components
+- **[Next.js 15][nextjs_url]** – React framework with App Router and Server Components
 - **[TypeScript][typescript_url]** – Type-safe JavaScript
-- **[React 19][react_url]** – UI Library
-- **[Vercel AI SDK][vercel_ai_url]** – AI/LLM Integration mit Multi-Provider Support
-- **[Pyodide][pyodide_url]** – Python im Browser (pandas, matplotlib, numpy)
-- **[Tailwind CSS][tailwind_url]** – Utility-first CSS Framework
-- **[Radix UI][radix_url]** – Accessible Component Primitives
-- **[CodeMirror][codemirror_url]** – Code Editor mit Python Syntax Highlighting
-- **[Drizzle ORM][drizzle_url]** – Type-safe Database ORM
-- **[PostgreSQL][postgres_url]** – Relationale Datenbank
-- **[NextAuth][nextauth_url]** – Authentication für Next.js
-- **[Framer Motion][framer_url]** – Animation Library
-- **[Playwright][playwright_url]** – End-to-End Testing
-- **[Biome][biome_url]** – Fast Linter und Formatter
+- **[React 19][react_url]** – UI library
+- **[Vercel AI SDK][vercel_ai_url]** – AI/LLM integration with multi-provider support
+- **[Pyodide][pyodide_url]** – Python in browser (pandas, matplotlib, numpy)
+- **[Tailwind CSS][tailwind_url]** – Utility-first CSS framework
+- **[Radix UI][radix_url]** – Accessible component primitives
+- **[CodeMirror][codemirror_url]** – Code editor with Python syntax highlighting
+- **[Drizzle ORM][drizzle_url]** – Type-safe database ORM
+- **[PostgreSQL][postgres_url]** – Relational database
+- **[NextAuth][nextauth_url]** – Authentication for Next.js
+- **[Framer Motion][framer_url]** – Animation library
+- **[Playwright][playwright_url]** – End-to-end testing
+- **[Biome][biome_url]** – Fast linter and formatter
 
 <div align="right">
 
@@ -131,11 +133,11 @@ Das Projekt nutzt einen modernen Web-Stack:
 
 ## 🏆 Contributing
 
-Contributions sind willkommen! Bitte beachte:
+Contributions are welcome! Please note:
 
 - **Issues:** [Bug Reports & Feature Requests][issues_url]
-- **Pull Requests:** Code Improvements & Bug Fixes
-- **Guidelines:** TypeScript Strict Mode, Biome Formatting, Tests schreiben
+- **Pull Requests:** Code improvements & bug fixes
+- **Guidelines:** TypeScript strict mode, Biome formatting, write tests
 
 ### Development Guidelines
 
@@ -152,7 +154,7 @@ Contributions sind willkommen! Bitte beachte:
 
 ## ⚠️ License
 
-[IFG Agentic][repo_url] ist Free und Open-Source Software unter der [MIT License][license_url].
+[IFG Agentic][repo_url] is free and open-source software licensed under the [MIT License][license_url].
 
 <div align="right">
 
@@ -204,7 +206,7 @@ Built with [Vercel AI SDK][vercel_ai_url] • Powered by [data.gv.at][datagvat_u
 [repo_url]: https://github.com/julian-at/ifg-agentic
 [issues_url]: https://github.com/julian-at/ifg-agentic/issues
 [license_url]: https://github.com/julian-at/ifg-agentic/blob/main/LICENSE
-[readme_en_url]: https://github.com/julian-at/ifg-agentic/blob/main/README_EN.md
+[readme_de_url]: https://github.com/julian-at/ifg-agentic/blob/main/README.md
 
 <!-- External Links -->
 [datagvat_url]: https://www.data.gv.at/

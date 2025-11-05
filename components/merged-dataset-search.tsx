@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { cn } from "./multistep-form";
 import { useArtifact } from "@/hooks/use-artifact";
+import { ShinyText } from "./shiny-text";
 
 interface DatasetSearchResult {
   id: string;
@@ -95,10 +96,10 @@ export function MergedDatasetSearch({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <AnimatedShinyText className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row gap-2 items-center">
           <Search className="w-4 h-4" />
-          Suche nach {originalQuery}...
-        </AnimatedShinyText>
+          <ShinyText text={`Suche nach ${originalQuery}...`} />
+        </div>
 
         {allKeywords.length > 0 && (
           <motion.div

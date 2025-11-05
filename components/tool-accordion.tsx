@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { motion, AnimatePresence } from "framer-motion";
+import { ShinyText } from "./shiny-text";
 
 interface ToolAccordionProps {
   icon: ReactNode;
@@ -31,10 +32,10 @@ export const ToolAccordion = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <AnimatedShinyText className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row gap-2 items-center">
           {icon}
-          {loadingText}
-        </AnimatedShinyText>
+          <ShinyText text={loadingText} />
+        </div>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

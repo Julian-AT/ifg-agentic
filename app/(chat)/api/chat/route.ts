@@ -256,7 +256,7 @@ export async function POST(request: Request) {
 
         dataStream.merge(
           result.toUIMessageStream({
-            sendReasoning: selectedChatModel === "google/gemini-2.5-pro-reasoning",
+            sendReasoning: true
           })
         );
       },

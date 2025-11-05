@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight, Database } from "lucide-react";
 import { DatasetDetailsWidget, DatasetResult } from "./dataset-details-widget";
 import { AnimatedShinyText } from "@/components/animated-shiny-text";
 import { DatasetDetailsSkeleton } from "./dataset-skeletons";
+import { ShinyText } from "./shiny-text";
 
 interface MergedDatasetResult {
   toolCallId: string;
@@ -37,10 +38,10 @@ export function MergedDatasetDetails({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <AnimatedShinyText className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row gap-2 items-center">
           <Database className="w-4 h-4" />
-          Lade Datensatz-Details...
-        </AnimatedShinyText>
+          <ShinyText text="Lade Datensatz-Details..." />
+        </div>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

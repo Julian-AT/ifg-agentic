@@ -41,6 +41,7 @@ import {
 } from "./elements/task";
 import { Database, FileSpreadsheet, Code, BarChart3 } from "lucide-react";
 import { useArtifact } from "@/hooks/use-artifact";
+import { ShinyText } from "./shiny-text";
 
 const findMatchingOutputPart = (
   inputPart: any,
@@ -80,30 +81,6 @@ const shouldSkipOutputPart = (
   return false;
 };
 
-const findConsecutiveSearchDatasets = (
-  allParts: any[],
-  startIndex: number
-): { searchParts: any[]; endIndex: number } => {
-  const searchParts: any[] = [];
-  let currentIndex = startIndex;
-
-  if (allParts[currentIndex]?.type === "tool-searchDatasets") {
-    searchParts.push(allParts[currentIndex]);
-
-    for (let i = currentIndex + 1; i < allParts.length; i++) {
-      const part = allParts[i];
-
-      if (part.type !== "tool-searchDatasets") {
-        break;
-      }
-
-      searchParts.push(part);
-      currentIndex = i;
-    }
-  }
-
-  return { searchParts, endIndex: currentIndex };
-};
 
 const groupSearchParts = (searchParts: any[]): any[] => {
   const groupedSearches: any[] = [];
@@ -155,7 +132,7 @@ const groupDatasetDetailsParts = (datasetParts: any[]): any[] => {
         groupedDatasets.push({
           toolCallId: part.toolCallId,
           datasetId: part.input?.id || "unknown",
-          result: dataset.result,
+          result: dataset,
         });
       }
     }
@@ -281,12 +258,17 @@ const PurePreviewMessage = ({
                     />
                   );
                 } else {
-                  // Skip all other searchDatasets parts since they're handled above
                   return null;
                 }
               }
 
+              if (type === "reasoning") {
+                console.log("reasoning", part);
+
+              }
+
               if (type === "reasoning" && part.text?.trim().length > 0) {
+
                 return (
                   <MessageReasoning
                     key={key}
@@ -421,32 +403,19 @@ const PurePreviewMessage = ({
               if (type === "tool-exploreCsvData" && "toolCallId" in part) {
                 const { toolCallId, state } = part as any;
 
+                if (state === "input-available") {
+                  return (
+                    <div className="flex flex-row gap-2 items-center text-muted-foreground">
+                      <FileText className="w-4 h-4" />
+                      <ShinyText text="Analysiere CSV-Daten..." />
+                    </div>
+                  );
+                }
                 return (
-                  <Tool defaultOpen={true} key={toolCallId} className={cn({
-                    "max-w-[400px]": artifact.isVisible,
-                  })}>
-                    <ToolHeader state={state} type="tool-exploreCsvData" />
-                    <ToolContent>
-                      {state === "input-available" && (
-                        <ToolInput input={part.input} />
-                      )}
-                      <ToolOutput
-                        errorText={undefined}
-                        output={
-                          part.output && "error" in part.output ? (
-                            <div className="rounded border p-2 text-red-500">
-                              Error: {String(part.output.error)}
-                            </div>
-                          ) : (
-                            <div className="rounded-lg border bg-muted/30 p-3">
-                              <pre className="text-xs overflow-x-auto whitespace-pre-wrap font-mono">
-                                {JSON.stringify(part.output, null, 2)}
-                              </pre>
-                            </div>
-                          )}
-                      />
-                    </ToolContent>
-                  </Tool>
+                  <div className="flex flex-row gap-2 items-center text-muted-foreground">
+                    <FileText className="w-4 h-4" />
+                    CSV-Daten analysiert
+                  </div>
                 );
               }
 

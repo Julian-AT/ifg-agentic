@@ -15,10 +15,10 @@ type SuggestedActionsProps = {
 
 function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
   const suggestedActions = [
-    "Zeige mir Daten zum Bevölkerungswachstum",
-    "Welche öffentlichen Verkehrsdaten sind verfügbar?",
-    "Hilf mir bei der Suche nach Umweltdaten",
-    "Zeige mir Finanzdaten für Wien",
+    "Finde aktuelle Statistiken zur Arbeitslosigkeit in Österreich",
+    "Welche offenen Bildungsdaten gibt es für meine Region?",
+    "Zeige mir Umweltindikatoren zum Klimawandel",
+    "Liste die wichtigsten Gesundheitsdaten für Wien auf",
   ];
 
   return (

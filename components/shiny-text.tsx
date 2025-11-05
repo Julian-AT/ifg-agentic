@@ -1,28 +1,22 @@
-import React from 'react';
+"use client"
 
-interface ShinyTextProps {
-    text: string;
-    disabled?: boolean;
-    speed?: number;
-    className?: string;
-}
+import * as React from "react"
 
-const ShinyText: React.FC<ShinyTextProps> = ({ text, disabled = false, speed = 5, className = '' }) => {
-    const animationDuration = `${speed}s`;
+import { motion } from "framer-motion";
 
+export function ShinyText({ text }: { text: string }) {
     return (
-        <div
-            className={`text-[#b5b5b5a4] bg-clip-text inline-block ${disabled ? '' : 'animate-shine'} ${className}`}
-            style={{
-                backgroundImage: 'linear-gradient(120deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 60%)',
-                backgroundSize: '200% 100%',
-                WebkitBackgroundClip: 'text',
-                animationDuration: animationDuration,
+        <motion.h1
+            className="bg-[linear-gradient(110deg,#71717b,35%,#ecfdf5,50%,#71717b,75%,#71717b)] bg-[length:200%_100%] bg-clip-text text-base font-regular text-transparent"
+            initial={{ backgroundPosition: "200% 0" }}
+            animate={{ backgroundPosition: "-200% 0" }}
+            transition={{
+                repeat: Infinity,
+                duration: 3.5,
+                ease: "linear",
             }}
         >
             {text}
-        </div>
+        </motion.h1>
     );
-};
-
-export default ShinyText;
+}

@@ -39,7 +39,7 @@ export const sheetDocumentHandler = createDocumentHandler<"sheet">({
     }
 
     const { fullStream } = streamObject({
-      model: myProvider.languageModel("artifact-model"),
+      model: myProvider.languageModel("openai/gpt-5"),
       system: sheetPrompt,
       prompt: enhancedPrompt,
       schema: z.object({
@@ -78,7 +78,7 @@ export const sheetDocumentHandler = createDocumentHandler<"sheet">({
     let draftContent = "";
 
     const { fullStream } = streamObject({
-      model: myProvider.languageModel("artifact-model"),
+      model: myProvider.languageModel("openai/gpt-5"),
       system: updateDocumentPrompt(document.content, "sheet"),
       prompt: description,
       schema: z.object({

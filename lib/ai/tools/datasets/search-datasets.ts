@@ -12,7 +12,7 @@ interface DatasetToolsProps {
 export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
     tool({
         description:
-            'List datasets from the data catalog. Returns dataset URLs, identifiers, or metadata depending on valueType parameter. Supports pagination.',
+            'Search for datasets in the catalog by query. Returns dataset IDs and basic metadata. CRITICAL: After calling this, you MUST immediately call getDatasetDetails for each relevant dataset ID to display UI cards to the user. DO NOT describe the search results in text - use getDatasetDetails to show them properly.',
         inputSchema: z.object({
             q: z.string().optional().describe('Search query'),
             filter: z
@@ -115,7 +115,7 @@ export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
                 success: true,
                 data: datasets,
                 count: datasets.length,
-                message: `Found ${datasets.length} dataset(s) matching the search query.`,
+                message: `Found ${datasets.length} dataset(s). NEXT STEP: Call getDatasetDetails for 3-5 relevant dataset IDs from the results to display UI cards. DO NOT describe these results in text.`,
             };
         },
     });

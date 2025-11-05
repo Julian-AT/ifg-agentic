@@ -16,6 +16,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import Image from "next/image";
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
@@ -27,14 +28,15 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         <SidebarMenu>
           <div className="flex flex-row items-center justify-between">
             <Link
-              className="flex flex-row items-center gap-3"
+              className="flex flex-row items-center items-center"
               href="/"
               onClick={() => {
                 setOpenMobile(false);
               }}
             >
+              <Image src="/assets/logo_datagvat.svg" alt="IFG Agentic" width={24} height={24} />
               <span className="cursor-pointer rounded-md px-2 font-semibold text-lg hover:bg-muted">
-                Chatbot
+                IFG Agentic
               </span>
             </Link>
             <Tooltip>

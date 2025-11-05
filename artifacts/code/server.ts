@@ -39,7 +39,7 @@ export const codeDocumentHandler = createDocumentHandler<"code">({
     }
 
     const { fullStream } = streamObject({
-      model: myProvider.languageModel("artifact-model"),
+      model: myProvider.languageModel("openai/gpt-5"),
       system: codePrompt,
       prompt: enhancedPrompt,
       schema: z.object({
@@ -72,7 +72,7 @@ export const codeDocumentHandler = createDocumentHandler<"code">({
     let draftContent = "";
 
     const { fullStream } = streamObject({
-      model: myProvider.languageModel("artifact-model"),
+      model: myProvider.languageModel("openai/gpt-5"),
       system: updateDocumentPrompt(document.content, "code"),
       prompt: description,
       schema: z.object({

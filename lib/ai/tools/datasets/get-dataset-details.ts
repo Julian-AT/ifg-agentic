@@ -46,9 +46,8 @@ export const getDatasetDetails = ({ session, dataStream }: DatasetToolsProps) =>
                 throw new Error(`Failed to get dataset: ${response.status} ${response.statusText}`);
             }
 
-            const data = await response.json();
+            const { result: data } = await response.json();
 
-            // CRITICAL: Check if dataset has no distributions (no data files available)
             if (!data.distributions || data.distributions.length === 0) {
                 return {
                     success: false,

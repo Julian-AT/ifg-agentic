@@ -12,7 +12,7 @@ interface DatasetToolsProps {
 export const listDatasets = ({ session, dataStream }: DatasetToolsProps) =>
     tool({
         description:
-            'List datasets from the data catalog. Returns dataset URLs, identifiers, or metadata depending on valueType parameter. Supports pagination.',
+            'List datasets from the data catalog with filters and pagination. Returns dataset IDs and basic metadata. CRITICAL: After calling this, you MUST immediately call getDatasetDetails for each relevant dataset ID to display UI cards to the user. DO NOT describe the results in text - use getDatasetDetails to show them properly.',
         inputSchema: z.object({
             filter: z
                 .enum(['datasets'])
@@ -101,7 +101,7 @@ export const listDatasets = ({ session, dataStream }: DatasetToolsProps) =>
                 success: true,
                 data: results,
                 count: resultsArray.length,
-                message: `Found ${resultsArray.length} dataset(s) in the catalog.`,
+                message: `Found ${resultsArray.length} dataset(s). NEXT STEP: Call getDatasetDetails for 3-5 relevant dataset IDs from the results to display UI cards. DO NOT describe these results in text.`,
             };
         },
     });

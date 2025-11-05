@@ -31,13 +31,16 @@ export function ModelSelector({
   const { availableChatModelIds } = entitlementsByUserType[userType];
 
   const availableChatModels = chatModels.filter((chatModel) =>
-    availableChatModelIds.includes(chatModel.id)
+    availableChatModelIds.includes(chatModel.model)
   );
+
+  console.log(availableChatModels);
+
 
   const selectedChatModel = useMemo(
     () =>
       availableChatModels.find(
-        (chatModel) => chatModel.id === optimisticModelId
+        (chatModel) => chatModel.model === optimisticModelId
       ),
     [optimisticModelId, availableChatModels]
   );
@@ -56,29 +59,32 @@ export function ModelSelector({
           data-testid="model-selector"
           variant="outline"
         >
-          {selectedChatModel?.name}
+          {selectedChatModel?.model}
           <ChevronDownIcon />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="min-w-[280px] max-w-[90vw] sm:min-w-[300px]"
+        className="min-w-[280px] max-w-[90vw] sm:min-w-[300px] max-h-[500px]"
       >
         {availableChatModels.map((chatModel) => {
-          const { id } = chatModel;
+          const { model } = chatModel;
+
+          console.log("chatModel", chatModel);
+
 
           return (
             <DropdownMenuItem
               asChild
-              data-active={id === optimisticModelId}
-              data-testid={`model-selector-item-${id}`}
-              key={id}
+              data-active={model === optimisticModelId}
+              data-testid={`model-selector-item-${model}`}
+              key={model}
               onSelect={() => {
                 setOpen(false);
 
                 startTransition(() => {
-                  setOptimisticModelId(id);
-                  saveChatModelAsCookie(id);
+                  setOptimisticModelId(model);
+                  saveChatModelAsCookie(model);
                 });
               }}
             >
@@ -87,9 +93,9 @@ export function ModelSelector({
                 type="button"
               >
                 <div className="flex flex-col items-start gap-1">
-                  <div className="text-sm sm:text-base">{chatModel.name}</div>
+                  <div className="text-sm sm:text-base">{chatModel.model}</div>
                   <div className="line-clamp-2 text-muted-foreground text-xs">
-                    {chatModel.description}
+                    {chatModel.context}
                   </div>
                 </div>
 

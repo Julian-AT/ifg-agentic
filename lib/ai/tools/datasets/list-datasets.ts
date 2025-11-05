@@ -83,10 +83,25 @@ export const listDatasets = ({ session, dataStream }: DatasetToolsProps) =>
 
             const data = await response.json();
 
+            // Extract results from the response structure
+            const results = data.result?.results || data.results || data;
+            const resultsArray = Array.isArray(results) ? results : [];
+
+            // CRITICAL: Check for empty results to prevent hallucination
+            if (resultsArray.length === 0) {
+                return {
+                    success: false,
+                    data: [],
+                    count: 0,
+                    message: 'No datasets found. The catalog returned zero results. DO NOT make up or fabricate any data.',
+                };
+            }
+
             return {
                 success: true,
-                data,
-                count: Array.isArray(data) ? data.length : undefined,
+                data: results,
+                count: resultsArray.length,
+                message: `Found ${resultsArray.length} dataset(s) in the catalog.`,
             };
         },
     });

@@ -1,7 +1,6 @@
 "use client";
 
 import type { UseChatHelpers } from "@ai-sdk/react";
-import { Trigger } from "@radix-ui/react-select";
 import type { UIMessage } from "ai";
 import equal from "fast-deep-equal";
 import {
@@ -19,7 +18,6 @@ import {
 import { toast } from "sonner";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { saveChatModelAsCookie } from "@/app/(chat)/actions";
-import { SelectItem } from "@/components/ui/select";
 import { chatModels } from "@/lib/ai/models";
 import { myProvider } from "@/lib/ai/providers";
 import type { Attachment, ChatMessage } from "@/lib/types";
@@ -30,6 +28,8 @@ import {
   PromptInput,
   PromptInputModelSelect,
   PromptInputModelSelectContent,
+  PromptInputModelSelectItem,
+  PromptInputModelSelectTrigger,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
@@ -46,6 +46,7 @@ import { PreviewAttachment } from "./preview-attachment";
 import { SuggestedActions } from "./suggested-actions";
 import { Button } from "./ui/button";
 import type { VisibilityType } from "./visibility-selector";
+import Image from "next/image";
 
 function PureMultimodalInput({
   chatId,
@@ -194,10 +195,6 @@ function PureMultimodalInput({
       toast.error("Failed to upload file, please try again!");
     }
   }, []);
-
-  const _modelResolver = useMemo(() => {
-    return myProvider.languageModel(selectedModelId);
-  }, [selectedModelId]);
 
   const contextProps = useMemo(
     () => ({
@@ -375,7 +372,7 @@ function PureAttachmentsButton({
   status: UseChatHelpers<ChatMessage>["status"];
   selectedModelId: string;
 }) {
-  const isReasoningModel = selectedModelId === "chat-model-reasoning";
+  const isReasoningModel = selectedModelId === "google/gemini-2.5-pro-reasoning";
 
   return (
     <Button
@@ -409,44 +406,50 @@ function PureModelSelectorCompact({
   }, [selectedModelId]);
 
   const selectedModel = chatModels.find(
-    (model) => model.id === optimisticModelId
+    (model) => model.model === optimisticModelId
   );
 
   return (
     <PromptInputModelSelect
       onValueChange={(modelName) => {
-        const model = chatModels.find((m) => m.name === modelName);
+        const model = chatModels.find((m) => m.model === modelName);
         if (model) {
-          setOptimisticModelId(model.id);
-          onModelChange?.(model.id);
+          setOptimisticModelId(model.model);
+          onModelChange?.(model.model);
           startTransition(() => {
-            saveChatModelAsCookie(model.id);
+            saveChatModelAsCookie(model.model);
           });
         }
       }}
-      value={selectedModel?.name}
+      value={selectedModel?.model}
     >
-      <Trigger
-        className="flex h-8 items-center gap-2 rounded-lg border-0 bg-background px-2 text-foreground shadow-none transition-colors hover:bg-accent focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+      <PromptInputModelSelectTrigger
+        className="flex cursor-pointer h-8 items-center gap-2 rounded-lg border-0 bg-background px-2 text-foreground shadow-none transition-colors hover:bg-accent focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         type="button"
       >
-        <CpuIcon size={16} />
+        {selectedModel?.modelImage ? (
+          <Image src={selectedModel?.modelImage} alt={selectedModel?.model} width={18} height={18} className="rounded-full" />
+        ) : (
+          <CpuIcon size={16} />
+        )}
         <span className="hidden font-medium text-xs sm:block">
-          {selectedModel?.name}
+          {selectedModel?.model}
         </span>
         <ChevronDownIcon size={16} />
-      </Trigger>
-      <PromptInputModelSelectContent className="min-w-[260px] p-0">
-        <div className="flex flex-col gap-px">
-          {chatModels.map((model) => (
-            <SelectItem key={model.id} value={model.name}>
-              <div className="truncate font-medium text-xs">{model.name}</div>
-              <div className="mt-px truncate text-[10px] text-muted-foreground leading-tight">
-                {model.description}
-              </div>
-            </SelectItem>
-          ))}
-        </div>
+      </PromptInputModelSelectTrigger>
+      <PromptInputModelSelectContent className="min-w-[260px] max-h-[500px] overflow-y-auto">
+        {chatModels.map((model) => (
+          <PromptInputModelSelectItem key={model.model} value={model.model}>
+            <div className="flex items-center gap-2">
+              {model.modelImage ? (
+                <Image src={model.modelImage} alt={model.model} width={18} height={18} className="rounded-full" />
+              ) : (
+                <CpuIcon size={16} />
+              )}
+              <div className="truncate font-medium text-xs">{model.model}</div>
+            </div>
+          </PromptInputModelSelectItem>
+        ))}
       </PromptInputModelSelectContent>
     </PromptInputModelSelect>
   );

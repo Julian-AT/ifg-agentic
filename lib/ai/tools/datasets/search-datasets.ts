@@ -102,10 +102,20 @@ export const searchDatasets = ({ session, dataStream }: DatasetToolsProps) =>
 
             const datasets = data.result.results;
 
+            if (!datasets || datasets.length === 0) {
+                return {
+                    success: false,
+                    data: [],
+                    count: 0,
+                    message: `No datasets found for query: "${q || 'empty query'}". The search returned zero results. Try different search terms, broader keywords, or check spelling. DO NOT make up or fabricate any data.`,
+                };
+            }
+
             return {
                 success: true,
                 data: datasets,
                 count: datasets.length,
+                message: `Found ${datasets.length} dataset(s) matching the search query.`,
             };
         },
     });

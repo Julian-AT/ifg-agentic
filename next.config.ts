@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
       },
       {
         hostname: 'snyzk9sqnqm7uraj.public.blob.vercel-storage.com'
+      },
+      {
+        hostname: 'vercel.com',
       }
     ],
   },

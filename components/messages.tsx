@@ -93,7 +93,7 @@ function PureMessages({
           {status === "submitted" &&
             messages.length > 0 &&
             messages.at(-1)?.role === "user" &&
-            selectedModelId !== "chat-model-reasoning" && <ThinkingMessage />}
+            selectedModelId !== "google/gemini-2.5-pro-reasoning" && <ThinkingMessage />}
 
           <div
             className="min-h-[24px] min-w-[24px] shrink-0"

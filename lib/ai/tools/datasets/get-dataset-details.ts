@@ -36,14 +36,28 @@ export const getDatasetDetails = ({ session, dataStream }: DatasetToolsProps) =>
                 if (response.status === 404) {
                     return {
                         success: false,
-                        error: 'Dataset not found',
+                        error: `Dataset with ID "${id}" does not exist in the catalog. The dataset was not found (404). DO NOT make up or fabricate dataset information.`,
                         data: null,
+                        dataset: null,
+                        distributions: [],
+                        distributionsCount: 0,
                     };
                 }
                 throw new Error(`Failed to get dataset: ${response.status} ${response.statusText}`);
             }
 
             const data = await response.json();
+
+            // CRITICAL: Check if dataset has no distributions (no data files available)
+            if (!data.distributions || data.distributions.length === 0) {
+                return {
+                    success: false,
+                    error: `Dataset "${id}" has no available data distributions (no downloadable files). Cannot proceed with data analysis. DO NOT make up or fabricate data URLs.`,
+                    dataset: data,
+                    distributions: [],
+                    distributionsCount: 0,
+                };
+            }
 
             dataStream.write({
                 type: 'data-datasetSearchResult',

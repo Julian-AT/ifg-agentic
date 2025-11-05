@@ -17,7 +17,7 @@ export default async function Page() {
   const id = generateUUID();
 
   const cookieStore = await cookies();
-  const modelIdFromCookie = cookieStore.get('chat-model');
+  const modelIdFromCookie = cookieStore.get('google/gemini-2.5-pro');
 
   if (!modelIdFromCookie) {
     return (

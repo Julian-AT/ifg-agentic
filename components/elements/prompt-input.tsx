@@ -7,7 +7,7 @@ import type {
   HTMLAttributes,
   KeyboardEventHandler,
 } from "react";
-import { Children } from "react";
+import React, { Children, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -16,6 +16,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
@@ -183,49 +196,130 @@ export const PromptInputSubmit = ({
   );
 };
 
-export type PromptInputModelSelectProps = ComponentProps<typeof Select>;
+export type PromptInputModelSelectProps = {
+  value?: string;
+  onValueChange?: (value: string) => void;
+  children?: React.ReactNode;
+};
 
-export const PromptInputModelSelect = (props: PromptInputModelSelectProps) => (
-  <Select {...props} />
-);
+export const PromptInputModelSelect = ({
+  value,
+  onValueChange,
+  children,
+}: PromptInputModelSelectProps) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      {Children.map(children, (child) => {
+        if (React.isValidElement(child)) {
+          return React.cloneElement(child as React.ReactElement<any>, {
+            value,
+            onValueChange,
+            open,
+            setOpen,
+          });
+        }
+        return child;
+      })}
+    </Popover>
+  );
+};
 
 export type PromptInputModelSelectTriggerProps = ComponentProps<
-  typeof SelectTrigger
->;
+  typeof PopoverTrigger
+> & {
+  open?: boolean;
+};
 
 export const PromptInputModelSelectTrigger = ({
   className,
+  open,
   ...props
 }: PromptInputModelSelectTriggerProps) => (
-  <SelectTrigger
-    className={cn(
-      "border-none bg-transparent font-medium text-muted-foreground shadow-none transition-colors",
-      "hover:bg-accent hover:text-foreground aria-expanded:bg-accent aria-expanded:text-foreground",
-      "h-auto px-2 py-1.5",
-      className
-    )}
-    {...props}
-  />
+  <PopoverTrigger asChild>
+    <Button
+      className={cn(
+        "border-none bg-transparent font-medium text-muted-foreground shadow-none transition-colors",
+        "hover:bg-accent hover:text-foreground aria-expanded:bg-accent aria-expanded:text-foreground",
+        "h-auto px-2 py-1.5",
+        className
+      )}
+      role="combobox"
+      aria-expanded={open}
+      {...props}
+    />
+  </PopoverTrigger>
 );
 
 export type PromptInputModelSelectContentProps = ComponentProps<
-  typeof SelectContent
->;
+  typeof PopoverContent
+> & {
+  value?: string;
+  onValueChange?: (value: string) => void;
+  setOpen?: (open: boolean) => void;
+};
 
 export const PromptInputModelSelectContent = ({
   className,
+  value,
+  onValueChange,
+  setOpen,
+  children,
   ...props
 }: PromptInputModelSelectContentProps) => (
-  <SelectContent className={cn(className)} {...props} />
+  <PopoverContent className={cn("p-0", className)} {...props}>
+    <Command>
+      <CommandInput placeholder="Modell auswählen..." className="h-9" />
+      <CommandList>
+        <CommandEmpty>No model found.</CommandEmpty>
+        <CommandGroup>
+          {Children.map(children, (child) => {
+            if (React.isValidElement(child)) {
+              return React.cloneElement(child as React.ReactElement<any>, {
+                currentValue: value,
+                onValueChange,
+                setOpen,
+              });
+            }
+            return child;
+          })}
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  </PopoverContent>
 );
 
-export type PromptInputModelSelectItemProps = ComponentProps<typeof SelectItem>;
+export type PromptInputModelSelectItemProps = {
+  value: string;
+  onValueChange?: (value: string) => void;
+  currentValue?: string;
+  setOpen?: (open: boolean) => void;
+  className?: string;
+  children?: React.ReactNode;
+};
 
 export const PromptInputModelSelectItem = ({
   className,
+  value: itemValue,
+  onValueChange,
+  currentValue,
+  setOpen,
+  children,
   ...props
 }: PromptInputModelSelectItemProps) => (
-  <SelectItem className={cn(className)} {...props} />
+  <CommandItem
+    key={itemValue}
+    value={itemValue}
+    onSelect={(selectedValue) => {
+      onValueChange?.(selectedValue === currentValue ? "" : selectedValue);
+      setOpen?.(false);
+    }}
+    className={cn(className)}
+    {...props}
+  >
+    {children}
+  </CommandItem>
 );
 
 export type PromptInputModelSelectValueProps = ComponentProps<

@@ -62,9 +62,21 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
       try {
         const id = generateUUID();
 
-        if (kind.includes('analysis') || kind.includes('visualization')) {
-          if (!dataUrl && !csvStructure) {
-            // Data analysis task without data URL or structure
+        if (kind === 'code' || kind === 'sheet') {
+          if (!dataUrl) {
+            throw new Error(
+              "CRITICAL: Cannot create data artifact without a valid dataUrl. " +
+              "You MUST first call getDatasetDetails to get the access_url from distributions, " +
+              "then call exploreCsvData with that URL. DO NOT make up or fabricate URLs."
+            );
+          }
+
+          if (!csvStructure || !csvStructure.columns || csvStructure.columns.length === 0) {
+            throw new Error(
+              "CRITICAL: Cannot create data artifact without valid csvStructure. " +
+              "You MUST first call exploreCsvData to get the exact column names and structure. " +
+              "DO NOT make up or assume column names."
+            );
           }
         }
 

@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     }: {
       id: string;
       message: ChatMessage;
-      selectedChatModel: ChatModel["id"];
+      selectedChatModel: ChatModel["model"];
       selectedVisibilityType: VisibilityType;
     } = requestBody;
 
@@ -179,9 +179,9 @@ export async function POST(request: Request) {
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages: convertToModelMessages(uiMessages),
-          stopWhen: stepCountIs(5),
+          stopWhen: stepCountIs(25),
           experimental_transform: smoothStream({ chunking: "word" }),
-          activeTools: selectedChatModel !== "chat-model-reasoning" ?
+          activeTools: selectedChatModel !== "google/gemini-2.5-pro-reasoning" ?
             [
               "createDocument",
               "updateDocument",
@@ -205,7 +205,7 @@ export async function POST(request: Request) {
             exploreCsvData: exploreCsvData({ session, dataStream }),
             createAnalysisPlan: createAnalysisPlan({ session, dataStream }),
           },
-          ...(selectedChatModel === "chat-model-reasoning" && {
+          ...(selectedChatModel === "google/gemini-2.5-pro-reasoning" && {
             providerOptions: {
               openai: {
                 reasoningSummary: "detailed",
@@ -256,7 +256,7 @@ export async function POST(request: Request) {
 
         dataStream.merge(
           result.toUIMessageStream({
-            sendReasoning: selectedChatModel === "chat-model-reasoning",
+            sendReasoning: selectedChatModel === "google/gemini-2.5-pro-reasoning",
           })
         );
       },

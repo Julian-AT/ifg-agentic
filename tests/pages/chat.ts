@@ -4,7 +4,7 @@ import { chatModels } from '@/lib/ai/models';
 import { expect, type Page } from '@playwright/test';
 
 export class ChatPage {
-  constructor(private page: Page) {}
+  constructor(private page: Page) { }
 
   public get sendButton() {
     return this.page.getByTestId('send-button');
@@ -103,7 +103,7 @@ export class ChatPage {
 
   public async chooseModelFromSelector(chatModelId: string) {
     const chatModel = chatModels.find(
-      (chatModel) => chatModel.id === chatModelId,
+      (chatModel) => chatModel.model === chatModelId,
     );
 
     if (!chatModel) {
@@ -112,7 +112,7 @@ export class ChatPage {
 
     await this.page.getByTestId('model-selector').click();
     await this.page.getByTestId(`model-selector-item-${chatModelId}`).click();
-    expect(await this.getSelectedModel()).toBe(chatModel.name);
+    expect(await this.getSelectedModel()).toBe(chatModel.model);
   }
 
   public async getSelectedVisibility() {
@@ -149,8 +149,8 @@ export class ChatPage {
       .then(async (visible) =>
         visible
           ? await lastMessageElement
-              .getByTestId('message-reasoning')
-              .innerText()
+            .getByTestId('message-reasoning')
+            .innerText()
           : null,
       )
       .catch(() => null);

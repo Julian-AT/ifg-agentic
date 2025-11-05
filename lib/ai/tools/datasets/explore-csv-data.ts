@@ -70,13 +70,13 @@ export const exploreCsvData = ({ session, dataStream }: DatasetToolsProps) =>
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}. The CSV file could not be accessed at this URL. DO NOT proceed with data analysis or make up data.`);
                 }
 
                 const csvText = await response.text();
 
                 if (!csvText || csvText.trim().length === 0) {
-                    throw new Error("CSV file is empty or could not be read");
+                    throw new Error("CSV file is empty or could not be read. The data source contains no data. DO NOT make up or fabricate data.");
                 }
 
                 const analysisResult = analyzeCsvStructure(csvText, sampleSize);

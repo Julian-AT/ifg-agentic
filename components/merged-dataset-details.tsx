@@ -77,8 +77,7 @@ export function MergedDatasetDetails({
       <motion.button
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="flex flex-row gap-2 items-center text-muted-foreground hover:text-foreground transition-colors text-left group"
-        whileHover={{ scale: 1.01 }}
+        className="flex flex-row gap-2 items-center text-muted-foreground hover:text-foreground transition-colors text-left group cursor-pointer"
         whileTap={{ scale: 0.99 }}
       >
         <motion.div

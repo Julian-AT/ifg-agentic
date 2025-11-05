@@ -138,6 +138,10 @@ export class ChatPage {
       .all();
     const lastMessageElement = messageElements.at(-1);
 
+    if (!lastMessageElement) {
+      throw new Error('No assistant message found');
+    }
+
     const content = await lastMessageElement
       .getByTestId('message-content')
       .innerText()

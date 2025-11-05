@@ -16,7 +16,7 @@ type CreateDocumentProps = {
 export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
   tool({
     description:
-      "Create executable Python code artifacts for computational tasks such as data visualization, AI/ML model creation, statistical analysis, or data processing. Use this tool for ALL Python code generation - NEVER write Python code in chat responses. CRITICAL: When working with CSV data, you MUST provide the dataUrl parameter with the exact access_url[0] from the dataset's distributions array. DO NOT use this for displaying dataset information - use getDatasetDetails and other data tools instead for information display.",
+      "Create executable Python code artifacts for computational tasks such as data visualization, AI/ML model creation, statistical analysis, or data processing. Use this tool for ALL Python code generation - NEVER write Python code in chat responses. CRITICAL RULES: (1) ONLY call this tool when you have ALL required data (dataUrl AND csvStructure with columns). (2) If you're missing data, explain in your chat response what's needed and DO NOT call this tool. (3) Artifacts must contain ONLY executable Python code - NO explanatory text or error messages. (4) When working with CSV data, you MUST provide the dataUrl parameter with the exact access_url[0] from the dataset's distributions array. DO NOT use this for displaying dataset information - use getDatasetDetails and other data tools instead for information display.",
     inputSchema: z.object({
       title: z
         .string()

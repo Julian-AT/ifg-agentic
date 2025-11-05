@@ -1,19 +1,17 @@
 <div align="center">
 
-![IFG Agentic](public/thumbnail.png)
+<img src="public/thumbnail.png" alt="IFG Agentic" width="100%" height="100%" style="border-radius: 10px; box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);">
 
 <a name="readme-top"></a>
 
 # IFG Agentic
 
-AI-powered assistant for discovering, analyzing and visualizing<br/>**Austrian Open Data** datasets from **[data.gv.at][datagvat_url]**<br/>– entirely in your browser with **Python** code generation.
+Discover, Analyze and Visualize Austrian datasets from **[data.gv.at][datagvat_url]**<br/>– entirely in your browser.
 
 [![Next.js][nextjs_badge]][nextjs_url]
 [![TypeScript][typescript_badge]][typescript_url]
 [![React][react_badge]][react_url]
 [![License][license_badge]][license_url]
-
-**&searr;&nbsp;&nbsp;Documentation & Quick Links&nbsp;&nbsp;&swarr;**
 
 [Deutsche Version][readme_de_url] · [English Version](#readme-top)
 
@@ -23,92 +21,24 @@ AI-powered assistant for discovering, analyzing and visualizing<br/>**Austrian O
 
 </div>
 
-## ✨ Features
+## Features
 
-- **Zero Setup** – No Python installation required, runs entirely in browser via [Pyodide][pyodide_url].
-- **Multi-Model AI** – Supports [Google Gemini][gemini_url], [OpenAI GPT][openai_url] and [xAI Grok][xai_url] out-of-the-box.
+
+- **Zero Setup** – Only browser needed, Python runs via [Pyodide][pyodide_url].
+- **Multi-Model AI** – Support for 100+ models.
 - **Natural Language Search** – Search the [data.gv.at][datagvat_url] catalog with natural language.
 - **Automatic CSV Analysis** – Detects delimiters, encoding and data types automatically.
 - **Code Generation** – Generates executable Python code (pandas/matplotlib) for analysis and visualization.
-- **Anti-Hallucination System** – Built-in safeguards prevent AI from using fabricated data.
-- **Austrian Data Conventions** – Understands DD.MM.YYYY date formats and comma decimal separators.
-- **Browser-Based Execution** – Code runs directly in browser without backend dependencies.
-- **Interactive Spreadsheets** – Displays data in editable grid views.
-- **Flexible Authentication** – Guest access or registered accounts with different permissions.
-- **Live Reload** – Development mode with automatic reload for frontend and backend.
-- **Production Ready** – Includes Dockerfile and Docker Compose for easy deployment.
+- **Safeguards** – Safeguards prevent AI from using fabricated data.
+- **Date Format** – Understands DD.MM.YYYY date formats and comma decimal separators.
+- **Browser only** – Code runs directly in browser without backend dependencies.
+- **Table View** – Displays data in editable tables.
 
 <div align="right">
 
-[&nwarr; Back to top](#readme-top)
-
 </div>
 
-## ⚡️ Quick Start
-
-> [!NOTE]
-> Make sure **Node.js 18.17+**, **pnpm 9.12.3+** and a **PostgreSQL** database are available.
-
-Clone the repository and install dependencies:
-
-```bash
-git clone https://github.com/julian-at/ifg-agentic.git
-cd ifg-agentic
-pnpm install
-```
-
-Create `.env.local` and configure environment variables:
-
-```env
-# Database
-POSTGRES_URL=postgresql://user:password@localhost:5432/ifg_agentic
-
-# Authentication
-AUTH_SECRET=your-secret-key-here
-
-# AI Models (at least one required)
-OPENAI_API_KEY=sk-...
-GOOGLE_GENERATIVE_AI_API_KEY=...
-XAI_API_KEY=xai-...
-
-# Optional
-REDIS_URL=redis://localhost:6379
-```
-
-Setup database and start dev server:
-
-```bash
-pnpm db:migrate
-pnpm dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) – done! 🎉
-
-<div align="right">
-
-[&nwarr; Back to top](#readme-top)
-
-</div>
-
-### 📦 Alternative Installation via Docker
-
-For quick setup with Docker:
-
-```bash
-docker-compose up -d
-```
-
-The application will run on [http://localhost:3000](http://localhost:3000).
-
-<div align="right">
-
-[&nwarr; Back to top](#readme-top)
-
-</div>
-
-## 🛠️ Tech Stack
-
-The project uses a modern web stack:
+## Tech Stack
 
 - **[Next.js 15][nextjs_url]** – React framework with App Router and Server Components
 - **[TypeScript][typescript_url]** – Type-safe JavaScript
@@ -127,46 +57,11 @@ The project uses a modern web stack:
 
 <div align="right">
 
-[&nwarr; Back to top](#readme-top)
-
 </div>
-
-## 🏆 Contributing
-
-Contributions are welcome! Please note:
-
-- **Issues:** [Bug Reports & Feature Requests][issues_url]
-- **Pull Requests:** Code improvements & bug fixes
-- **Guidelines:** TypeScript strict mode, Biome formatting, write tests
-
-### Development Guidelines
-
-- Follow TypeScript strict type checking
-- Use Biome for code formatting (`pnpm format`)
-- Write tests for new features
-- Ensure all tests pass before submitting
-
-<div align="right">
-
-[&nwarr; Back to top](#readme-top)
-
-</div>
-
-## ⚠️ License
-
-[IFG Agentic][repo_url] is free and open-source software licensed under the [MIT License][license_url].
-
-<div align="right">
-
-[&nwarr; Back to top](#readme-top)
-
-</div>
-
----
 
 <div align="center">
 
-Made for Austrian Open Data Transparency 🇦🇹
+Made for Open-Data Transparency 🇦🇹
 
 Built with [Vercel AI SDK][vercel_ai_url] • Powered by [data.gv.at][datagvat_url]
 

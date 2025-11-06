@@ -44,7 +44,7 @@ import { exploreCsvData, listDatasets, searchDatasets } from "@/lib/ai/tools/dat
 import { getDatasetDetails } from "@/lib/ai/tools/datasets/get-dataset-details";
 import { createAnalysisPlan } from "@/lib/ai/tools/analysis";
 
-export const maxDuration = 60;
+export const maxDuration = 180;
 
 let globalStreamContext: ResumableStreamContext | null = null;
 
